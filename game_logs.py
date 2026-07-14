@@ -13,7 +13,7 @@ BLUE = "\033[94m"
 GREEN = "\033[92m"
 YELLOW = "\033[93m"
 RED = "\033[91m"
-CYAN = "\033[96m"
+CYAN = "\033[96m"  # Digunakan untuk INFO agar sangat kontras di PowerShell
 
 _print_lock = asyncio.Lock()
 
@@ -27,7 +27,7 @@ async def log_msg(bot_name: str, level: str, message: str):
     
     lvl = level.upper()
     if lvl == "INFO":
-        color = BLUE
+        color = CYAN  # Menggunakan CYAN terang agar terbaca jelas di background biru PowerShell
     elif lvl == "SUCCESS":
         color = GREEN
     elif lvl == "WARN":
@@ -35,7 +35,7 @@ async def log_msg(bot_name: str, level: str, message: str):
     elif lvl == "ERROR":
         color = RED
     elif lvl == "DEBUG":
-        color = CYAN
+        color = BLUE
 
     formatted = f"[{timestamp}] [{color}{lvl}{RESET}] [{bot_name}] -> {message}"
     

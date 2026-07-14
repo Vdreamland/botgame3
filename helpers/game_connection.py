@@ -22,10 +22,8 @@ async def connect_and_join_room(
     await log_callback("INFO", "Opening secure connection to game server...")
     
     try:
-        # Membuka koneksi WebSocket menggunakan 'additional_headers' untuk versi websockets>=11.0
         websocket = await websockets.connect(ws_url, additional_headers=headers)
         
-        # 1. Membaca Frame 'welcome'
         welcome_msg = await websocket.recv()
         welcome_data = json.loads(welcome_msg)
         
@@ -42,7 +40,6 @@ async def connect_and_join_room(
             await websocket.close()
             return None
         
-        # Menentukan entryType berdasarkan instruksi decision server
         entry_type = room_preference
         if decision == "FREE_ONLY":
             entry_type = "free"
@@ -51,7 +48,6 @@ async def connect_and_join_room(
             
         await log_callback("INFO", f"Requesting matchmaking entry for {entry_type.upper()} room...")
         
-        # 2. Mengirimkan Frame Handshake 'hello'
         hello_payload = {
             "type": "hello",
             "entryType": entry_type,
@@ -59,7 +55,6 @@ async def connect_and_join_room(
         }
         await websocket.send(json.dumps(hello_payload))
         
-        # 3. Mendengarkan Frame Antrean & Status Pertarungan
         async for message in websocket:
             data = json.loads(message)
             msg_type = data.get("type")
@@ -68,7 +63,6 @@ async def connect_and_join_room(
                 await log_callback("INFO", "Waiting in matchmaking queue...")
             elif msg_type in ["assigned", "joined", "joined_game"]:
                 game_id = data.get("gameId", "UNKNOWN")
-                # Memotong UUID panjang menjadi 8 karakter saja agar lebih rapi
                 short_id = game_id[:8] if len(game_id) > 8 else game_id
                 await log_callback("SUCCESS", f"Match Found! Successfully joined game room (ID: {short_id})")
                 return websocket
@@ -83,5 +77,31 @@ async def connect_and_join_room(
         await log_callback("ERROR", f"Connection closed abruptly (Code: {e.code})")
     except Exception as e:
         await log_callback("ERROR", f"Connection failed: {str(e)}")
+        
+    return None
+
+async def connect_and_resume_game(
+    api_key: str,
+    version: str,
+    ws_url: str,
+    log_callback: Callable[[str, str], Awaitable[None]]
+) -> Optional[websockets.WebSocketClientProtocol]:
+    """
+    SOT Rule: IN_GAME -> Menghubungkan kembali agen yang sedang dalam permainan aktif ke arena
+    menggunakan rute WebSocket resmi /ws/agent (WS_GAMEPLAY_URL).
+    """
+    headers = {
+        "Authorization": f"mr-auth {api_key}",
+        "X-Version": version
+    }
+    
+    await log_callback("INFO", "Reconnecting to active game session...")
+    
+    try:
+        websocket = await websockets.connect(ws_url, additional_headers=headers)
+        await log_callback("SUCCESS", "Successfully reconnected to active arena! Listening to game updates...")
+        return websocket
+    except Exception as e:
+        await log_callback("ERROR", f"Failed to reconnect to active arena: {str(e)}")
         
     return None

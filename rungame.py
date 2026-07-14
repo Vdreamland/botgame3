@@ -4,9 +4,9 @@ import asyncio
 import requests
 from dotenv import load_dotenv
 from game_logs import log_msg
-from helpers.api_config import get_bots_config, BASE_URL, WS_URL
+from helpers.api_config import get_bots_config, BASE_URL, WS_URL, WS_GAMEPLAY_URL
 from helpers.state_router import check_agent_state
-from helpers.game_connection import connect_and_join_room
+from helpers.game_connection import connect_and_join_room, connect_and_resume_game
 
 # Memuat konfigurasi berkas .env
 load_dotenv()
@@ -41,23 +41,34 @@ async def run_bot_instance(bot_config: dict, version: str):
     elif state == "NO_ACCOUNT":
         await log_msg(bot_name, "ERROR", "Credentials rejected/unauthorized.")
         return
-    elif state == "IN_GAME":
-        game_id = data.get("id", "N/A")
-        short_id = game_id[:8] if len(game_id) > 8 else game_id
-        await log_msg(bot_name, "SUCCESS", f"Bot is already active in an ongoing game (ID: {short_id})")
-        return
 
-    # 2. Buka Koneksi WebSocket & Gabung Antrean Room
+    # Inisialisasi callback log untuk WebSocket helper
     async def bot_log_callback(level: str, msg: str):
         await log_msg(bot_name, level, msg)
 
-    ws_session = await connect_and_join_room(
-        api_key=api_key,
-        version=version,
-        ws_url=WS_URL,
-        room_preference=preference,
-        log_callback=bot_log_callback
-    )
+    ws_session = None
+
+    if state == "IN_GAME":
+        game_id = data.get("id", "N/A")
+        short_id = game_id[:8] if len(game_id) > 8 else game_id
+        await log_msg(bot_name, "SUCCESS", f"Bot is already active in an ongoing game (ID: {short_id})")
+        
+        # SOT Rule: Jika terdeteksi sedang bermain, langsung sambungkan ke /ws/agent
+        ws_session = await connect_and_resume_game(
+            api_key=api_key,
+            version=version,
+            ws_url=WS_GAMEPLAY_URL,
+            log_callback=bot_log_callback
+        )
+    else:
+        # READY_FREE atau READY_PAID -> Masuk ke antrean pencocokan room baru via /ws/join
+        ws_session = await connect_and_join_room(
+            api_key=api_key,
+            version=version,
+            ws_url=WS_URL,
+            room_preference=preference,
+            log_callback=bot_log_callback
+        )
 
     if ws_session:
         try:
