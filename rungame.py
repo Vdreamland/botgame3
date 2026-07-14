@@ -1,4 +1,5 @@
 import os
+import sys
 import asyncio
 import requests
 from dotenv import load_dotenv
@@ -29,19 +30,21 @@ async def run_bot_instance(bot_config: dict, version: str):
     api_key = bot_config["api_key"]
     preference = bot_config["room_preference"]
 
-    await log_msg(bot_name, "INFO", f"Initializing agent thread. Room Preference: {preference}")
+    await log_msg(bot_name, "INFO", f"Preparing bot to join a {preference.upper()} room...")
 
     # 1. Verifikasi Status Agen via REST API
     state, data = check_agent_state(api_key, version, preference)
     
     if state == "ERROR":
-        await log_msg(bot_name, "ERROR", f"REST pre-check failed: {data}")
+        await log_msg(bot_name, "ERROR", f"Account pre-check failed: {data}")
         return
     elif state == "NO_ACCOUNT":
-        await log_msg(bot_name, "ERROR", f"Account credentials rejected: {data}")
+        await log_msg(bot_name, "ERROR", "Credentials rejected/unauthorized.")
         return
     elif state == "IN_GAME":
-        await log_msg(bot_name, "SUCCESS", f"Already in an active game session! Game ID: {data.get('id', 'N/A')}")
+        game_id = data.get("id", "N/A")
+        short_id = game_id[:8] if len(game_id) > 8 else game_id
+        await log_msg(bot_name, "SUCCESS", f"Bot is already active in an ongoing game (ID: {short_id})")
         return
 
     # 2. Buka Koneksi WebSocket & Gabung Antrean Room
@@ -58,12 +61,12 @@ async def run_bot_instance(bot_config: dict, version: str):
 
     if ws_session:
         try:
-            await log_msg(bot_name, "SUCCESS", "Room entry confirmed. Holding websocket active...")
+            await log_msg(bot_name, "SUCCESS", "Game session active. Holding connection to stay in arena...")
             # Tetap mendengarkan frame data/heartbeat untuk menjaga koneksi tetap hidup
             async for message in ws_session:
                 pass
         except Exception as e:
-            await log_msg(bot_name, "WARN", f"Websocket connection interrupted: {str(e)}")
+            await log_msg(bot_name, "WARN", f"Session disconnected: {str(e)}")
         finally:
             await ws_session.close()
 
@@ -74,15 +77,15 @@ async def main():
 
     # Dapatkan versi game global
     version = fetch_api_version()
-    print(f"[*] Fetched API Game Version: {version}")
+    print(f"[*] Server Game Version: {version}")
 
     # Membaca daftar konfigurasi seluruh agen dari .env
     bots = get_bots_config()
     if not bots:
-        print("[!] No active bots found in your .env. Please check BOTx_NAME or BOTx_API_KEY parameters.")
+        print("[!] No active bots configured. Please check your .env file.")
         return
 
-    print(f"[*] Found {len(bots)} bot(s) to launch. Initiating tasks...")
+    print(f"[*] Found {len(bots)} bot(s) configured. Initializing launch sequence...")
 
     tasks = []
     for bot_config in bots:
@@ -97,4 +100,4 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("\n[!] Connection engine terminated by user.")
+        print("\n[!] Shutdown sequence initiated. Connection engine stopped.")
