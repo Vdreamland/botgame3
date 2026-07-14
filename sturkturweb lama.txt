@@ -1,0 +1,251 @@
+/botgame2
+├── rungame.py
+├── .env
+├── requirements.txt
+├── download_references.py
+├── helpers/                               # Folder pendukung (tidak diubah-ubah lagi)
+│    ├── __init__.py
+│    ├── config.py
+│    ├── api_client.py
+│    ├── game_math.py
+│    ├── agent_memory.py
+│    └── websocket_client.py
+├── ai/                        
+│   ├── __init__.py            
+│   ├── detector/              
+│   │   ├── __init__.py        
+│   │   ├── agent_info.py  
+│   │   ├── region_detector.py  
+│   │   ├── enemy_detector.py  
+│   ├── priority/              
+│   │   ├── __init__.py        
+│   │   ├── equipment_prior.py
+│   │   ├── interact_prior.py
+│   │   ├── recovery_prior.py
+│   │   ├── region_loot_prior.py
+│   │   ├── target_kill_prior.py
+│   │   ├── survival_prior.py
+
+│   ├── strategy/              
+│   │   ├── movement_strategy.py
+│   │   ├── ruin_exploration_strategy.py
+│   ├── decision_maker.py
+│   ├── memory.py
+
+
+/botgame2/ai/
+__init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/__init__.py
+decision_maker.py https://github.com/Vdreamland/botgame2/blob/master/ai/decision_maker.py
+memory.py https://github.com/Vdreamland/botgame2/blob/master/ai/memory.py
+
+
+/botgame2/ai/strategy/
+__init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/__init__.py
+movement_strategy.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/movement_strategy.py 
+ruin_exploration_strategy.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/ruin_exploration_strategy.py 
+
+/botgame2/ai/priority/
+__init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/__init__.py
+equipment_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/equipment_prior.py
+interact_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/interact_prior.py
+recovery_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/recovery_prior.py
+region_loot_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/region_loot_prior.py
+target_kill_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/target_kill_prior.py
+survival_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/survival_prior.py 
+
+/botgame2/ai/detector/
+__init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/__init__.py 
+agent_info.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/agent_info.py
+region_detector.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/region_detector.py
+enemy_detector.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/enemy_detector.py
+
+/botgame2/
+requirements.txt https://github.com/Vdreamland/botgame2/blob/master/requirements.txt
+rungame.py https://github.com/Vdreamland/botgame2/blob/master/rungame.py
+.env https://github.com/Vdreamland/botgame2/blob/master/.env
+games_log.py https://github.com/Vdreamland/botgame2/blob/master/games_log.py
+
+botgame2/helpers/
+__init__.py https://github.com/Vdreamland/botgame2/blob/master/helpers/__init__.py
+agent_memory.py https://github.com/Vdreamland/botgame2/blob/master/helpers/agent_memory.py
+api_client.py https://github.com/Vdreamland/botgame2/blob/master/helpers/api_client.py 
+config.py https://github.com/Vdreamland/botgame2/blob/master/helpers/config.py
+game_math.py https://github.com/Vdreamland/botgame2/blob/master/helpers/game_math.py
+websocket_client.py https://github.com/Vdreamland/botgame2/blob/master/helpers/websocket_client.py
+action_builder.py https://github.com/Vdreamland/botgame2/blob/master/helpers/action_builder.py
+
+
+
+Reference :
+actions.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/actions.md
+agent-memory.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/agent-memory.md
+api-summary.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/api-summary.md
+errors.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/errors.md
+free-games.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/free-games.md
+game-systems.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/game-systems.md
+game-loop.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/game-loop.md
+preseason1-quests.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/preseason1-quests.md
+runtime-modes.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/runtime-modes.md
+setup.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/setup.md
+game-guide.md https://github.com/Vdreamland/botgame2/blob/master/docs/game-guide.md
+heartbeat.md https://github.com/Vdreamland/botgame2/blob/master/docs/heartbeat.md
+skill.md https://github.com/Vdreamland/botgame2/blob/master/docs/skill.md
+gotchas.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/gotchas.md
+strategy.md https://github.com/Vdreamland/botgame2/blob/master/docs/game-knowledge/strategy.md
+combat-items.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/combat-items.md
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/botgame2
+├── .env
+├── accounts.json
+├── requirements.txt
+├── rungame.py
+└── src/
+    ├── __init__.py
+    ├── helper/                       
+    │   ├── __init__.py 
+    │   ├── game_helper.py         
+    │   ├── actions_helper.py         
+    ├── config.py
+    ├── connection.py        
+    ├── websocket.py
+    ├── game_data.py
+    └── log/
+        ├── __init__.py
+        ├── log_connections.py
+        └── logs_games.py
+    ├── ai/                        
+    │   ├── __init__.py            
+    │   │
+    │   ├── detector/              
+    │   │   ├── __init__.py        
+    │   │   ├── agent_info.py     
+    │   │   ├── enemy_info.py      
+    │   │   ├── zone_detector.py
+    │   │   ├── deadzone_detector.py
+    │   │   ├── ground_item_detector.py
+    │   │   └── facility_detector.py
+    │   ├── priority/              
+    │   │   ├── __init__.py        
+    │   │   ├── equipment_prior.py     
+    │   │   ├── interact_priority.py
+    │   │   ├── ground_loot_prior.py
+    │   │   ├── target_kill_prior.py
+    │   │   ├── survival_prior.py
+    │   │   └── recovery_prior.py
+    │   ├── strategy/              
+    │   │   ├── __init__.py        
+    │   │   ├── movement_strategy.py
+    │   │   ├── pre_action_safety.py
+    │   │   └── ruin_exploration_strategy.py
+    │   ├── memory.py              
+    │   └── decision_maker.py              
+├── web/                           
+│   ├── index.html                 
+│   ├── style.css                 
+│   ├── web_server.py
+│   └── app.js   
+
+ai/
+decision_maker.py https://github.com/Vdreamland/botgame2/blob/master/ai/decision_maker.py
+memory.py https://github.com/Vdreamland/botgame2/blob/master/ai/memory.py
+
+ai/strategy/
+__init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/__init__.py
+movement_strategy.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/movement_strategy.py
+ruin_exploration_strategy.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/ruin_exploration_strategy.py
+pre_action_safety.py https://github.com/Vdreamland/botgame2/blob/master/ai/strategy/pre_action_safety.py
+
+ai/priority/
+__init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/__init__.py
+equipment_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/equipment_prior.py
+interact_priority.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/interact_priority.py 
+ground_loot_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/ground_loot_prior.py
+target_kill_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/target_kill_prior.py
+survival_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/survival_prior.py
+recovery_prior.py https://github.com/Vdreamland/botgame2/blob/master/ai/priority/recovery_prior.py
+
+ai/
+__init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/__init__.py
+
+ai/detector/
+__init__.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/__init__.py
+agent_info.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/agent_info.py
+enemy_info.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/enemy_info.py
+zone_detector.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/zone_detector.py
+deadzone_detector.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/deadzone_detector.py
+ground_item_detector.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/ground_item_detector.py
+facility_detector.py https://github.com/Vdreamland/botgame2/blob/master/ai/detector/facility_detector.py
+
+botgame2/
+.env https://github.com/Vdreamland/botgame2/blob/master/.env
+rungame.py https://github.com/Vdreamland/botgame2/blob/master/rungame.py
+requirements.txt https://github.com/Vdreamland/botgame2/blob/master/requirements.txt
+
+src/
+__init__.py  https://github.com/Vdreamland/botgame2/blob/master/src/__init__.py
+config.py https://github.com/Vdreamland/botgame2/blob/master/src/config.py
+connection.py https://github.com/Vdreamland/botgame2/blob/master/src/connection.py
+websocket.py https://github.com/Vdreamland/botgame2/blob/master/src/websocket.py
+
+src/helper/
+__init__.py https://github.com/Vdreamland/botgame2/blob/master/src/helper/game_helper.py
+game_helper.py https://github.com/Vdreamland/botgame2/blob/master/src/helper/game_helper.py
+actions_helper.py https://github.com/Vdreamland/botgame2/blob/master/src/helper/actions_helper.py
+
+
+src/log/
+__init__.py https://github.com/Vdreamland/botgame2/blob/master/src/log/__init__.py
+log_connections.py https://github.com/Vdreamland/botgame2/blob/master/src/log/log_connections.py
+logs_games.py https://github.com/Vdreamland/botgame2/blob/master/src/log/logs_games.py
+
+web/  
+index.html https://github.com/Vdreamland/botgame2/blob/master/web/index.html
+style.css https://github.com/Vdreamland/botgame2/blob/master/web/style.css
+web_server.py https://github.com/Vdreamland/botgame2/blob/master/web/web_server.py
+app.js https://github.com/Vdreamland/botgame2/blob/master/web/app.js
+
+requirements.txt https://github.com/Vdreamland/botgame2/blob/master/requirements.txt
+.env https://github.com/Vdreamland/botgame2/blob/master/.env
+rungame.py https://github.com/Vdreamland/botgame2/blob/master/rungame.py
+
+Reference :
+actions.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/actions.md
+agent-memory.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/agent-memory.md
+api-summary.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/api-summary.md
+errors.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/errors.md
+free-games.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/free-games.md
+game-systems.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/game-systems.md
+game-loop.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/game-loop.md
+preseason1-quests.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/preseason1-quests.md
+runtime-modes.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/runtime-modes.md
+setup.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/setup.md
+game-guide.md https://github.com/Vdreamland/botgame2/blob/master/docs/game-guide.md
+heartbeat.md https://github.com/Vdreamland/botgame2/blob/master/docs/heartbeat.md
+skill.md https://github.com/Vdreamland/botgame2/blob/master/docs/skill.md
+gotchas.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/gotchas.md
+strategy.md https://github.com/Vdreamland/botgame2/blob/master/docs/game-knowledge/strategy.md
+combat-items.md https://github.com/Vdreamland/botgame2/blob/master/docs/references/combat-items.md
+
+
+
+
+
+python rungame.py
+http://localhost:8000/
