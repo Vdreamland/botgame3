@@ -8,19 +8,25 @@
 │   ├── entities.py
 │   ├── quests_seasons.py
 │   ├── errors_handler.py
-│   └── strategy_brain.py
+│   ├── strategy_brain.py
+│   ├── state_router.py         
+│   ├── game_connection.py      
+│   ├── combat_controller.py    
+│   └── automation_scheduler.py 
 ├── .env
+├── game_logs.py
 ├── requirements.txt
 └── rungame.py
 
 Link url github isi kodingan/dokumentasi
 
-/botgame2/
+/botgame3/
 .env https://github.com/Vdreamland/botgame3/blob/master/.env
 requirements.txt https://github.com/Vdreamland/botgame3/blob/master/requirements.txt
-rungame.py
+rungame.py https://github.com/Vdreamland/botgame3/blob/master/rungame.py
+game_logs.py https://github.com/Vdreamland/botgame3/blob/master/game_logs.py
 
-/botgame2/helpers/
+/botgame3/helpers/
 init__.py https://github.com/Vdreamland/botgame3/blob/master/helpers/__init__.py
 api_config.py https://github.com/Vdreamland/botgame3/blob/master/helpers/api_config.py
 game_constants.py https://github.com/Vdreamland/botgame3/blob/master/helpers/game_constants.py
@@ -31,37 +37,46 @@ quests_seasons.py https://github.com/Vdreamland/botgame3/blob/master/helpers/que
 errors_handler.py https://github.com/Vdreamland/botgame3/blob/master/helpers/errors_handler.py
 strategy_brain.py https://github.com/Vdreamland/botgame3/blob/master/helpers/strategy_brain.py
 
+state_router.py
+game_connection.py
+combat_controller.py
+automation_scheduler.py
 
 
+/botgame3/
+game_logs.py
+Mengatur: Handler penulisan log terpusat menggunakan format Bahasa Inggris (English logging). Menjamin tampilan log aman secara asinkron (thread-safe/async-safe) agar tidak tumpang tindih saat melacak ratusan bot sekaligus. Menyediakan penanda warna visual/indeks bot untuk melacak transisi status koneksi: Handshake (hello), Antrean (queued), Pencocokan (assigned/joined), dan Penanganan Error.
+rungame.py
+Mengatur: Pengambilan berkas .env untuk inisialisasi paralel ratusan task bot dengan jeda bertahap (staggered launch) demi menghindari IP-ban. Menjalankan verifikasi versi, koneksi asinkron ke /ws/join, pengiriman payload jabat tangan hello dengan preferensi room (free atau paid), hingga transisi status berhasil masuk ke room arena. Semua pesan status dilempar ke game_logs.py untuk ditampilkan.
+.env
+Mengatur: Jumlah ratusan bot aktif (NUM_BOTS), pengaturan tipe room global (ROOM_PREFERENCE), serta rincian kredensial unik setiap bot secara terindeks untuk langsung masuk antrean.
+requirements.txt
+Mengatur: Pendataan dependensi pustaka Python minimalis wajib (requests, websockets, python-dotenv) beserta batas minimum versinya untuk menjamin stabilitas fungsionalitas asinkron game loop.
 
-
-/botgame2helpers/
-- helpers/api_config.py
+/botgame3/helpers/
+helpers/__init__.py
+Mengatur: Inisialisasi folder helpers sebagai paket Python modular untuk memudahkan impor bersih di seluruh bagian proyek.
+helpers/api_config.py
 Mengatur: Parsing dinamis terhadap file .env berbasis indeks untuk mengekstrak daftar konfigurasi tiap-tiap agen. Menyediakan rute REST API, WebSocket URL, penanganan X-Version, dan skema alur Tiga-Dompet terpisah per instansi bot.
-
-- game_constants.py
+helpers/game_constants.py
 Mengatur: Waktu turn (30 detik), batas regenerasi EP, penalti flat cuaca (weatherMod), dan kepatuhan status set lengkap loadout (fullSet).
-
-- actions_payload.py
+helpers/actions_payload.py
 Mengatur: Struktur JSON payload untuk dikirimkan lewat WebSocket, terbagi atas Aksi Ber-cooldown (EP-consuming) dan Aksi Instan (0 EP).
-
-- items_spec.py
+helpers/items_spec.py
 Mengatur: Tabel stat/jarak senjata (melee & ranged), pertahanan baju zirah (armor), efek item pemulihan (recovery), dan parameter acak reforge.
-
-- entities.py
+helpers/entities.py
 Mengatur: Stat monster (Wolf, Bear, Bandit) beserta loot drop-nya, lokasi spawn, dan tindakan agresif Guardian (tanpa efek Curse).
-
-- quests_seasons.py
+helpers/quests_seasons.py
 Mengatur: Tanggal Preseason 1, parameter 10 stepped quest (kurva Exp, Diminish, Linear), claim harian/mingguan (Rabu UTC), serta alokasi poin CROSS.
-
-- errors_handler.py
+helpers/errors_handler.py
 Mengatur: Penanganan error REST, daftar kode pemutusan WebSocket (Close Codes 4xxx), deteksi limitasi IP (max 5), dan metode recovery.
-
-- strategy_brain.py
+helpers/strategy_brain.py
 Mengatur: Formula kalkulasi damage pertarungan, hierarki prioritas target AI, navigasi reruntuhan (ruins gauge), serta perekaman memori taktis regional agen.
-
-- rungame.py
-Mengatur: Inisialisasi thread/task asinkron secara simultan (paralel) sesuai dengan jumlah NUM_BOTS yang terdefinisi di .env. Menjalankan State Router dan WebSocket game loop yang independen untuk tiap-tiap instansi agen secara aman tanpa tabrakan data (thread-safe).
-
-- .env
-Mengatur: Jumlah bot aktif (NUM_BOTS), preferensi tipe room default (ROOM_PREFERENCE), serta kredensial nama dan API Key unik terindeks untuk masing-masing instansi agen (BOT1_NAME, BOT1_API_KEY, BOT2_NAME, dsb).
+helpers/state_router.py
+Mengatur: Alur penentuan status kesiapan bot berbasis REST API (GET /accounts/me) sebelum membuka koneksi WebSocket.
+helpers/game_connection.py
+Mengatur: Siklus hidup koneksi WebSocket terpadu (/ws/join) mulai dari handshake, pemrosesan status antrean, hingga transisi aman ke soket permainan.
+helpers/combat_controller.py
+Mengatur: Pengendali asinkron in-game (AI Controller) yang mengevaluasi agent_view untuk memutuskan urutan aksi taktis saat bertarung di arena.
+helpers/automation_scheduler.py
+Mengatur: Penjadwalan otomatisasi tugas REST API di luar game seperti klaim quest harian/mingguan, reforge, marketplace, dan inbox notifikasi.
