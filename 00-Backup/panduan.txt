@@ -1,0 +1,64 @@
+git init
+git add .
+git commit -m "Initial commit" atau git commit -m "Update index"
+git push
+
+
+git config --global user.name "Arashi"
+git config --global user.email "exterionsx@gmail.com"
+
+save > ctrl + shift + g
+
+cmd
+F:
+cd \Games\botgame3
+
+
+cd F:\Games\botgame3
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+y
+.\venv\Scripts\Activate
+
+pip install -r requirements.txt
+
+
+
+
+
+cd F:\Games\botgame3
+python -m venv venv
+.\venv\Scripts\Activate
+pip install -r requirements.txt
+
+bypass jika gagal :
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
+
+$env:CLAWROYALE_API_KEY="mr_live_3JiEDObzgek3V3tRE6M4AAmFr3oDCUgX"
+
+
+clear cache
+Get-ChildItem -Path . -Recurse -Directory -Filter "__pycache__" | Remove-Item -Recurse -Force
+
+di powershel :
+python rungame.py
+
+lalu di browser :
+http://localhost:8080 / http://localhost:8000/
+
+reset relic : relic unequip python tools/setup_loadout.py
+
+
+
+
+Untuk proyek bot game berbasis data JSON dan pathfinding (pencarian rute) seperti ini, ada dua pustaka (library) yang jika diinstal akan berdampak sangat besar dalam memotong jumlah baris kode dan mencegah eror tipe data secara signifikan:
+1. Pydantic (Untuk Validasi & Pemetaan Data JSON)
+Proyek Anda menerima banyak sekali payload JSON dari server yang strukturnya bercabang-cabang dan dinamis. Selama ini, Anda harus menulis banyak validasi manual untuk mencegah crash, seperti:
+isinstance(log_data, dict)
+view.get("self", {}) or {}
+.get("maxHp") or .get("max_hp", 100)
+Jika menggunakan Pydantic, Anda cukup mendefinisikan struktur data (skema) dalam bentuk Class Python. Pydantic akan otomatis menyaring, memvalidasi tipe data, dan mengubah JSON mentah menjadi objek Python yang aman digunakan.
+
+2. NetworkX (Untuk Navigasi & Pencarian Rute / Pathfinding)
+Di dalam movement_strategy.py dan ruin_exploration_strategy.py, Anda menulis algoritma pencarian rute terpendek secara manual menggunakan metode BFS (Breadth-First Search) yang memakan puluhan baris kode logika antrean (queue), pelacakan node yang dikunjungi (visited), dan kalkulasi bobot rute.
+Jika menggunakan NetworkX (pustaka khusus pengolah graf dan jaringan), semua logika BFS/Dijkstra manual tersebut bisa diganti hanya dengan beberapa baris fungsi bawaan yang jauh lebih cepat dan bebas bug.

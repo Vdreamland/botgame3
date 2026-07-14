@@ -1,0 +1,22 @@
+1. Peningkatan Intelijen Pelarian & Navigasi (Smart Evade & Detour)
+Pelarian Aman Terjamin (Anti-Suicide Flee):
+Saat agen sekarat dan harus lari dari zona mati (Deadzone) atau musuh, ia tidak lagi berlari buta. Agen kini menyisir radar untuk mencoret wilayah tetangga yang ada musuhnya, lalu hanya melarikan diri ke ubin yang 100% kosong (aman) (perfect_safe). (Diimplementasikan di decision_maker.py).
+Pengejaran Cerdas Bersyarat (Smart Chase):
+Agen dilarang keras melangkah keluar wilayah untuk mengejar musuh sekarat jika ia sedang tidak memegang senjata, atau jika energi (EP)-nya di bawah 4. Hal ini mencegah agen terjebak di wilayah musuh dalam keadaan lemas dan tangan kosong. (Diimplementasikan di navigation_strategy.py).
+Prioritas Menjarah Uang Kill (Threat-Aware HP Detour):
+Jika agen berhasil membunuh musuh dari jarak jauh (misal menggunakan Sniper/Bow), agen akan langsung memprioritaskan melangkah 1 ubin menghampiri mayat tersebut (Skor 95) untuk mengamankan dropan sMoltz sebelum dicuri pemain lain (selama HP agen sedang sehat di atas 60%). (Diimplementasikan di navigation_strategy.py).
+2. Peningkatan Keselamatan Ekstrem (Critical Survival Layer)
+Rantai Aksi Penyelamat Instan (Critical Heal Chain):
+Jika HP agen anjlok hingga tingkat kritis (di bawah 40%) di manapun ia berada (bahkan di dalam zona mati sekalipun), skor obat darurat memuncak absolut ke 99. Agen memakan obat pemulih secara instan (0 Turn, 0 EP), dan di milidetik yang sama ia langsung melangkah lari menyelamatkan diri dengan darah yang sudah aman. (Diimplementasikan di recovery_priority.py).
+Panik Sehat Akhir Game (End-Game Tiebreaker Push):
+Jika permainan menyentuh Turn 58 atau lebih (hampir selesai), agen akan mengaktifkan Panik Sehat. Ia memakan seluruh sisa obat di tasnya tanpa peduli sisa darahnya (bahkan jika HP-nya 90), guna memaksakan HP menyentuh 100/100 demi memenangkan peringkat penentuan akhir (Tie-breaker). (Diimplementasikan di recovery_priority.py).
+3. Peningkatan Manajemen Tas & Logistik (Inventory & Utility Tactics)
+Otomatisasi Barang Utilitas (Active Utility Use):
+Agen tidak lagi menimbun barang utilitas aktif (seperti Map). Begitu agen memungutnya, di turn yang sama agen akan langsung memanfaatkannya (USE_ITEM) untuk mendapatkan keuntungan vision atau informasi peta. (Diimplementasikan di recovery_priority.py).
+Pembuangan Barang Sampah Otomatis (Loot-and-Replace):
+Jika tas penuh (10/10) dan agen melihat ada senjata dewa (Sniper/Katana) atau zirah Plate Armor di lantai, ia secara cerdas akan langsung membuang (DISCARD) satu barang paling sampah di tasnya (seperti perban berlebih atau pisau tumpul) agar bisa langsung memungut barang dewa tersebut di giliran yang sama. (Diimplementasikan di ground_loot_priority.py).
+4. Peningkatan Kalkulasi Kemenangan Matematis (Dynamic Combat TTK)
+Simulasi Duel di Atas Kertas (Time-to-Kill Sync):
+Sebelum memutuskan menyerang monster atau pemain, agen mengadu ATK dan DEF miliknya melawan ATK dan DEF musuh. Jika perhitungan matematika menunjukkan bahwa musuh bisa membunuh agen lebih cepat daripada agen membunuh musuh, agen akan membatalkan serangan (skor 0) dan memilih mundur secara taktis (kecuali musuh tinggal 1 atau 2 pukulan mati).
+Validasi Biaya Peluru (Weapon EP Bottleneck Fix):
+Sistem kini membaca biaya ep_cost dari senjata. Agen dilarang keras memulai serangan (skor 0) jika sisa EP di tubuhnya tidak cukup untuk biaya mengayunkan/menembakkan senjata tersebut. Ini mencegah agen terjebak gagal menembak dan merugi giliran. (Diimplementasikan di target_kill_priority.py).

@@ -1,0 +1,13 @@
+API_URL=https://cdn.clawroyale.ai/api
+WS_JOIN_URL=wss://cdn.clawroyale.ai/ws/join
+WS_AGENT_URL=wss://cdn.clawroyale.ai/ws/agent
+X_VERSION=1.11.2
+ROOM_PREFERENCE=free
+
+NUM_BOTS=2
+
+BOT1_NAME=Extravaro1
+BOT1_API_KEY=mr_live_3JiEDObzgek3V3tRE6M4AAmFr3oDCUgX
+
+BOT2_NAME=Extravaro2
+BOT2_API_KEY=mr_live_Xmy2g3PY2eIyQmo_KrqtDI8xlfX-Is2R

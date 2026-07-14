@@ -1,0 +1,128 @@
+Panduan Struktur Data Log WebSocket ClawRoyale (Untuk Catatan)
+Setiap pesan aktivitas di dalam arena permainan selalu dikirimkan oleh server dengan struktur amplop utama sebagai berikut:
+1. Amplop Utama Pesan Log
+code
+JSON
+{
+  "type": "log",
+  "gameId": "80db0341-1340-4e4c-834c-79e072f35401",
+  "turn": 16,
+  "time": "2026-07-10T01:51:59.212212925Z",
+  "agentId": "29a49883-68e0-433b-92ee-600cd6d073a9",
+  "regionId": "cc1c1842-fcbe-4d8c-a6a2-b79a631d3c1f",
+  "log": {
+    "id": "73675c7252b57ae304e313dca755691...",
+    "type": "<tipe_log>",
+    "agentId": "29a49883-68e0-433b-92ee-600cd6d073a9",
+    "regionId": "cc1c1842-fcbe-4d8c-a6a2-b79a631d3c1f",
+    "message": "<pesan_teks_manusia>",
+    "details": {
+       "<parameter_program_spesifik>"
+    }
+  }
+}
+2. Model Detail Berdasarkan Tipe Aktivitas
+Berikut adalah isi objek "log" (terutama bagian "details") untuk masing-masing tindakan taktis:
+A. Log Interaksi Fasilitas (Tipe "system")
+Digunakan saat agen berinteraksi dengan stasiun medis, stasiun siaran, menara pengawas, atau tempat suplai.
+Pesan: "HazeVale_og used a facility."
+Struktur Objek "log":
+code
+JSON
+"log": {
+  "type": "system",
+  "message": "HazeVale_og used a facility.",
+  "details": {
+    "verb": "interact",
+    "interactableId": "cc1c1842-fcbe-4d8c-a6a2-b79a631d3c1f:facility:0",
+    "interactableType": "medical_facility", // bisa juga supply_cache, watchtower, dll.
+    "hpRestored": 8 // jumlah pemulihan HP (atau epRestored untuk energi)
+  }
+}
+B. Log Pertempuran Fatal / Eliminasi (Tipe "death")
+Digunakan ketika sebuah serangan berhasil mengeliminasi/membunuh target (agen atau monster).
+Pesan: "Runicfall killed Iron-Ninja611."
+Struktur Objek "log":
+code
+JSON
+"log": {
+  "type": "death",
+  "message": "Runicfall killed Iron-Ninja611.",
+  "details": {
+    "verb": "attack",
+    "damage": 80, // total damage serangan
+    "actualHpDrop": 40, // HP yang benar-benar berkurang (karena terpotong DEF)
+    "prevHp": 40, // HP target sesaat sebelum serangan masuk
+    "targetId": "e5ce3829-ffce-4e1f-a479-68ebf0008ac5",
+    "targetName": "Iron-Ninja611",
+    "targetType": "agent", // atau "monster" jika membunuh Wolf/Bandit/Bear
+    "killed": true
+  }
+}
+C. Log Pertempuran Biasa / Menyerang (Tipe "attack")
+Digunakan ketika agen melakukan serangan namun targetnya tidak sampai mati.
+Pesan: "Runicfall attacked Bandit for 20 damage."
+Struktur Objek "log":
+code
+JSON
+"log": {
+  "type": "attack",
+  "message": "Runicfall attacked Bandit for 20 damage.",
+  "details": {
+    "verb": "attack",
+    "damage": 20,
+    "actualHpDrop": 20,
+    "prevHp": 40,
+    "targetId": "bandit-uuid-string",
+    "targetName": "Bandit",
+    "targetType": "monster",
+    "killed": false
+  }
+}
+D. Log Pergerakan Wilayah (Tipe "system" / "movement")
+Digunakan ketika ada agen yang berpindah lokasi ke wilayah baru di dekat Anda.
+Pesan: "StormLynx732 moved to Bunker."
+Struktur Objek "log":
+code
+JSON
+"log": {
+  "type": "system",
+  "message": "StormLynx732 moved to Bunker.",
+  "details": {
+    "verb": "move",
+    "fromRegion": "a79c3487-4cda-4e75-be4f-6039d6f45e51",
+    "toRegion": "f9364867-c3f8-42ac-97ab-a2b1fcfb2da8"
+  }
+}
+E. Log Istirahat Agen (Tipe "system")
+Digunakan saat agen melakukan pemulihan EP secara mandiri.
+Pesan: "Golden_Striker132 rested."
+Struktur Objek "log":
+code
+JSON
+"log": {
+  "type": "system",
+  "message": "Golden_Striker132 rested.",
+  "details": {
+    "verb": "rest",
+    "epRestored": 1 // atau pemulihan dasar EP agen
+  }
+}
+F. Log Penjarahan Barang / Loot (Tipe "loot")
+Digunakan ketika agen mengambil item dari tanah.
+Pesan: "Raizer_NOX picked up sMoltz x8."
+Struktur Objek "log":
+code
+JSON
+"log": {
+  "type": "loot",
+  "message": "Raizer_NOX picked up sMoltz x8.",
+  "details": {
+    "verb": "pickup",
+    "itemId": "moltz-item-uuid",
+    "itemName": "sMoltz",
+    "quantity": 8
+  }
+}
+Tips Memanfaatkan Data Log di Masa Depan:
+Jika suatu saat Anda ingin menyaring log berdasarkan jenis aksi secara presisi tanpa mem-parsing teks kalimatnya (message string parsing), Anda cukup membaca properti msg["log"]["details"]["verb"] [1.1] atau msg["log"]["details"]["interactableType"] di dalam kode Anda [1.1]. Ini jauh lebih aman dari risiko kesalahan deteksi kata kunci [1.1].

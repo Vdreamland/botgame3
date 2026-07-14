@@ -1,0 +1,618 @@
+Saya akan membuat Loot Decision Engine yang setiap loot dihitung Value vs Risk. Jadi bot selalu bertanya:
+
+"Apakah loot ini sepadan dengan risiko yang harus saya ambil?"
+
+1. Jangan berpikir "Loot"
+
+Ubah menjadi
+
+Need
+↓
+
+Opportunity
+
+↓
+
+Risk
+
+↓
+
+Reward
+
+↓
+
+Decision
+
+Baru setelah itu Execute.
+
+2. Prioritas berubah sesuai fase permainan
+
+Misalnya Battle Royale dibagi menjadi beberapa fase.
+
+Early Game
+
+Prioritas
+
+Weapon
+★★★★★
+
+Armor
+★★★★☆
+
+Healing
+★★★☆☆
+
+Energy
+★★☆☆☆
+
+Upgrade
+★★☆☆☆
+
+Karena tanpa weapon hampir pasti kalah.
+
+Jadi weapon boleh diambil walaupun ada sedikit risiko.
+
+Mid Game
+Weapon Upgrade
+★★★★★
+
+Armor Upgrade
+★★★★★
+
+Healing
+★★★★☆
+
+Energy
+★★★★☆
+
+Misc
+★★☆☆☆
+
+Sudah mulai menghitung upgrade.
+
+Late Game
+Healing
+★★★★★
+
+Energy
+★★★★★
+
+Armor Repair
+★★★★★
+
+Weapon
+★★★☆☆
+
+Karena hampir semua orang sudah punya weapon.
+
+3. Semua loot memiliki Value
+
+Misalnya
+
+Legendary Sword
+
+Value = 95
+
+Potion
+
+Value = 40
+
+Energy
+
+Value = 20
+
+Armor
+
+Value = 65
+
+Tetapi...
+
+Value berubah.
+
+Contoh
+
+HP penuh.
+
+Potion
+
+Value = 5
+
+HP 15%.
+
+Potion
+
+Value = 100
+
+Weapon.
+
+Sudah punya Legendary.
+
+Weapon Common.
+
+Value = 2
+
+Belum punya weapon.
+
+Common Sword.
+
+Value = 100
+4. Hitung Need
+
+Misalnya
+
+Need Weapon
+
+Need Armor
+
+Need Heal
+
+Need Energy
+
+Contoh
+
+Weapon
+
+100
+
+Karena kosong.
+
+Armor
+
+70
+
+Karena belum ada.
+
+Heal
+
+10
+
+Karena HP penuh.
+
+5. Hitung Risk
+
+Ini yang sering dilupakan.
+
+Risk bukan cuma musuh terlihat.
+
+Tetapi
+
+Enemy Distance
+
+Enemy Count
+
+Enemy Direction
+
+Enemy Facing
+
+Enemy Weapon
+
+Storm
+
+Dead Zone
+
+Trap
+
+Travel Distance
+
+Exposure Time
+
+Escape Route
+
+Misalnya
+
+Loot berada di lapangan terbuka.
+
+Risk
+
+80
+
+Loot berada di balik tembok.
+
+25
+6. Opportunity
+
+Kadang loot sangat aman.
+
+Misalnya
+
+Musuh sedang bertarung.
+
+↓
+
+Opportunity +40
+
+Musuh baru kabur.
+
++25
+
+Musuh membelakangi.
+
++30
+
+Ini membuat bot terlihat oportunis.
+
+7. Loot Score
+
+Misalnya
+
+Loot Score
+
+=
+
+Need
+
++
+
+Item Value
+
++
+
+Opportunity
+
+-
+
+Risk
+
+Contoh
+
+Weapon.
+
+Need
+
+100
+
+Value
+
+90
+
+Opportunity
+
+20
+
+Risk
+
+40
+
+=
+
+170
+
+Potion
+
+Need
+
+10
+
+Value
+
+20
+
+Opportunity
+
+20
+
+Risk
+
+40
+
+=
+
+10
+
+Jelas weapon menang.
+
+8. Jangan cuma "Loot"
+
+Ada beberapa aksi.
+
+Loot
+
+Loot & Run
+
+Loot & Heal
+
+Loot & Fight
+
+Ignore
+
+Observe
+
+Delay Loot
+
+Ini jauh lebih realistis.
+
+9. Loot and Run
+
+Kasus
+
+Weapon ada.
+
+Musuh 2 detik lagi datang.
+
+Bot pintar
+
+Ambil
+
+↓
+
+langsung lari
+
+Bukan
+
+Ambil
+
+↓
+
+diam
+
+↓
+
+mati
+10. Delay Loot
+
+Misalnya
+
+Weapon bagus.
+
+Musuh sedang dekat.
+
+
+Bot
+
+Sembunyi
+
+↓
+
+Tunggu
+
+↓
+
+Musuh pergi
+
+↓
+
+Baru loot
+
+Bukan langsung kabur.
+
+11. Chain Loot
+
+Kalau loot berdekatan.
+
+Jangan
+
+Weapon
+
+↓
+
+jalan
+
+↓
+
+Armor
+
+↓
+
+jalan
+
+↓
+
+Potion
+
+Lebih baik.
+
+Cari semua loot radius 5 tile.
+
+↓
+
+Hitung rute tercepat.
+
+↓
+
+Ambil semua.
+
+↓
+
+Keluar area.
+
+Mirip algoritma travelling salesman sederhana, sehingga pergerakan lebih efisien.
+
+12. Jangan semua loot dikejar
+
+Misalnya
+
+Potion
+
+jarak
+
+40 tile
+
+Sedangkan
+
+Weapon
+
+5 tile
+
+Maka weapon lebih layak.
+
+Bot harus menghitung
+
+Travel Cost
+
+Semakin jauh
+
+Semakin kecil nilainya.
+
+13. Loot tidak boleh memutus survival
+
+Contoh
+
+HP
+
+8%
+
+Potion
+
+20 tile
+
+Musuh
+
+5 tile
+
+Bot bodoh
+
+Lari ambil potion
+
+↓
+
+Mati
+
+Bot pintar
+
+Kabur dulu
+
+↓
+
+Cari aman
+
+↓
+
+Heal
+
+↓
+
+Baru loot lagi
+14. Confidence ikut mempengaruhi
+
+Misalnya
+
+Confidence
+
+90
+
+Bot berani
+
+Loot walaupun ada musuh dekat.
+
+Confidence
+
+20
+
+Bot
+
+Cari jalan lain.
+
+Tetapi confidence berasal dari perhitungan (HP, EP, peluang menang, jumlah musuh, posisi), bukan sifat acak.
+
+15. Yang paling penting: "Expected Value (EV)"
+
+Ini konsep yang dipakai di AI game dan pengambilan keputusan.
+
+Expected Value
+
+=
+
+Reward × Success Chance
+
+-
+
+Penalty × Failure Chance
+
+Contoh.
+
+Weapon Epic.
+
+Reward
+
+100
+
+Peluang berhasil ambil
+
+80%
+
+Reward efektif
+
+80
+
+Risiko mati
+
+30%
+
+Penalty mati
+
+100
+
+Penalty efektif
+
+30
+
+EV
+
+80-30
+
+=
+
+50
+
+Masih positif.
+
+Ambil.
+
+Kasus lain.
+
+Legendary.
+
+Reward
+
+100
+
+Chance
+
+20%
+
+Reward efektif
+
+20
+
+Penalty mati
+
+90%
+
+Penalty
+
+90
+
+EV
+
+20-90
+
+=
+
+-70
+
+Jangan diambil.
+
+Kesimpulan
+
+Kalau saya menyusun catatan desain untuk bot kompetitif, saya tidak akan membuat aturan seperti:
+
+"Kalau ada weapon, ambil."
+"Kalau ada musuh, jangan loot."
+
+Sebaliknya, saya akan memecah keputusan menjadi beberapa evaluator yang masing-masing memberi skor:
+
+Need Evaluator — Seberapa dibutuhkan item ini saat ini?
+Item Value Evaluator — Seberapa besar peningkatan kekuatan yang diberikan?
+Risk Evaluator — Apa risiko untuk mengambilnya (musuh, posisi, zona, waktu)?
+Opportunity Evaluator — Apakah ini momen yang tepat untuk mengambilnya?
+Travel Cost Evaluator — Berapa biaya waktu dan jarak untuk mencapainya?
+Escape Evaluator — Setelah mengambil item, apakah masih ada jalur keluar yang aman?
+Expected Value Evaluator — Apakah keuntungan keseluruhan lebih besar daripada risikonya?
+
+Dengan pendekatan ini, bot bisa menghasilkan perilaku yang jauh lebih alami. Misalnya:
+
+Di awal permainan, ia berani mengambil senjata biasa meskipun ada satu musuh yang masih jauh, karena nilai senjata sangat tinggi.
+Di pertengahan permainan, ia mungkin mengabaikan senjata biasa karena sudah memiliki perlengkapan yang lebih baik.
+Di akhir permainan, ia bisa memilih mengambil potion sambil langsung mundur (loot & run) ketika perhitungan menunjukkan peluangnya masih menguntungkan.
+
+Hasilnya bukan bot yang nekat atau penakut, melainkan bot yang adaptif dan membuat keputusan berdasarkan situasi yang terus berubah. Ini biasanya jauh lebih sulit diprediksi lawan dan terasa lebih "cerdas" saat diamati.

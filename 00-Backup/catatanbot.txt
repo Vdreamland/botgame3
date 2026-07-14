@@ -1,0 +1,449 @@
+Menurut saya, kalau ingin membuat bot yang benar-benar terlihat "cerdas", jangan pernah membuat AI berdasarkan if-else panjang seperti ini:
+
+if HP < 30:
+    heal
+elif enemy:
+    attack
+else:
+    explore
+
+Bot seperti ini akan terlihat sangat kaku.
+
+Yang lebih profesional adalah menggunakan Utility AI
+
+Banyak game AAA menggunakan konsep ini.
+
+Setiap aksi mempunyai nilai (score).
+
+Contoh:
+
+Attack      = 92
+Heal        = 35
+Run         = 20
+Explore     = 40
+Pickup      = 60
+
+Bot cukup memilih nilai tertinggi.
+
+Misalnya:
+
+Attack
+Score =
+
++40 musuh HP rendah
++30 damage kita lebih tinggi
++15 punya senjata
++20 EP cukup
+
+-25 HP kita rendah
+-15 musuh lebih kuat
+
+Total = 65
+
+Heal
+
++50 HP rendah
++20 ada potion
+
+-30 musuh hampir mati
+
+Total = 40
+
+Maka Attack dipilih.
+
+Tidak ada if-else panjang.
+
+Saya biasanya membagi AI menjadi 5 layer
+Brain
+
+│
+
+├── Survival
+├── Combat
+├── Resource
+├── Positioning
+└── Objective
+
+Setiap layer memberi skor.
+
+Misalnya
+
+Combat Score
+
+Attack = 72
+Retreat = 40
+Ambush = 63
+
+Survival
+
+Heal = 80
+Run = 30
+
+Resource
+
+Pickup Weapon = 65
+Loot = 20
+
+Lalu Brain memilih skor terbesar.
+
+Combat jangan hanya berdasarkan HP
+
+Ini kesalahan terbesar AI game.
+
+Harus dihitung:
+
+HP kita
+
+HP musuh
+
+EP kita
+
+EP musuh
+
+ATK kita
+
+DEF kita
+
+ATK musuh
+
+DEF musuh
+
+Range
+
+Weapon
+
+Cooldown
+
+Healing Item
+
+Jumlah musuh sekitar
+
+Escape Route
+
+Storm
+
+Death Zone
+
+Vision
+
+Terrain
+
+Semuanya mempengaruhi keputusan.
+
+Gunakan Combat Evaluation
+
+Contoh
+
+CombatPower
+
+=
+
+Damage Output
+
++
+
+HP Ratio
+
++
+
+Weapon Bonus
+
++
+
+Range Bonus
+
++
+
+Initiative
+
+-
+
+Enemy Power
+
+Misalnya
+
+Kita
+
+HP 80
+
+ATK 60
+
+DEF 20
+
+Sword
+
+Power
+
+=180
+
+Musuh
+
+HP 60
+
+ATK 35
+
+DEF 10
+
+Power
+
+=105
+
+Win Chance
+
+≈72%
+
+Kalau
+
+Win Chance >70%
+
+Attack
+
+Kalau
+
+50-70
+
+Harass
+
+Hit and Run
+
+Kalau
+
+<40
+
+Kabur
+
+Tetapi...
+
+Kabur bukan berarti pengecut.
+
+Retreat harus pintar
+
+Bot bodoh:
+
+HP < 40
+
+kabur
+
+Bot pintar:
+
+HP 25
+
+Musuh HP 8
+
+Damage kita 15
+
+↓
+
+Tetap menyerang
+
+Karena bisa membunuh dulu.
+
+Sebaliknya
+
+HP 90
+
+Musuh HP 100
+
+Damage musuh jauh lebih besar
+
+↓
+
+Kabur
+
+Jadi bukan HP yang menentukan.
+
+Tetapi peluang menang.
+
+Gunakan Confidence
+
+Ini favorit saya.
+
+Confidence
+
+0-100
+
+Misalnya
+
+Confidence
+
+=
+
+Win Chance
+
++
+
+Weapon
+
++
+
+EP
+
++
+
+Healing
+
++
+
+Escape Route
+
+-
+
+Enemy Count
+
+-
+
+Storm
+
+-
+
+Trap
+
+Lalu
+
+Confidence >80
+
+Aggressive
+
+60-80
+
+Normal
+
+40-60
+
+Careful
+
+20-40
+
+Retreat
+
+<20
+
+Emergency
+
+Jadi bot terlihat punya "kepribadian".
+
+Jangan buat status Attack saja
+
+Lebih baik ada mode AI.
+
+Explore
+
+Loot
+
+Fight
+
+Escape
+
+Recover
+
+Hunt
+
+Defend
+
+Chase
+
+Ambush
+
+Finish Enemy
+
+Jadi perpindahan state lebih alami.
+
+Contoh aturan Chase
+
+Jangan
+
+Enemy terlihat
+
+↓
+
+Kejar
+
+Tetapi
+
+Enemy HP rendah
+
+AND
+
+Confidence >70
+
+AND
+
+EP cukup
+
+AND
+
+Tidak masuk Death Zone
+
+↓
+
+Kejar
+
+Kalau tidak
+
+Jangan kejar.
+
+Gunakan "Desire"
+
+Misalnya
+
+Attack Desire
+
+Heal Desire
+
+Loot Desire
+
+Escape Desire
+
+Explore Desire
+
+Semuanya memiliki score.
+
+Contoh
+
+Attack
+
+74
+
+Heal
+
+28
+
+Loot
+
+60
+
+Explore
+
+15
+
+Brain tinggal memilih terbesar.
+
+Tambahkan Memory
+
+Bot tidak boleh lupa.
+
+Contoh
+
+Enemy tadi punya Sniper
+
+↓
+
+Jangan dekati lagi.
+
+atau
+
+Region ini banyak monster
+
+↓
+
+Nanti kembali lagi.
+
+atau
+
+Player X suka menyerang
+
+↓
+
+Prioritaskan waspada.
+
+Ini membuat bot terasa belajar selama pertandingan, walaupun hanya menyimpan memori jangka pendek.
