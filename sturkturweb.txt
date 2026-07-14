@@ -13,6 +13,25 @@
 ├── requirements.txt
 └── rungame.py
 
+Link url github isi kodingan/dokumentasi
+
+/botgame2/
+.env https://github.com/Vdreamland/botgame3/blob/master/.env
+requirements.txt https://github.com/Vdreamland/botgame3/blob/master/requirements.txt
+rungame.py
+
+/botgame2/helpers/
+init__.py https://github.com/Vdreamland/botgame3/blob/master/helpers/__init__.py
+api_config.py https://github.com/Vdreamland/botgame3/blob/master/helpers/api_config.py
+game_constants.py https://github.com/Vdreamland/botgame3/blob/master/helpers/game_constants.py
+actions_payload.py https://github.com/Vdreamland/botgame3/blob/master/helpers/actions_payload.py
+items_spec.py https://github.com/Vdreamland/botgame3/blob/master/helpers/items_spec.py
+entities.py https://github.com/Vdreamland/botgame3/blob/master/helpers/entities.py
+quests_seasons.py https://github.com/Vdreamland/botgame3/blob/master/helpers/quests_seasons.py
+errors_handler.py https://github.com/Vdreamland/botgame3/blob/master/helpers/errors_handler.py
+strategy_brain.py https://github.com/Vdreamland/botgame3/blob/master/helpers/strategy_brain.py
+
+
 
 
 
