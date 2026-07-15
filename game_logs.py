@@ -1,69 +1,69 @@
-import os
 import sys
-import asyncio
 from datetime import datetime
+from colorama import Fore, Style, init
 
-if sys.platform == "win32":
-    os.system("")
+from helpers.world_parser import (
+    get_turn,
+    get_self_agent,
+    get_current_region,
+    get_visible_regions,
+    is_bot_dead_in_logs,
+    get_bot_death_details
+)
+from ai.detector.region_detector import detect_safe_regions_and_path
 
-RESET = "\033[0m"
-BLUE = "\033[94m"
-GREEN = "\033[92m"
-YELLOW = "\033[93m"
-RED = "\033[91m"
-CYAN = "\033[96m"
+init(autoreset=True)
 
-_print_lock = asyncio.Lock()
+def draw_terminal_header(version):
+    print(Fore.CYAN + "=" * 60)
+    print(Fore.CYAN + f"        CLAW ROYALE - MULTI-BOT CONNECTION ENGINE v{version}")
+    print(Fore.CYAN + "=" * 60)
 
-async def log_msg(bot_name, level, message):
-    timestamp = datetime.utcnow().strftime("%H:%M:%S")
-    color = RESET
-    
-    lvl = level.upper()
-    if lvl == "INFO":
-        color = CYAN
-    elif lvl == "SUCCESS":
-        color = GREEN
-    elif lvl == "WARN":
-        color = YELLOW
-    elif lvl == "ERROR":
-        color = RED
-    elif lvl == "DEBUG":
-        color = BLUE
-
-    async with _print_lock:
-        for line in message.split("\n"):
-            formatted = f"[{timestamp}] [{color}{lvl}{RESET}] [{bot_name}] -> {line}"
-            print(formatted)
-            sys.stdout.flush()
-
-async def log_frame_update(bot_name, frame_data):
-    from ai.detector.agent_info import get_formatted_log
-    from ai.detector.region_detector import get_region_layers, format_region_layers
-    from helpers.world_parser import get_turn, get_self_agent, is_bot_dead_in_logs, get_bot_death_details
-
+def log_frame_update(bot_name, frame_data):
     turn = get_turn(frame_data)
-    day = (turn - 1) // 4 + 1
-    
     self_data = get_self_agent(frame_data)
+    if not self_data:
+        return
+        
+    hp = self_data.get("hp", 0)
+    max_hp = self_data.get("maxHp", 100)
+    ep = self_data.get("ep", 0)
+    max_ep = self_data.get("maxEp", 10)
+    atk = self_data.get("atk", 0)
+    df = self_data.get("def", 0)
+    kills = self_data.get("kills", 0)
     is_alive = self_data.get("isAlive", True)
-    detected_dead_in_logs = is_bot_dead_in_logs(frame_data, bot_name)
-
+    
+    current_region_id = get_current_region(frame_data)
+    weather = frame_data.get("weather", "clear")
+    vision = self_data.get("visionRange", 1)
+    
+    adjacency_map = frame_data.get("adjacencyMap", {})
+    links_count = len(adjacency_map.get(current_region_id, [])) if current_region_id else 0
+    
+    status_str = f"{Fore.GREEN}ALIVE{Style.RESET_ALL}" if is_alive else f"{Fore.RED}DEAD{Style.RESET_ALL}"
+    
+    print(f"\n{Fore.CYAN}Day: 1 | Turn: {turn} | [{bot_name}] | Status: {status_str}{Style.RESET_ALL}")
+    print(f"{Fore.YELLOW}Agent Info :{Style.RESET_ALL}")
+    print(f"HP {hp} / {max_hp} | EP {ep} / {max_ep} | ATK {atk} | DEF {df} | KILLS {kills}")
+    print(f"Location : {current_region_id} | Weather: {weather} | Vision: {vision} | Links: {links_count}")
+    
+    pending_deathzones = frame_data.get("pendingDeathzones", [])
+    active_deathzones = frame_data.get("activeDeathzones", [])
+    
+    print(f"\n{Fore.MAGENTA}Region Detector :{Style.RESET_ALL}")
+    
+    safe_path = detect_safe_regions_and_path(
+        current_region_id,
+        adjacency_map,
+        pending_deathzones,
+        active_deathzones
+    )
+    
+    if safe_path:
+        for i, layer in enumerate(safe_path):
+            layer_str = ", ".join(layer)
+            print(f"Layer {i} : {layer_str}")
+    else:
+        print(f"Layer 0 : {current_region_id}")
     print("")
-
-    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-    async with _print_lock:
-        if is_alive and not detected_dead_in_logs:
-            print(f"Day: {day} | Turn: {turn} | [{bot_name}] | Status: \033[92mALIVE\033[0m")
-            print(get_formatted_log(frame_data))
-            print("")
-            layers = get_region_layers(frame_data)
-            print(format_region_layers(layers))
-        else:
-            print(f"Day: {day} | Turn: {turn} | [{bot_name}] | Status: \033[91mELIMINATED (DEAD)\033[0m")
-            death_details = get_bot_death_details(frame_data, bot_name)
-            if death_details:
-                print(f"Player has been detected dead in world history: Killed by {death_details['killer']} ({death_details['damage']} damage)")
-            else:
-                print("Player has been detected dead in world history")
-        sys.stdout.flush()
