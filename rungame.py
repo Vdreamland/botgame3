@@ -41,12 +41,9 @@ async def run_bot_instance(bot_config, version):
     bot_name = bot_config["name"]
     api_key = bot_config["api_key"]
     preference = bot_config["room_preference"]
-
     await log_msg(bot_name, "INFO", f"Preparing bot to join a {preference.upper()} room...")
-
     while True:
         state, data = check_agent_state(api_key, version, preference)
-        
         if state == "ERROR":
             await log_msg(bot_name, "ERROR", f"Account pre-check failed: {data}")
             await asyncio.sleep(10.0)
@@ -54,17 +51,13 @@ async def run_bot_instance(bot_config, version):
         elif state == "NO_ACCOUNT":
             await log_msg(bot_name, "ERROR", "Credentials rejected/unauthorized.")
             return
-
         async def bot_log_callback(level, msg):
             await log_msg(bot_name, level, msg)
-
         ws_session = None
-
         if state == "IN_GAME":
             game_id = data.get("id", "N/A")
             short_id = game_id[:8] if len(game_id) > 8 else game_id
             await log_msg(bot_name, "SUCCESS", f"Bot is already active in an ongoing game (ID: {short_id})")
-            
             ws_session = await connect_and_resume_game(
                 api_key=api_key,
                 version=version,
@@ -79,33 +72,31 @@ async def run_bot_instance(bot_config, version):
                 room_preference=preference,
                 log_callback=bot_log_callback
             )
-
         if ws_session:
             checker_task = asyncio.create_task(
                 check_bot_alive_loop(bot_name, api_key, version, preference, ws_session)
             )
+            game_over_cleanly = False
             try:
                 await log_msg(bot_name, "SUCCESS", "Game session active. Holding connection to stay in arena...")
                 while True:
                     message = await asyncio.wait_for(ws_session.recv(), timeout=60.0)
                     frame_data = json.loads(message)
                     msg_type = frame_data.get("type")
-                    
                     if msg_type in ["agent_view", "turn_advanced"]:
                         await log_frame_update(bot_name, frame_data)
-                        
-                        self_data = get_self_agent(frame_data)
-                        is_alive = self_data.get("isAlive", True)
-                        detected_dead_in_logs = is_bot_dead_in_logs(frame_data, bot_name)
-                        
-                        if not is_alive or detected_dead_in_logs:
-                            await ws_session.close()
-                            break
+                    self_data = get_self_agent(frame_data)
+                    is_alive = self_data.get("isAlive", True)
+                    detected_dead_in_logs = is_bot_dead_in_logs(frame_data, bot_name)
+                    if not is_alive or detected_dead_in_logs:
+                        game_over_cleanly = True
+                        await ws_session.close()
+                        break
                     elif msg_type == "game_ended":
+                        game_over_cleanly = True
                         await log_msg(bot_name, "SUCCESS", "Game session has officially ended on the server.")
                         await ws_session.close()
                         break
-                                
             except asyncio.TimeoutError:
                 print("")
                 await log_msg(bot_name, "WARN", "Connection timed out. Attempting to reconnect...")
@@ -121,42 +112,43 @@ async def run_bot_instance(bot_config, version):
                     await ws_session.close()
                 except Exception:
                     pass
-
-            print("")
-            await log_msg(bot_name, "INFO", "Waiting 10 seconds post-match to check eligibility for a new game...")
-            await asyncio.sleep(10.0)
-
-            while True:
-                next_state, next_data = check_agent_state(api_key, version, preference)
-                if next_state == "IN_GAME":
-                    print("")
-                    await log_msg(bot_name, "INFO", "Previous game slot is still active on server. Waiting for game to end...")
-                    await asyncio.sleep(10.0)
-                else:
-                    print("")
-                    await log_msg(bot_name, "SUCCESS", "Eligible to join a new match! Re-entering queue...")
-                    break
+            st, _ = check_agent_state(api_key, version, preference)
+            if st != "IN_GAME":
+                game_over_cleanly = True
+            if game_over_cleanly:
+                print("")
+                await log_msg(bot_name, "INFO", "Waiting 10 seconds post-match to check eligibility for a new game...")
+                await asyncio.sleep(10.0)
+                while True:
+                    next_state, next_data = check_agent_state(api_key, version, preference)
+                    if next_state == "IN_GAME":
+                        print("")
+                        await log_msg(bot_name, "INFO", "Previous game slot is still active on server. Waiting for game to end...")
+                        await asyncio.sleep(10.0)
+                    else:
+                        print("")
+                        await log_msg(bot_name, "SUCCESS", "Eligible to join a new match! Re-entering queue...")
+                        break
+            else:
+                print("")
+                await log_msg(bot_name, "INFO", "Unexpected disconnection. Reconnecting to active game slot immediately...")
+                await asyncio.sleep(2.0)
 
 async def main():
     print("="*60)
-    print("        CLAW ROYALE - MULTI-BOT CONNECTION ENGINE")
+    print(" CLAW ROYALE - MULTI-BOT CONNECTION ENGINE")
     print("="*60)
-
     version = fetch_api_version()
     print(f"[*] Server Game Version: {version}")
-
     bots = get_bots_config()
     if not bots:
         print("[!] No active bots configured. Please check your .env file.")
         return
-
     print(f"[*] Found {len(bots)} bot(s) configured. Initializing launch sequence...")
-
     tasks = []
     for bot_config in bots:
         tasks.append(asyncio.create_task(run_bot_instance(bot_config, version)))
         await asyncio.sleep(2.0)
-
     await asyncio.gather(*tasks)
 
 if __name__ == "__main__":

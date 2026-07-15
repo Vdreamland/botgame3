@@ -138,20 +138,27 @@ def get_my_combat_events(frame_data: Dict[str, Any], my_id: str) -> Dict[str, Li
     }
 
 def is_bot_dead_in_logs(frame_data: Dict[str, Any], bot_name: str) -> bool:
+    self_data = frame_data.get("view", {}).get("self", {})
+    actual_name = self_data.get("name", "")
     for log_entry in get_death_logs(frame_data):
-        if bot_name in log_entry.get("message", ""):
+        msg = log_entry.get("message", "")
+        if bot_name in msg or (actual_name and actual_name in msg):
             return True
     return False
 
 def get_bot_death_details(frame_data: Dict[str, Any], bot_name: str) -> Optional[Dict[str, Any]]:
+    self_data = frame_data.get("view", {}).get("self", {})
+    actual_name = self_data.get("name", "")
     for log in get_combat_logs(frame_data):
-        if log.get("target_name") == bot_name and log.get("new_hp") == 0:
+        t_name = log.get("target_name")
+        if (t_name == bot_name or (actual_name and t_name == actual_name)) and log.get("new_hp") == 0:
             return {
                 "killer": log.get("attacker_name", "unknown"),
                 "damage": log.get("damage", 0)
             }
     for log in get_death_logs(frame_data):
-        if bot_name in log.get("message", ""):
+        msg = log.get("message", "")
+        if bot_name in msg or (actual_name and actual_name in msg):
             return {
                 "killer": log.get("killer_name") or "unknown",
                 "damage": "unknown"
