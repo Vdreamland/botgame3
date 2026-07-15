@@ -13,8 +13,17 @@ def get_agent_stats(frame_data: Dict[str, Any]) -> Dict[str, int]:
 
 def get_formatted_log(frame_data: Dict[str, Any]) -> str:
     stats = get_agent_stats(frame_data)
-    current_id = frame_data.get("currentRegionId")
-    regions = frame_data.get("view", {}).get("regions", [])
+    current_id = (
+        frame_data.get("currentRegionId") or 
+        frame_data.get("view", {}).get("currentRegionId") or 
+        frame_data.get("view", {}).get("self", {}).get("regionId") or 
+        frame_data.get("view", {}).get("self", {}).get("currentRegionId")
+    )
+    regions = (
+        frame_data.get("view", {}).get("visibleRegions") or 
+        frame_data.get("view", {}).get("regions") or 
+        []
+    )
     current_region = {}
     for r in regions:
         if r.get("id") == current_id:

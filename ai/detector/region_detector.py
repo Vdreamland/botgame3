@@ -1,8 +1,17 @@
 from typing import Dict, Any, List
 
 def get_region_layers(frame_data: Dict[str, Any]) -> Dict[int, List[str]]:
-    current_id = frame_data.get("currentRegionId")
-    regions = frame_data.get("view", {}).get("regions", [])
+    current_id = (
+        frame_data.get("currentRegionId") or 
+        frame_data.get("view", {}).get("currentRegionId") or 
+        frame_data.get("view", {}).get("self", {}).get("regionId") or 
+        frame_data.get("view", {}).get("self", {}).get("currentRegionId")
+    )
+    regions = (
+        frame_data.get("view", {}).get("visibleRegions") or 
+        frame_data.get("view", {}).get("regions") or 
+        []
+    )
     
     graph = {}
     id_to_name = {}
