@@ -4,11 +4,10 @@ import json
 import asyncio
 import requests
 from dotenv import load_dotenv
-from game_logs import log_msg
+from game_logs import log_msg, log_frame_update
 from helpers.api_config import get_bots_config, BASE_URL, WS_URL, WS_GAMEPLAY_URL
 from helpers.state_router import check_agent_state
 from helpers.game_connection import connect_and_join_room, connect_and_resume_game
-from ai.detector.agent_info import get_formatted_log
 
 load_dotenv()
 
@@ -74,22 +73,12 @@ async def run_bot_instance(bot_config, version):
                     msg_type = frame_data.get("type")
                     
                     if msg_type in ["agent_view", "turn_advanced"]:
-                        turn = frame_data.get("turn", 1)
-                        day = (turn - 1) // 4 + 1
+                        await log_frame_update(bot_name, frame_data)
                         
                         view_data = frame_data.get("view", {})
                         self_data = view_data.get("self", {})
                         is_alive = self_data.get("isAlive", True)
-                        
-                        print("")
-                        
-                        if is_alive:
-                            await log_msg(bot_name, "INFO", f"Match Progress -> Day: {day} | Turn: {turn} | Status: ALIVE")
-                            
-                            info_msg = get_formatted_log(frame_data)
-                            await log_msg(bot_name, "INFO", info_msg)
-                        else:
-                            await log_msg(bot_name, "WARN", f"Match Progress -> Day: {day} | Turn: {turn} | Status: ELIMINATED (DEAD)")
+                        if not is_alive:
                             await ws_session.close()
                             break
                             
@@ -101,20 +90,20 @@ async def run_bot_instance(bot_config, version):
                 except Exception:
                     pass
 
-        print("")
-        await log_msg(bot_name, "INFO", "Waiting 10 seconds post-match to check eligibility for a new game...")
-        await asyncio.sleep(10.0)
+            print("")
+            await log_msg(bot_name, "INFO", "Waiting 10 seconds post-match to check eligibility for a new game...")
+            await asyncio.sleep(10.0)
 
-        while True:
-            next_state, next_data = check_agent_state(api_key, version, preference)
-            if next_state == "IN_GAME":
-                print("")
-                await log_msg(bot_name, "INFO", "Previous game slot is still active on server. Waiting for game to end...")
-                await asyncio.sleep(10.0)
-            else:
-                print("")
-                await log_msg(bot_name, "SUCCESS", "Eligible to join a new match! Re-entering queue...")
-                break
+            while True:
+                next_state, next_data = check_agent_state(api_key, version, preference)
+                if next_state == "IN_GAME":
+                    print("")
+                    await log_msg(bot_name, "INFO", "Previous game slot is still active on server. Waiting for game to end...")
+                    await asyncio.sleep(10.0)
+                else:
+                    print("")
+                    await log_msg(bot_name, "SUCCESS", "Eligible to join a new match! Re-entering queue...")
+                    break
 
 async def main():
     print("="*60)

@@ -13,4 +13,15 @@ def get_agent_stats(frame_data: Dict[str, Any]) -> Dict[str, int]:
 
 def get_formatted_log(frame_data: Dict[str, Any]) -> str:
     stats = get_agent_stats(frame_data)
-    return f"Agent Info :\nHP {stats['hp']} / EP {stats['ep']} / ATK {stats['atk']} / DEF {stats['def']} / KILLS {stats['kills']}"
+    current_id = frame_data.get("currentRegionId")
+    regions = frame_data.get("view", {}).get("regions", [])
+    current_region = {}
+    for r in regions:
+        if r.get("id") == current_id:
+            current_region = r
+            break
+    terrain = current_region.get("terrain", "unknown")
+    weather = current_region.get("weather", "unknown")
+    vision = current_region.get("vision", 0)
+    links = len(current_region.get("connectedRegions", []))
+    return f"Agent Info :\nHP {stats['hp']} / EP {stats['ep']} / ATK {stats['atk']} / DEF {stats['def']} / KILLS {stats['kills']}\nLocation : {terrain} / {weather} / {vision} / {links}"
