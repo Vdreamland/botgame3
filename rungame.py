@@ -23,6 +23,22 @@ def fetch_api_version():
         pass
     return "1.0.0"
 
+async def check_bot_alive_loop(bot_name, api_key, version, preference, ws_session):
+    while ws_session.open:
+        await asyncio.sleep(10.0)
+        if not ws_session.open:
+            break
+        state, data = await asyncio.to_thread(check_agent_state, api_key, version, preference)
+        if state != "IN_GAME":
+            print("")
+            await log_msg(bot_name, "WARN", "Status: ELIMINATED (DEAD)")
+            print("Player has been detected dead in world history")
+            try:
+                await ws_session.close()
+            except Exception:
+                pass
+            break
+
 async def run_bot_instance(bot_config, version):
     bot_name = bot_config["name"]
     api_key = bot_config["api_key"]
@@ -67,10 +83,13 @@ async def run_bot_instance(bot_config, version):
             )
 
         if ws_session:
+            checker_task = asyncio.create_task(
+                check_bot_alive_loop(bot_name, api_key, version, preference, ws_session)
+            )
             try:
                 await log_msg(bot_name, "SUCCESS", "Game session active. Holding connection to stay in arena...")
                 while ws_session.open:
-                    message = await asyncio.wait_for(ws_session.recv(), timeout=45.0)
+                    message = await asyncio.wait_for(ws_session.recv(), timeout=35.0)
                     frame_data = json.loads(message)
                     msg_type = frame_data.get("type")
                     
@@ -99,6 +118,7 @@ async def run_bot_instance(bot_config, version):
             except Exception as e:
                 await log_msg(bot_name, "WARN", f"Session disconnected: {str(e)}")
             finally:
+                checker_task.cancel()
                 try:
                     await ws_session.close()
                 except Exception:
