@@ -17,7 +17,8 @@
 │   ├── strategy_brain.py
 │   ├── state_router.py         
 │   ├── game_connection.py      
-│   ├── combat_controller.py    
+│   ├── combat_controller.py
+│   ├── world_parser.py
 │   └── automation_scheduler.py 
 ├── .env
 ├── game_logs.py
@@ -52,6 +53,8 @@ errors_handler.py https://github.com/Vdreamland/botgame3/blob/master/helpers/err
 strategy_brain.py https://github.com/Vdreamland/botgame3/blob/master/helpers/strategy_brain.py
 state_router.py https://github.com/Vdreamland/botgame3/blob/master/helpers/game_connection.py
 game_connection.py https://github.com/Vdreamland/botgame3/blob/master/helpers/game_connection.py
+world_parser.py https://github.com/Vdreamland/botgame3/blob/master/helpers/world_parser.py 
+
 combat_controller.py
 automation_scheduler.py
 

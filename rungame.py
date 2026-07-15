@@ -87,7 +87,7 @@ async def run_bot_instance(bot_config, version):
             try:
                 await log_msg(bot_name, "SUCCESS", "Game session active. Holding connection to stay in arena...")
                 while True:
-                    message = await asyncio.wait_for(ws_session.recv(), timeout=35.0)
+                    message = await asyncio.wait_for(ws_session.recv(), timeout=45.0)
                     frame_data = json.loads(message)
                     msg_type = frame_data.get("type")
                     
@@ -108,7 +108,7 @@ async def run_bot_instance(bot_config, version):
                                 
             except asyncio.TimeoutError:
                 print("")
-                await log_msg(bot_name, "WARN", "Connection timed out. Player has been detected dead in world history")
+                await log_msg(bot_name, "WARN", "Connection timed out. Game turn advance delayed. Retrying...")
                 try:
                     await ws_session.close()
                 except Exception:
