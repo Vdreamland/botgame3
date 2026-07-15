@@ -36,11 +36,11 @@ entities.py https://github.com/Vdreamland/botgame3/blob/master/helpers/entities.
 quests_seasons.py https://github.com/Vdreamland/botgame3/blob/master/helpers/quests_seasons.py
 errors_handler.py https://github.com/Vdreamland/botgame3/blob/master/helpers/errors_handler.py
 strategy_brain.py https://github.com/Vdreamland/botgame3/blob/master/helpers/strategy_brain.py
-
-state_router.py
-game_connection.py
+state_router.py https://github.com/Vdreamland/botgame3/blob/master/helpers/game_connection.py
+game_connection.py https://github.com/Vdreamland/botgame3/blob/master/helpers/game_connection.py
 combat_controller.py
 automation_scheduler.py
+
 
 
 /botgame3/
