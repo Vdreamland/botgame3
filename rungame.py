@@ -81,7 +81,11 @@ async def run_bot_instance(bot_config, version):
                         if not is_alive:
                             await ws_session.close()
                             break
-                            
+                    elif msg_type == "game_ended":
+                        await log_msg(bot_name, "SUCCESS", "Game session has officially ended on the server.")
+                        await ws_session.close()
+                        break
+                                
             except Exception as e:
                 await log_msg(bot_name, "WARN", f"Session disconnected: {str(e)}")
             finally:

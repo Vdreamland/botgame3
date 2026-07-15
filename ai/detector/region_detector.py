@@ -1,33 +1,11 @@
 from typing import Dict, Any, List
+from helpers.world_parser import get_region_adjacency_map
 
 def get_region_layers(frame_data: Dict[str, Any]) -> Dict[int, List[str]]:
-    current_id = (
-        frame_data.get("currentRegionId") or 
-        frame_data.get("view", {}).get("currentRegionId") or 
-        frame_data.get("view", {}).get("self", {}).get("regionId") or 
-        frame_data.get("view", {}).get("self", {}).get("currentRegionId")
-    )
-    regions = (
-        frame_data.get("view", {}).get("visibleRegions") or 
-        frame_data.get("view", {}).get("regions") or 
-        []
-    )
-    
-    graph = {}
-    id_to_name = {}
-    for r in regions:
-        r_id = r.get("id")
-        r_name = r.get("name", r_id)
-        id_to_name[r_id] = r_name
-        
-        connections = r.get("connectedRegions", [])
-        neighbors = []
-        for conn in connections:
-            if isinstance(conn, dict):
-                neighbors.append(conn.get("id"))
-            else:
-                neighbors.append(conn)
-        graph[r_id] = neighbors
+    adj_data = get_region_adjacency_map(frame_data)
+    current_id = adj_data["current_id"]
+    id_to_name = adj_data["id_to_name"]
+    graph = adj_data["graph"]
 
     from collections import deque
     queue = deque([(current_id, 0)])

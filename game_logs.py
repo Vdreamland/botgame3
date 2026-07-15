@@ -50,14 +50,13 @@ async def log_frame_update(bot_name, frame_data):
 
     print("")
 
-    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
     async with _print_lock:
         if is_alive:
-            print(f"[{timestamp}] Day: {day} | Turn: {turn} | [{bot_name}] | Status: \033[92mALIVE\033[0m")
+            print(f"Day: {day} | Turn: {turn} | [{bot_name}] | Status: \033[92mALIVE\033[0m")
             print(get_formatted_log(frame_data))
             print("")
             layers = get_region_layers(frame_data)
             print(format_region_layers(layers))
         else:
-            print(f"[{timestamp}] Day: {day} | Turn: {turn} | [{bot_name}] | Status: \033[91mELIMINATED (DEAD)\033[0m")
+            print(f"Day: {day} | Turn: {turn} | [{bot_name}] | Status: \033[91mELIMINATED (DEAD)\033[0m")
         sys.stdout.flush()
