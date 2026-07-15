@@ -16,7 +16,7 @@ CYAN = "\033[96m"
 _print_lock = asyncio.Lock()
 
 async def log_msg(bot_name, level, message):
-    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    timestamp = datetime.utcnow().strftime("%H:%M:%S")
     color = RESET
     
     lvl = level.upper()
@@ -40,7 +40,7 @@ async def log_msg(bot_name, level, message):
 async def log_frame_update(bot_name, frame_data):
     from ai.detector.agent_info import get_formatted_log
     from ai.detector.region_detector import get_region_layers, format_region_layers
-    from helpers.world_parser import get_turn, get_self_agent, is_bot_dead_in_logs
+    from helpers.world_parser import get_turn, get_self_agent, is_bot_dead_in_logs, get_bot_death_details
 
     turn = get_turn(frame_data)
     day = (turn - 1) // 4 + 1
@@ -51,6 +51,7 @@ async def log_frame_update(bot_name, frame_data):
 
     print("")
 
+    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
     async with _print_lock:
         if is_alive and not detected_dead_in_logs:
             print(f"Day: {day} | Turn: {turn} | [{bot_name}] | Status: \033[92mALIVE\033[0m")
@@ -60,5 +61,9 @@ async def log_frame_update(bot_name, frame_data):
             print(format_region_layers(layers))
         else:
             print(f"Day: {day} | Turn: {turn} | [{bot_name}] | Status: \033[91mELIMINATED (DEAD)\033[0m")
-            print("Player has been detected dead in world history")
+            death_details = get_bot_death_details(frame_data, bot_name)
+            if death_details:
+                print(f"Player has been detected dead in world history: Killed by {death_details['killer']} ({death_details['damage']} damage)")
+            else:
+                print("Player has been detected dead in world history")
         sys.stdout.flush()

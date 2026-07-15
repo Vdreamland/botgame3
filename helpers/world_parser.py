@@ -142,3 +142,18 @@ def is_bot_dead_in_logs(frame_data: Dict[str, Any], bot_name: str) -> bool:
         if bot_name in log_entry.get("message", ""):
             return True
     return False
+
+def get_bot_death_details(frame_data: Dict[str, Any], bot_name: str) -> Optional[Dict[str, Any]]:
+    for log in get_combat_logs(frame_data):
+        if log.get("target_name") == bot_name and log.get("new_hp") == 0:
+            return {
+                "killer": log.get("attacker_name", "unknown"),
+                "damage": log.get("damage", 0)
+            }
+    for log in get_death_logs(frame_data):
+        if bot_name in log.get("message", ""):
+            return {
+                "killer": log.get("killer_name") or "unknown",
+                "damage": "unknown"
+            }
+    return None
