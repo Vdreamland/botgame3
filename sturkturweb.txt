@@ -24,8 +24,9 @@
 └── rungame.py
 
 Link url github isi kodingan/dokumentasi
+
 /botgame3/ai/
-__init__.py
+__init__.py https://github.com/Vdreamland/botgame3/blob/master/ai/__init__.py
 
 /botgame3/ai/detector/
 __init__.py https://github.com/Vdreamland/botgame3/blob/master/ai/detector/__init__.py
