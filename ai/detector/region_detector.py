@@ -21,8 +21,6 @@ def get_region_layers(frame_data: Dict[str, Any]) -> Dict[int, List[str]]:
     
     layers = {}
     for r_id, dist in visited.items():
-        if dist == 0:
-            continue
         if dist not in layers:
             layers[dist] = []
         layers[dist].append(id_to_name[r_id])

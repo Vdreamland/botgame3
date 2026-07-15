@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import asyncio
 from datetime import datetime
 
@@ -38,9 +39,6 @@ async def log_msg(bot_name, level, message):
             sys.stdout.flush()
 
 async def log_frame_update(bot_name, frame_data):
-    from ai.detector.agent_info import get_formatted_log
-    from ai.detector.region_detector import get_region_layers, format_region_layers
-
     turn = frame_data.get("turn", 1)
     day = (turn - 1) // 4 + 1
     
@@ -50,13 +48,14 @@ async def log_frame_update(bot_name, frame_data):
 
     print("")
 
+    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
     async with _print_lock:
         if is_alive:
-            print(f"Day: {day} | Turn: {turn} | [{bot_name}] | Status: \033[92mALIVE\033[0m")
-            print(get_formatted_log(frame_data))
-            print("")
-            layers = get_region_layers(frame_data)
-            print(format_region_layers(layers))
+            print(f"[{timestamp}] Day: {day} | Turn: {turn} | [{bot_name}] | Status: \033[92mALIVE\033[0m")
+            print("Raw World Data :")
+            print(json.dumps(frame_data, indent=2))
         else:
-            print(f"Day: {day} | Turn: {turn} | [{bot_name}] | Status: \033[91mELIMINATED (DEAD)\033[0m")
+            print(f"[{timestamp}] Day: {day} | Turn: {turn} | [{bot_name}] | Status: \033[91mELIMINATED (DEAD)\033[0m")
+            print("Raw World Data :")
+            print(json.dumps(frame_data, indent=2))
         sys.stdout.flush()

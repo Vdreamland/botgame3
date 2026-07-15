@@ -76,21 +76,63 @@ def get_relic_stats(self_data: Dict[str, Any]) -> Dict[str, int]:
 def get_region_adjacency_map(frame_data: Dict[str, Any]) -> Dict[str, Any]:
     current_reg = get_current_region(frame_data)
     current_id = current_reg.get("id")
-    
     graph = {}
     id_to_name = {}
-    
     if current_id:
         id_to_name[current_id] = current_reg.get("name", current_id)
         graph[current_id] = current_reg.get("connections", [])
-        
     for r in get_visible_regions(frame_data):
         r_id = r.get("id")
         id_to_name[r_id] = r.get("name", r_id)
         graph[r_id] = r.get("connections", [])
-        
     return {
         "current_id": current_id,
         "id_to_name": id_to_name,
         "graph": graph
+    }
+
+def get_death_logs(frame_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    deaths = []
+    for entry in get_recent_logs(frame_data):
+        log_obj = entry.get("log", {})
+        if log_obj.get("type") == "death":
+            details = log_obj.get("details", {})
+            deaths.append({
+                "message": log_obj.get("message", ""),
+                "target_id": log_obj.get("target", ""),
+                "target_name": details.get("targetName", ""),
+                "killed_by": details.get("killedBy") or log_obj.get("agentId", ""),
+                "killer_name": details.get("killerName", "")
+            })
+    return deaths
+
+def get_combat_logs(frame_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    combat = []
+    for entry in get_recent_logs(frame_data):
+        log_obj = entry.get("log", {})
+        details = log_obj.get("details", {})
+        if details.get("verb") == "attack" or log_obj.get("type") == "attack":
+            combat.append({
+                "attacker_id": log_obj.get("agentId", ""),
+                "attacker_name": log_obj.get("message", "").split(" attacked ")[0] if " attacked " in log_obj.get("message", "") else "unknown",
+                "target_id": details.get("targetId", ""),
+                "target_name": details.get("targetName", ""),
+                "damage": details.get("damage", 0),
+                "actual_hp_drop": details.get("actualHpDrop", 0),
+                "new_hp": details.get("newHp", 0)
+            })
+    return combat
+
+def get_my_combat_events(frame_data: Dict[str, Any], my_id: str) -> Dict[str, List[Dict[str, Any]]]:
+    combat_logs = get_combat_logs(frame_data)
+    outbound = []
+    inbound = []
+    for log in combat_logs:
+        if log["attacker_id"] == my_id:
+            outbound.append(log)
+        if log["target_id"] == my_id:
+            inbound.append(log)
+    return {
+        "outbound": outbound,
+        "inbound": inbound
     }

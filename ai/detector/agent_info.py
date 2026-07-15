@@ -15,4 +15,4 @@ def get_formatted_log(frame_data: Dict[str, Any]) -> str:
     stats = get_agent_stats(frame_data)
     current_region = get_current_region(frame_data)
     details = get_region_details(current_region)
-    return f"Agent Info :\nHP {stats['hp']} / EP {stats['ep']} / ATK {stats['atk']} / DEF {stats['def']} / KILLS {stats['kills']}\nLocation : {details['name']} ({details['terrain']}) / {details['weather']} / {details['vision']} / {details['links']}"
+    return f"Agent Info :\nHP {stats['hp']} / EP {stats['ep']} / ATK {stats['atk']} / DEF {stats['def']} / KILLS {stats['kills']}\nLocation : {details['name']} ({details['terrain']}) | Weather: {details['weather']} | Vision: {details['vision']} | Links: {details['links']}"

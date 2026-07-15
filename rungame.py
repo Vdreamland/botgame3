@@ -22,6 +22,21 @@ def fetch_api_version():
         pass
     return "1.0.0"
 
+async def check_bot_alive_loop(bot_name, api_key, version, preference, ws_session):
+    while not ws_session.closed:
+        await asyncio.sleep(15.0)
+        if ws_session.closed:
+            break
+        state, data = check_agent_state(api_key, version, preference)
+        if state != "IN_GAME":
+            print("")
+            await log_msg(bot_name, "WARN", "Match Progress -> Status: ELIMINATED (DEAD)")
+            try:
+                await ws_session.close()
+            except Exception:
+                pass
+            break
+
 async def run_bot_instance(bot_config, version):
     bot_name = bot_config["name"]
     api_key = bot_config["api_key"]
@@ -66,6 +81,9 @@ async def run_bot_instance(bot_config, version):
             )
 
         if ws_session:
+            checker_task = asyncio.create_task(
+                check_bot_alive_loop(bot_name, api_key, version, preference, ws_session)
+            )
             try:
                 await log_msg(bot_name, "SUCCESS", "Game session active. Holding connection to stay in arena...")
                 async for message in ws_session:
@@ -89,6 +107,7 @@ async def run_bot_instance(bot_config, version):
             except Exception as e:
                 await log_msg(bot_name, "WARN", f"Session disconnected: {str(e)}")
             finally:
+                checker_task.cancel()
                 try:
                     await ws_session.close()
                 except Exception:
