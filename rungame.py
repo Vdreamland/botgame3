@@ -8,6 +8,7 @@ from game_logs import log_msg, log_frame_update
 from helpers.api_config import get_bots_config, BASE_URL, WS_URL, WS_GAMEPLAY_URL
 from helpers.state_router import check_agent_state
 from helpers.game_connection import connect_and_join_room, connect_and_resume_game
+from helpers.world_parser import get_self_agent, is_bot_dead_in_logs
 
 load_dotenv()
 
@@ -21,21 +22,6 @@ def fetch_api_version():
     except Exception:
         pass
     return "1.0.0"
-
-async def check_bot_alive_loop(bot_name, api_key, version, preference, ws_session):
-    while not ws_session.closed:
-        await asyncio.sleep(15.0)
-        if ws_session.closed:
-            break
-        state, data = check_agent_state(api_key, version, preference)
-        if state != "IN_GAME":
-            print("")
-            await log_msg(bot_name, "WARN", "Match Progress -> Status: ELIMINATED (DEAD)")
-            try:
-                await ws_session.close()
-            except Exception:
-                pass
-            break
 
 async def run_bot_instance(bot_config, version):
     bot_name = bot_config["name"]
@@ -81,22 +67,21 @@ async def run_bot_instance(bot_config, version):
             )
 
         if ws_session:
-            checker_task = asyncio.create_task(
-                check_bot_alive_loop(bot_name, api_key, version, preference, ws_session)
-            )
             try:
                 await log_msg(bot_name, "SUCCESS", "Game session active. Holding connection to stay in arena...")
-                async for message in ws_session:
+                while not ws_session.closed:
+                    message = await asyncio.wait_for(ws_session.recv(), timeout=45.0)
                     frame_data = json.loads(message)
                     msg_type = frame_data.get("type")
                     
                     if msg_type in ["agent_view", "turn_advanced"]:
                         await log_frame_update(bot_name, frame_data)
                         
-                        view_data = frame_data.get("view", {})
-                        self_data = view_data.get("self", {})
+                        self_data = get_self_agent(frame_data)
                         is_alive = self_data.get("isAlive", True)
-                        if not is_alive:
+                        detected_dead_in_logs = is_bot_dead_in_logs(frame_data, bot_name)
+                        
+                        if not is_alive or detected_dead_in_logs:
                             await ws_session.close()
                             break
                     elif msg_type == "game_ended":
@@ -104,10 +89,16 @@ async def run_bot_instance(bot_config, version):
                         await ws_session.close()
                         break
                                 
+            except asyncio.TimeoutError:
+                print("")
+                await log_msg(bot_name, "WARN", "Connection timed out. Player has been detected dead in world history")
+                try:
+                    await ws_session.close()
+                except Exception:
+                    pass
             except Exception as e:
                 await log_msg(bot_name, "WARN", f"Session disconnected: {str(e)}")
             finally:
-                checker_task.cancel()
                 try:
                     await ws_session.close()
                 except Exception:

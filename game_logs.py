@@ -1,6 +1,5 @@
 import os
 import sys
-import json
 import asyncio
 from datetime import datetime
 
@@ -39,23 +38,27 @@ async def log_msg(bot_name, level, message):
             sys.stdout.flush()
 
 async def log_frame_update(bot_name, frame_data):
-    turn = frame_data.get("turn", 1)
+    from ai.detector.agent_info import get_formatted_log
+    from ai.detector.region_detector import get_region_layers, format_region_layers
+    from helpers.world_parser import get_turn, get_self_agent, is_bot_dead_in_logs
+
+    turn = get_turn(frame_data)
     day = (turn - 1) // 4 + 1
     
-    view_data = frame_data.get("view", {})
-    self_data = view_data.get("self", {})
+    self_data = get_self_agent(frame_data)
     is_alive = self_data.get("isAlive", True)
+    detected_dead_in_logs = is_bot_dead_in_logs(frame_data, bot_name)
 
     print("")
 
-    timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
     async with _print_lock:
-        if is_alive:
-            print(f"[{timestamp}] Day: {day} | Turn: {turn} | [{bot_name}] | Status: \033[92mALIVE\033[0m")
-            print("Raw World Data :")
-            print(json.dumps(frame_data, indent=2))
+        if is_alive and not detected_dead_in_logs:
+            print(f"Day: {day} | Turn: {turn} | [{bot_name}] | Status: \033[92mALIVE\033[0m")
+            print(get_formatted_log(frame_data))
+            print("")
+            layers = get_region_layers(frame_data)
+            print(format_region_layers(layers))
         else:
-            print(f"[{timestamp}] Day: {day} | Turn: {turn} | [{bot_name}] | Status: \033[91mELIMINATED (DEAD)\033[0m")
-            print("Raw World Data :")
-            print(json.dumps(frame_data, indent=2))
+            print(f"Day: {day} | Turn: {turn} | [{bot_name}] | Status: \033[91mELIMINATED (DEAD)\033[0m")
+            print("Player has been detected dead in world history")
         sys.stdout.flush()

@@ -136,3 +136,9 @@ def get_my_combat_events(frame_data: Dict[str, Any], my_id: str) -> Dict[str, Li
         "outbound": outbound,
         "inbound": inbound
     }
+
+def is_bot_dead_in_logs(frame_data: Dict[str, Any], bot_name: str) -> bool:
+    for log_entry in get_death_logs(frame_data):
+        if bot_name in log_entry.get("message", ""):
+            return True
+    return False
