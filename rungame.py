@@ -69,7 +69,7 @@ async def run_bot_instance(bot_config, version):
         if ws_session:
             try:
                 await log_msg(bot_name, "SUCCESS", "Game session active. Holding connection to stay in arena...")
-                while not ws_session.closed:
+                while ws_session.open:
                     message = await asyncio.wait_for(ws_session.recv(), timeout=45.0)
                     frame_data = json.loads(message)
                     msg_type = frame_data.get("type")
