@@ -1,4 +1,9 @@
 /botgame2
+├── ai/                        
+│   ├── __init__.py            
+│   ├── detector/              
+│   │   ├── __init__.py        
+│   │   ├── agent_info.py 
 ├── helpers/
 │   ├── __init__.py
 │   ├── api_config.py
@@ -19,6 +24,12 @@
 └── rungame.py
 
 Link url github isi kodingan/dokumentasi
+/botgame3/ai/
+__init__.py
+
+/botgame3/ai/detector/
+__init__.py https://github.com/Vdreamland/botgame3/blob/master/ai/detector/__init__.py
+agent_info.py https://github.com/Vdreamland/botgame3/blob/master/ai/detector/agent_info.py
 
 /botgame3/
 .env https://github.com/Vdreamland/botgame3/blob/master/.env
