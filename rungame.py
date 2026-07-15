@@ -72,7 +72,7 @@ async def run_bot_instance(bot_config, version):
                     frame_data = json.loads(message)
                     msg_type = frame_data.get("type")
                     
-                    if msg_type == "agent_view":
+                    if msg_type in ["agent_view", "turn_advanced"]:
                         turn = frame_data.get("turn", 1)
                         day = (turn - 1) // 4 + 1
                         
