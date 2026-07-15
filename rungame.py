@@ -8,6 +8,7 @@ from game_logs import log_msg
 from helpers.api_config import get_bots_config, BASE_URL, WS_URL, WS_GAMEPLAY_URL
 from helpers.state_router import check_agent_state
 from helpers.game_connection import connect_and_join_room, connect_and_resume_game
+from ai.detector.agent_info import get_formatted_log
 
 load_dotenv()
 
@@ -84,6 +85,9 @@ async def run_bot_instance(bot_config, version):
                         
                         if is_alive:
                             await log_msg(bot_name, "INFO", f"Match Progress -> Day: {day} | Turn: {turn} | Status: ALIVE")
+                            
+                            info_msg = get_formatted_log(frame_data)
+                            await log_msg(bot_name, "INFO", info_msg)
                         else:
                             await log_msg(bot_name, "WARN", f"Match Progress -> Day: {day} | Turn: {turn} | Status: ELIMINATED (DEAD)")
                             await ws_session.close()
