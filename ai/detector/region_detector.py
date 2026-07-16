@@ -37,8 +37,22 @@ def get_region_layers(frame_data: Dict[str, Any]) -> Dict[int, List[str]]:
             if reg_id not in agents_by_region:
                 agents_by_region[reg_id] = []
             name = agent.get("name") or agent.get("username") or "Agent"
-            hp = agent.get("hp", 100)
-            agents_by_region[reg_id].append(f"{name} (HP {hp})")
+            hp = agent.get("hp", 0)
+            ep = agent.get("ep", 0)
+            atk = agent.get("atk", 25)
+            def_val = agent.get("def", 5)
+            kills = agent.get("kills", agent.get("killCount", 0))
+            weapon = agent.get("equippedWeapon")
+            weapon_name = "none"
+            if weapon:
+                weapon_name = weapon.get("name") if isinstance(weapon, dict) else weapon
+                if weapon_name == "Fist":
+                    weapon_name = "none"
+            armor = agent.get("equippedArmor")
+            armor_name = "none"
+            if armor:
+                armor_name = armor.get("name") if isinstance(armor, dict) else armor
+            agents_by_region[reg_id].append(f"{name} (HP {hp}/EP {ep}/ATK {atk}/DEF {def_val}/KILLS {kills} | {weapon_name}/{armor_name})")
     monsters_by_region = {}
     for monster in get_visible_monsters(frame_data):
         reg_id = monster.get("regionId")
@@ -47,7 +61,9 @@ def get_region_layers(frame_data: Dict[str, Any]) -> Dict[int, List[str]]:
                 monsters_by_region[reg_id] = []
             name = monster.get("name") or monster.get("typeId") or "Monster"
             hp = monster.get("hp", 0)
-            monsters_by_region[reg_id].append(f"{name} (HP {hp})")
+            atk = monster.get("atk", 0)
+            def_val = monster.get("def", 0)
+            monsters_by_region[reg_id].append(f"{name} (HP {hp}/ATK {atk}/DEF {def_val})")
     from collections import deque
     queue = deque([(current_id, 0)])
     visited = {current_id: 0}
