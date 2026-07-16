@@ -28,6 +28,7 @@ from ai.strategy.ruins_explore_strategy import get_ruin_explore_action
 class BrainDecision:
     def __init__(self):
         self.memory = BotMemory()
+        self.last_turn = -1
 
     def get_next_action(self, frame_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         current_region = get_current_region(frame_data)
@@ -36,6 +37,13 @@ class BrainDecision:
             return None
         current_id = current_region.get("id")
         self.memory.add_visited_region(current_id)
+        turn = frame_data.get("view", {}).get("turn", 0)
+        if turn != self.last_turn:
+            self.last_turn = turn
+            self.memory.pickup_attempts.clear()
+            self.memory.equipped_attempts.clear()
+            self.memory.drop_attempts.clear()
+            self.memory.use_attempts.clear()
         if current_id in self.memory.death_regions:
             self.memory.death_regions.remove(current_id)
         recent_logs = get_recent_logs(frame_data)
@@ -49,7 +57,7 @@ class BrainDecision:
         current_interactables = current_region.get("interactables", [])
         current_item_ids = {item.get("id") for item in current_items if item.get("id")}
         current_fac_ids = {fac.get("id") for fac in current_interactables if fac.get("id")}
-        current_enemy_ids = set()
+        current_enemy_ids = {a.get("id") for a in get_visible_agents(frame_data) if a.get("id")} | {m.get("id") for m in get_visible_monsters(frame_data) if m.get("id")}
         self.memory.track_action_failure(current_item_ids, current_fac_ids, current_enemy_ids)
         inv = self_data.get("inventory", [])
         inv_analysis = analyze_inventory(inv)
@@ -112,7 +120,7 @@ class BrainDecision:
         if len(inv) < 10:
             if not has_weapon:
                 local_weapon = next((item for item in current_items if item.get("category", "").lower() == "weapon"), None)
-                if local_weapon and local_weapon.get("id") not in self.memory.pickup_attempts:
+                if local_weapon and local_weapon.get("id") not in self.memory.pickup_attempts and local_weapon.get("id") not in self.memory.failed_items:
                     item_name = local_weapon.get("typeId", "weapon")
                     item_id = local_weapon.get("id")
                     self.memory.pickup_attempts.add(item_id)
@@ -121,8 +129,8 @@ class BrainDecision:
                     pickup_action = pickup_payload(item_id, f"Picking up local weapon: {item_name}")
             if not pickup_action:
                 pickup_action = get_pickup_action(frame_data, self.memory)
-        if pickup_action:
-            return pickup_action
+            if pickup_action:
+                return pickup_action
         if best_inv_score > eq_score and best_inv_weapon:
             item_id = best_inv_weapon.get("id")
             item_name = best_inv_weapon.get("typeId", "weapon")
@@ -152,16 +160,16 @@ class BrainDecision:
             recovery_action = get_recovery_action(frame_data, self.memory)
             if recovery_action:
                 return recovery_action
-            combat_action = get_combat_action(frame_data, self.memory)
-            if combat_action:
-                return combat_action
+        combat_action = get_combat_action(frame_data, self.memory)
+        if combat_action:
+            return combat_action
         else:
             combat_action = get_combat_action(frame_data, self.memory)
             if combat_action:
                 return combat_action
-            recovery_action = get_recovery_action(frame_data, self.memory)
-            if recovery_action:
-                return recovery_action
+        recovery_action = get_recovery_action(frame_data, self.memory)
+        if recovery_action:
+            return recovery_action
         if not is_loadout_optimal:
             interact_action = get_interact_action(frame_data, self.memory)
             if interact_action:
