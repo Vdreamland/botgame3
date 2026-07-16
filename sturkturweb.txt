@@ -23,7 +23,10 @@
 ├── strategy/              
 │   │   ├── __init__.py  
 │   │   ├── movement_strategy.py
-│   │   ├── loot_strategy.py   
+│   │   ├── loot_strategy.py  
+│   ├── brain_decision.py            
+│   ├── memory.py            
+
 
 
 ├── .env
@@ -42,9 +45,9 @@ agent_info.py https://github.com/Vdreamland/botgame3/blob/master/ai/detector/age
 region_detector.py https://github.com/Vdreamland/botgame3/blob/master/ai/detector/region_detector.py
 
 /botgame3/ai/strategy
-__init__.py
-movement_strategy.py
-loot_strategy.py
+__init__.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/__init__.py
+movement_strategy.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/loot_strategy.py
+loot_strategy.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/movement_strategy.py
 
 /botgame3/
 .env https://github.com/Vdreamland/botgame3/blob/master/.env
