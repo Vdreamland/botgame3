@@ -16,10 +16,11 @@ class BotMemory:
         self.death_regions: Set[str] = set()
 
     def add_visited_region(self, region_id: str):
-        if not self.move_history or self.move_history[-1] != region_id:
-            self.move_history.append(region_id)
-            if len(self.move_history) > 4:
-                self.move_history.pop(0)
+        if region_id in self.move_history:
+            self.move_history.remove(region_id)
+        self.move_history.append(region_id)
+        if len(self.move_history) > 4:
+            self.move_history.pop(0)
 
     def track_action_failure(self, current_item_ids: Set[str], current_fac_ids: Set[str], current_enemy_ids: Set[str]):
         if self.last_target_id:
