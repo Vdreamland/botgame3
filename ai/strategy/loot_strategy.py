@@ -23,7 +23,7 @@ def find_current_region_targets(frame_data: Dict[str, Any], memory: BotMemory) -
                 memory.last_action_type = "pickup"
                 return pickup_payload(item_id, "Picking up ground item")
     if not is_death_zone:
-        for fac in current_interactables:
+        for fac in interactables:
             fac_id = fac.get("id")
             fac_name = fac.get("name", "")
             is_used = fac.get("isUsed", False)
