@@ -23,6 +23,7 @@ from ai.strategy.survival_manager import get_recovery_action, get_flee_action, s
 from ai.strategy.combat_strategy import get_combat_action
 from ai.strategy.loot_strategy import get_pickup_action, get_interact_action, find_target_regions
 from ai.strategy.movement_strategy import find_shortest_path
+from ai.strategy.ruins_explore_strategy import get_ruin_explore_action
 
 class BrainDecision:
     def __init__(self):
@@ -112,9 +113,15 @@ class BrainDecision:
             else:
                 best_inv_score = melee_score
                 best_inv_weapon = inv_analysis["best_melee"]
+        has_weapon = (best_inv_score > 0.0) or (eq_score > 0.0)
         pickup_action = None
         if len(inv) < 10:
-            if is_loadout_optimal:
+            if not has_weapon:
+                local_weapon = next((item for item in current_items if item.get("category", "").lower() == "weapon"), None)
+                if local_weapon and local_weapon.get("id") not in self.memory.pickup_attempts:
+                    item_name = local_weapon.get("typeId", "weapon")
+                    pickup_action = pickup_payload(local_weapon["id"], f"Picking up local weapon: {item_name}")
+            elif is_loadout_optimal:
                 s_moltz_item = next((item for item in current_items if item.get("typeId", "").lower() == "smoltz"), None)
                 if s_moltz_item and s_moltz_item.get("id") not in self.memory.pickup_attempts:
                     pickup_action = pickup_payload(s_moltz_item["id"], "Picking up sMoltz")
@@ -211,13 +218,9 @@ class BrainDecision:
                     self.memory.last_action_type = "move"
                     return move_payload(next_region_id, "Hunting visible player in adjacent region")
         if not is_loadout_optimal:
-            ruin_local = next((fac for fac in current_region.get("interactables", []) if fac.get("typeId", "").lower() == "ruin"), None)
-            if ruin_local:
-                gauge = ruin_local.get("gauge", ruin_local.get("ruinGauge", 0))
-                occupied_by = ruin_local.get("occupiedBy")
-                our_id = self_data.get("id")
-                if gauge < 3 and (not occupied_by or occupied_by == our_id) and self_data.get("ep", 0) >= 2:
-                    return explore_payload("Exploring local ruin")
+            ruin_action = get_ruin_explore_action(frame_data)
+            if ruin_action:
+                return ruin_action
         if not is_loadout_optimal:
             target_regions = find_target_regions(frame_data, self.memory)
             if target_regions:

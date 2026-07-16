@@ -61,6 +61,7 @@ loot_strategy.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/
 inventory_manager.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/inventory_manager.py
 survival_manager.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/survival_manager.py
 combat_strategy.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/combat_strategy.py
+ruins_explore_strategy.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/ruins_explore_strategy.py
 
 /botgame3/
 .env https://github.com/Vdreamland/botgame3/blob/master/.env
