@@ -29,6 +29,9 @@ def get_recovery_action(frame_data: Dict[str, Any], memory: BotMemory) -> Option
         return None
     current_id = current_region.get("id")
     hp = self_data.get("hp", 0)
+    ep = self_data.get("ep", 0)
+    if current_region.get("isDeathZone", False) and ep >= 2:
+        return None
     has_easy_kill = any(
         a.get("regionId") == current_id and 0 < a.get("hp", 0) <= 25 and "Guardian" not in a.get("name", "")
         for a in get_visible_agents(frame_data)
@@ -38,7 +41,6 @@ def get_recovery_action(frame_data: Dict[str, Any], memory: BotMemory) -> Option
     hp_threshold = 60
     if is_enemy_nearby(frame_data, current_id):
         hp_threshold = 80
-    ep = self_data.get("ep", 0)
     inventory = self_data.get("inventory", [])
     if hp < hp_threshold:
         for item in inventory:
@@ -101,6 +103,12 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
     if not self_data or not current_region:
         return None
     current_id = current_region.get("id")
+    has_easy_kill = any(
+        a.get("regionId") == current_id and 0 < a.get("hp", 0) <= 25 and "Guardian" not in a.get("name", "")
+        for a in get_visible_agents(frame_data)
+    )
+    if has_easy_kill:
+        return None
     hp = self_data.get("hp", 0)
     ep = self_data.get("ep", 0)
     if ep < 2:

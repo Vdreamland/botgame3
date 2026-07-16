@@ -167,15 +167,32 @@ class BrainDecision:
                 return move_payload(next_region_id, "Moving to target region")
         visible_regions = get_visible_regions(frame_data)
         safe_region_ids = set()
+        death_zones = set()
         for r in visible_regions:
             r_id = r.get("id")
-            if r_id and not r.get("isDeathZone", False):
-                safe_region_ids.add(r_id)
+            if r_id:
+                if r.get("isDeathZone", False):
+                    death_zones.add(r_id)
+                else:
+                    safe_region_ids.add(r_id)
+        adj_data = get_region_adjacency_map(frame_data)
+        graph = adj_data.get("graph", {})
+        dangerous_adj = set()
+        for r_id in death_zones:
+            for neighbor in graph.get(r_id, []):
+                dangerous_adj.add(neighbor)
+        ultra_safe_region_ids = safe_region_ids - dangerous_adj
         safe_connections = [c for c in connections if c in safe_region_ids]
-        unvisited_connections = [c for c in safe_connections if c not in self.memory.move_history]
+        ultra_safe_connections = [c for c in connections if c in ultra_safe_region_ids]
+        unvisited_ultra = [c for c in ultra_safe_connections if c not in self.memory.move_history]
+        unvisited_safe = [c for c in safe_connections if c not in self.memory.move_history]
         next_fallback_id = None
-        if unvisited_connections:
-            next_fallback_id = unvisited_connections[0]
+        if unvisited_ultra:
+            next_fallback_id = unvisited_ultra[0]
+        elif ultra_safe_connections:
+            next_fallback_id = ultra_safe_connections[0]
+        elif unvisited_safe:
+            next_fallback_id = unvisited_safe[0]
         elif safe_connections:
             next_fallback_id = safe_connections[0]
         elif connections:
