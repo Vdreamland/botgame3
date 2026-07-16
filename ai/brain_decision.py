@@ -184,14 +184,14 @@ class BrainDecision:
         flee_action = get_flee_action(frame_data, self.memory)
         if flee_action:
             return flee_action
+        combat_action = get_combat_action(frame_data, self.memory)
+        if combat_action:
+            return combat_action
         hp = self_data.get("hp", 0)
         if hp < 40:
             recovery_action = get_recovery_action(frame_data, self.memory)
             if recovery_action:
                 return recovery_action
-        combat_action = get_combat_action(frame_data, self.memory)
-        if combat_action:
-            return combat_action
         recovery_action = get_recovery_action(frame_data, self.memory)
         if recovery_action:
             return recovery_action

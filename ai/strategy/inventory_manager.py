@@ -1,4 +1,5 @@
 from typing import Dict, Any, List, Optional
+from helpers.items_spec import WEAPONS, ARMORS
 
 MELEE_SCORES: Dict[str, int] = {
     "katana": 3,
@@ -8,8 +9,8 @@ MELEE_SCORES: Dict[str, int] = {
 }
 
 RANGED_SCORES: Dict[str, int] = {
-    "sniper": 4,
     "sniper_rifle": 4,
+    "sniper": 4,
     "pistol": 3,
     "bow": 2
 }
@@ -23,6 +24,8 @@ ARMOR_SCORES: Dict[str, int] = {
 }
 
 def analyze_inventory(inventory: List[Dict[str, Any]]) -> Dict[str, Any]:
+    hp_count = 0
+    ep_count = 0
     best_melee = None
     best_melee_score = 0
     best_ranged = None
@@ -33,16 +36,15 @@ def analyze_inventory(inventory: List[Dict[str, Any]]) -> Dict[str, Any]:
     melee_items = []
     ranged_items = []
     armor_items = []
-    binocular_items = []
-    hp_count = 0
-    ep_count = 0
     for item in inventory:
-        cat = item.get("category", "").lower()
         type_id = item.get("typeId", "").lower().replace(" ", "_")
+        cat = item.get("category", "").lower()
         if type_id in ["bandage", "medkit"]:
             hp_count += 1
         elif type_id in ["energy_drink", "emergency_food"]:
             ep_count += 1
+        if type_id == "binoculars":
+            has_binoculars = True
         if cat == "weapon":
             if type_id in MELEE_SCORES:
                 melee_items.append(item)
@@ -62,23 +64,19 @@ def analyze_inventory(inventory: List[Dict[str, Any]]) -> Dict[str, Any]:
             if score > best_armor_score:
                 best_armor_score = score
                 best_armor = item
-        elif type_id == "binoculars":
-            binocular_items.append(item)
-            has_binoculars = True
     return {
+        "hp_count": hp_count,
+        "ep_count": ep_count,
         "best_melee": best_melee,
         "best_melee_score": best_melee_score,
-        "melee_items": melee_items,
         "best_ranged": best_ranged,
         "best_ranged_score": best_ranged_score,
-        "ranged_items": ranged_items,
         "best_armor": best_armor,
         "best_armor_score": best_armor_score,
-        "armor_items": armor_items,
         "has_binoculars": has_binoculars,
-        "binocular_items": binocular_items,
-        "hp_count": hp_count,
-        "ep_count": ep_count
+        "melee_items": melee_items,
+        "ranged_items": ranged_items,
+        "armor_items": armor_items
     }
 
 def is_item_needed(item: Dict[str, Any], inv_analysis: Dict[str, Any]) -> bool:
@@ -115,8 +113,12 @@ def get_item_to_drop(inv_analysis: Dict[str, Any], inventory: List[Dict[str, Any
     for item in inv_analysis["armor_items"]:
         if item.get("id") != best_armor_id:
             return item.get("id")
-    if len(inv_analysis["binocular_items"]) > 1:
-        return inv_analysis["binocular_items"][1].get("id")
+    has_seen_binoculars = False
+    for item in inventory:
+        if item.get("typeId", "").lower() == "binoculars":
+            if has_seen_binoculars:
+                return item.get("id")
+            has_seen_binoculars = True
     if len(inventory) >= 10:
         for item in inventory:
             if item.get("typeId", "").lower() == "bandage":

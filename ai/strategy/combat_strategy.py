@@ -107,6 +107,8 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
         is_monster = (t["type"] == "monster")
         our_dmg = get_damage_dealt(our_atk, t_def, weather_mod)
         enemy_dmg = get_damage_dealt(t_atk, our_def, weather_mod) if (t_range - 1) >= t_dist else 0
+        if our_dmg < t_hp and our_hp < 40 and enemy_dmg >= our_hp:
+            continue
         score = evaluate_target_score(our_hp, our_dmg, t_hp, enemy_dmg, False)
         if is_monster:
             score -= 3.0
