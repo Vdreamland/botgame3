@@ -55,8 +55,8 @@ region_detector.py https://github.com/Vdreamland/botgame3/blob/master/ai/detecto
 
 /botgame3/ai/strategy
 __init__.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/__init__.py
-movement_strategy.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/loot_strategy.py
-loot_strategy.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/movement_strategy.py
+movement_strategy.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/movement_strategy.py
+loot_strategy.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/loot_strategy.py
 inventory_manager.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/inventory_manager.py
 recovery_manager.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/recovery_manager.py
 
@@ -67,7 +67,7 @@ rungame.py https://github.com/Vdreamland/botgame3/blob/master/rungame.py
 game_logs.py https://github.com/Vdreamland/botgame3/blob/master/game_logs.py
 
 /botgame3/helpers/
-init__.py https://github.com/Vdreamland/botgame3/blob/master/helpers/__init__.py
+__init__.py https://github.com/Vdreamland/botgame3/blob/master/helpers/__init__.py
 api_config.py https://github.com/Vdreamland/botgame3/blob/master/helpers/api_config.py
 game_constants.py https://github.com/Vdreamland/botgame3/blob/master/helpers/game_constants.py
 actions_payload.py https://github.com/Vdreamland/botgame3/blob/master/helpers/actions_payload.py
@@ -76,7 +76,7 @@ entities.py https://github.com/Vdreamland/botgame3/blob/master/helpers/entities.
 quests_seasons.py https://github.com/Vdreamland/botgame3/blob/master/helpers/quests_seasons.py
 errors_handler.py https://github.com/Vdreamland/botgame3/blob/master/helpers/errors_handler.py
 strategy_brain.py https://github.com/Vdreamland/botgame3/blob/master/helpers/strategy_brain.py
-state_router.py https://github.com/Vdreamland/botgame3/blob/master/helpers/game_connection.py
+state_router.py https://github.com/Vdreamland/botgame3/blob/master/helpers/state_router.py 
 game_connection.py https://github.com/Vdreamland/botgame3/blob/master/helpers/game_connection.py
 world_parser.py https://github.com/Vdreamland/botgame3/blob/master/helpers/world_parser.py 
 
