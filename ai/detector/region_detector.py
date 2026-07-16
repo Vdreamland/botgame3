@@ -58,7 +58,7 @@ def get_region_layers(frame_data: Dict[str, Any]) -> Dict[int, List[str]]:
                 armor_name = "none"
                 if armor:
                     armor_name = armor.get("name") if isinstance(armor, dict) else armor
-                agents_by_region[reg_id].append(f"{name} (HP {hp}/EP {ep}/ATK {atk}/DEF {def_val}/KILLS {kills} | {weapon_name}/{armor_name})")
+                agents_by_region[reg_id].append(f"{name} (HP {hp}/EP {ep}/ATK {atk}/DEF {def_val}/KILLS {kills} | Weapon: {weapon_name} | Armour: {armor_name})")
     monsters_by_region = {}
     for monster in get_visible_monsters(frame_data):
         reg_id = monster.get("regionId")
@@ -67,7 +67,7 @@ def get_region_layers(frame_data: Dict[str, Any]) -> Dict[int, List[str]]:
                 monsters_by_region[reg_id] = []
             name = monster.get("name") or monster.get("typeId") or "Monster"
             hp = monster.get("hp", 0)
-            type_id = monster.get("typeId", "").lower()
+            type_id = (monster.get("typeId") or monster.get("name") or "").lower()
             if "guardian" in type_id:
                 static_stats = GUARDIAN_STATS
             else:
@@ -96,29 +96,31 @@ def get_region_layers(frame_data: Dict[str, Any]) -> Dict[int, List[str]]:
         is_death_zone = details.get("is_death_zone", False)
         agents_in_reg = agents_by_region.get(r_id, [])
         monsters_in_reg = monsters_by_region.get(r_id, [])
-        info_parts = []
+        region_title = base_name
         if is_death_zone:
-            info_parts.append("\033[91mDEATH ZONE\033[0m")
+            region_title = f"{base_name} (\033[91mDEATH ZONE\033[0m)"
+        region_block = [f"  {region_title} :"]
         if agents_in_reg:
-            info_parts.append(f"Players: {', '.join(agents_in_reg)}")
+            region_block.append(f"    Player : {', '.join(agents_in_reg)}")
         if monsters_in_reg:
-            info_parts.append(f"Monsters: {', '.join(monsters_in_reg)}")
+            region_block.append(f"    Monster : {', '.join(monsters_in_reg)}")
+        item_parts = []
         if items:
             items_summary = ", ".join(item.get("name", "item") for item in items)
-            info_parts.append(f"Loot: {items_summary}")
+            item_parts.append(f"Loot: {items_summary}")
         if interactables:
             facs_summary = ", ".join(fac.get("name", "facility") for fac in interactables)
-            info_parts.append(f"Facility: {facs_summary}")
-        if info_parts:
-            region_str = f"{base_name} ({' | '.join(info_parts)})"
-        else:
-            region_str = base_name
+            item_parts.append(f"Facility: {facs_summary}")
+        if item_parts:
+            region_block.append(f"    Item : {' | '.join(item_parts)}")
+        region_str = "\n".join(region_block)
         layers[dist].append(region_str)
     return layers
 
 def format_region_layers(layers: Dict[int, List[str]]) -> str:
     lines = ["Region Detector :"]
     for dist in sorted(layers.keys()):
-        regions_str = ", ".join(layers[dist])
-        lines.append(f"Layer {dist} : {regions_str}")
+        lines.append(f"Layer {dist} :")
+        regions_str = "\n\n".join(layers[dist])
+        lines.append(regions_str)
     return "\n".join(lines)
