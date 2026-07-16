@@ -1,6 +1,6 @@
 import json
 from typing import Dict, Any, Optional
-from helpers.world_parser import get_current_region, get_self_agent
+from helpers.world_parser import get_current_region, get_self_agent, get_visible_regions
 from helpers.actions_payload import move_payload, explore_payload, rest_payload, equip_payload, drop_payload
 from ai.memory import BotMemory
 from ai.strategy.inventory_manager import analyze_inventory, get_item_to_drop, MELEE_SCORES, RANGED_SCORES, ARMOR_SCORES
@@ -72,23 +72,31 @@ class BrainDecision:
                 self.memory.last_target_id = None
                 self.memory.last_action_type = "move"
                 return move_payload(next_region_id, "Moving to target region")
-        if should_rest_for_ep(self_data, current_region):
-            return rest_payload("Resting to recover EP")
-        ep = self_data.get("ep", 0)
+        visible_regions = get_visible_regions(frame_data)
+        safe_region_ids = set()
+        for r in visible_regions:
+            r_id = r.get("id")
+            if r_id and not r.get("isDeathZone", False):
+                safe_region_ids.add(r_id)
         connections = current_region.get("connections", [])
-        unvisited_connections = [c for c in connections if c not in self.memory.move_history]
+        safe_connections = [c for c in connections if c in safe_region_ids]
+        unvisited_connections = [c for c in safe_connections if c not in self.memory.move_history]
         next_fallback_id = None
         if unvisited_connections:
             next_fallback_id = unvisited_connections[0]
+        elif safe_connections:
+            next_fallback_id = safe_connections[0]
         elif connections:
             next_fallback_id = connections[0]
         ruin_gauge = current_region.get("ruinGauge", 3)
-        if ruin_gauge < 3 and ep >= 2:
+        if ruin_gauge < 3 and self_data.get("ep", 0) >= 2:
             return explore_payload("Exploring ruin")
-        if ep >= 2 and next_fallback_id:
+        if self_data.get("ep", 0) >= 2 and next_fallback_id:
             self.memory.last_target_id = None
             self.memory.last_action_type = "move"
             return move_payload(next_fallback_id, "Moving to unvisited region to search")
-        if ep < 2:
+        if should_rest_for_ep(self_data, current_region):
+            return rest_payload("Resting to recover EP")
+        if self_data.get("ep", 0) < 2:
             return rest_payload("Resting to recover EP")
         return explore_payload("Exploring local region")

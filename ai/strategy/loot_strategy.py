@@ -44,6 +44,8 @@ def find_target_regions(frame_data: Dict[str, Any], memory: BotMemory) -> List[s
         r_id = r.get("id")
         if not r_id:
             continue
+        if r.get("isDeathZone", False):
+            continue
         has_valid_targets = False
         for item in r.get("items", []):
             item_id = item.get("id")
