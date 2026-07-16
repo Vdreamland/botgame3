@@ -44,6 +44,9 @@ class BrainDecision:
             self.memory.equipped_attempts.clear()
             self.memory.drop_attempts.clear()
             self.memory.use_attempts.clear()
+            self.memory.failed_attacks.clear()
+            self.memory.failed_items.clear()
+            self.memory.failed_facilities.clear()
         if current_id in self.memory.death_regions:
             self.memory.death_regions.remove(current_id)
         recent_logs = get_recent_logs(frame_data)
