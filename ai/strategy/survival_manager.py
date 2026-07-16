@@ -128,7 +128,7 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
             if "guardian" not in type_id:
                 has_threat = True
                 break
-    if has_threat and hp < 60:
+    if has_threat and hp < 40:
         visible_regions = frame_data.get("view", {}).get("visibleRegions", [])
         safe_regions = set()
         region_threat_counts = {}
