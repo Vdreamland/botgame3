@@ -1,11 +1,10 @@
-from typing import Dict, Any, Optional, List
-from helpers.world_parser import get_current_region, get_visible_regions
-from ai.memory import BotMemory
-from ai.strategy.inventory_manager import analyze_inventory, is_item_needed
+from typing import Dict, Any, List, Optional
+from helpers.world_parser import get_current_region
 
-def get_pickup_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[Dict[str, Any]]:
+def get_pickup_action(frame_data: Dict[str, Any], memory: Any) -> Optional[Dict[str, Any]]:
     from helpers.actions_payload import pickup_payload
     from helpers.world_parser import get_self_agent
+    from ai.strategy.inventory_manager import analyze_inventory, is_item_needed
     self_data = get_self_agent(frame_data)
     inv = self_data.get("inventory", [])
     inv_analysis = analyze_inventory(inv)
@@ -20,58 +19,60 @@ def get_pickup_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
                 memory.pickup_attempts.add(item_id)
                 memory.last_target_id = item_id
                 memory.last_action_type = "pickup"
-                return pickup_payload(item_id, "Picking up ground item")
+                item_name = item.get("typeId") or "item"
+                return pickup_payload(item_id, f"Picking up {item_name}")
     return None
 
-def get_interact_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[Dict[str, Any]]:
+def get_interact_action(frame_data: Dict[str, Any], memory: Any) -> Optional[Dict[str, Any]]:
     from helpers.actions_payload import interact_payload
     current_region = get_current_region(frame_data)
     if not current_region:
         return None
-    is_death_zone = current_region.get("isDeathZone", False)
-    if is_death_zone:
+    if current_region.get("isDeathZone", False):
         return None
     interactables = current_region.get("interactables", [])
     for fac in interactables:
         fac_id = fac.get("id")
-        fac_name = fac.get("name", "")
-        is_used = fac.get("isUsed", False)
-        if fac_id and fac_name in ["Supply Cache", "Medical Facility"] and not is_used and fac_id not in memory.failed_facilities:
-            memory.last_target_id = fac_id
-            memory.last_action_type = "interact"
-            return interact_payload(fac_id, "Interacting with facility")
+        fac_type = fac.get("typeId")
+        if fac_id and fac_id not in memory.failed_facilities:
+            if fac_type in ["Supply Cache", "Medical Facility"]:
+                if not fac.get("isUsed", False):
+                    memory.last_target_id = fac_id
+                    memory.last_action_type = "interact"
+                    return interact_payload(fac_id, "Interacting with facility")
     return None
 
-def find_target_regions(frame_data: Dict[str, Any], memory: BotMemory) -> List[str]:
-    from helpers.world_parser import get_self_agent
-    self_data = get_self_agent(frame_data)
+def find_target_regions(frame_data: Dict[str, Any], memory: Any) -> List[str]:
+    from helpers.world_parser import get_visible_regions
+    from ai.strategy.inventory_manager import analyze_inventory, is_item_needed
+    self_data = frame_data.get("view", {}).get("self", {})
     inv = self_data.get("inventory", [])
     inv_analysis = analyze_inventory(inv)
+    visible_regions = get_visible_regions(frame_data)
     death_targets = []
     other_targets = []
-    visible_regions = get_visible_regions(frame_data)
     for r in visible_regions:
         r_id = r.get("id")
         if not r_id:
             continue
-        if r.get("isDeathZone", False):
-            continue
-        has_valid_targets = False
-        for item in r.get("items", []):
+        has_valuable = False
+        items = r.get("items", [])
+        for item in items:
             item_id = item.get("id")
             if item_id and item_id not in memory.failed_items and item_id not in memory.pickup_attempts:
                 if is_item_needed(item, inv_analysis):
-                    has_valid_targets = True
+                    has_valuable = True
                     break
-        for fac in r.get("interactables", []):
+        interactables = r.get("interactables", [])
+        for fac in interactables:
             fac_id = fac.get("id")
-            fac_name = fac.get("name", "")
-            is_used = fac.get("isUsed", False)
-            if fac_id and fac_name in ["Supply Cache", "Medical Facility"] and not is_used and fac_id not in memory.failed_facilities:
-                has_valid_targets = True
-                break
-        if has_valid_targets:
-            if r_id in memory.death_regions:
+            fac_type = fac.get("typeId")
+            if fac_id and fac_id not in memory.failed_facilities:
+                if fac_type in ["Supply Cache", "Medical Facility"] and not fac.get("isUsed", False):
+                    has_valuable = True
+                    break
+        if has_valuable:
+            if r.get("isDeathZone", False):
                 death_targets.append(r_id)
             else:
                 other_targets.append(r_id)

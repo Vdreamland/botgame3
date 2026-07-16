@@ -22,7 +22,12 @@ async def connect_and_join_room(
     await log_callback("INFO", "Opening secure connection to game server...")
     
     try:
-        websocket = await websockets.connect(ws_url, additional_headers=headers)
+        websocket = await websockets.connect(
+            ws_url,
+            additional_headers=headers,
+            ping_interval=15,
+            ping_timeout=30
+        )
         
         welcome_msg = await websocket.recv()
         welcome_data = json.loads(welcome_msg)
@@ -98,7 +103,12 @@ async def connect_and_resume_game(
     await log_callback("INFO", "Reconnecting to active game session...")
     
     try:
-        websocket = await websockets.connect(ws_url, additional_headers=headers)
+        websocket = await websockets.connect(
+            ws_url,
+            additional_headers=headers,
+            ping_interval=15,
+            ping_timeout=30
+        )
         await log_callback("SUCCESS", "Successfully reconnected to active arena! Listening to game updates...")
         return websocket
     except Exception as e:

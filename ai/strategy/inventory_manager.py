@@ -34,9 +34,15 @@ def analyze_inventory(inventory: List[Dict[str, Any]]) -> Dict[str, Any]:
     ranged_items = []
     armor_items = []
     binocular_items = []
+    hp_count = 0
+    ep_count = 0
     for item in inventory:
         cat = item.get("category", "")
         type_id = item.get("typeId", "").lower()
+        if type_id in ["bandage", "medkit"]:
+            hp_count += 1
+        elif type_id in ["energy_drink", "emergency_food"]:
+            ep_count += 1
         if cat == "weapon":
             if type_id in MELEE_SCORES:
                 melee_items.append(item)
@@ -70,7 +76,9 @@ def analyze_inventory(inventory: List[Dict[str, Any]]) -> Dict[str, Any]:
         "best_armor_score": best_armor_score,
         "armor_items": armor_items,
         "has_binoculars": has_binoculars,
-        "binocular_items": binocular_items
+        "binocular_items": binocular_items,
+        "hp_count": hp_count,
+        "ep_count": ep_count
     }
 
 def is_item_needed(item: Dict[str, Any], inv_analysis: Dict[str, Any]) -> bool:
@@ -88,6 +96,10 @@ def is_item_needed(item: Dict[str, Any], inv_analysis: Dict[str, Any]) -> bool:
         return score > inv_analysis["best_armor_score"]
     elif type_id == "binoculars":
         return not inv_analysis["has_binoculars"]
+    if type_id in ["bandage", "medkit"]:
+        return inv_analysis.get("hp_count", 0) < 2
+    if type_id in ["energy_drink", "emergency_food"]:
+        return inv_analysis.get("ep_count", 0) < 3
     return True
 
 def get_item_to_drop(inv_analysis: Dict[str, Any], inventory: List[Dict[str, Any]]) -> Optional[str]:

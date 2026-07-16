@@ -59,11 +59,11 @@ def get_region_layers(frame_data: Dict[str, Any]) -> Dict[int, List[str]]:
                 weapon_bonus = 0
                 if weapon:
                     weapon_name = weapon.get("name") if isinstance(weapon, dict) else weapon
-                    if weapon_name == "Fist":
-                        weapon_name = "none"
-                    if weapon_name != "none":
-                        weapon_key = weapon_name.lower().replace(" ", "_")
-                        weapon_bonus = WEAPONS.get(weapon_key, {}).get("atk_bonus", 0)
+                if weapon_name == "Fist":
+                    weapon_name = "none"
+                if weapon_name != "none":
+                    weapon_key = weapon_name.lower().replace(" ", "_")
+                    weapon_bonus = WEAPONS.get(weapon_key, {}).get("atk_bonus", 0)
                 armor = agent.get("equippedArmor")
                 armor_name = "none"
                 if armor:
@@ -111,11 +111,11 @@ def get_region_layers(frame_data: Dict[str, Any]) -> Dict[int, List[str]]:
         region_title = base_name
         if is_death_zone:
             region_title = f"{base_name} (\033[91mDEATH ZONE\033[0m)"
-        region_block = [f"  {region_title} :"]
+        region_block = [f" {region_title} :"]
         if agents_in_reg:
-            region_block.append(f"    Player : {', '.join(agents_in_reg)}")
+            region_block.append(f" Player : {', '.join(agents_in_reg)}")
         if monsters_in_reg:
-            region_block.append(f"    Monster : {', '.join(monsters_in_reg)}")
+            region_block.append(f" Monster : {', '.join(monsters_in_reg)}")
         item_parts = []
         if items:
             items_summary = ", ".join(item.get("name", "item") for item in items)
@@ -124,7 +124,7 @@ def get_region_layers(frame_data: Dict[str, Any]) -> Dict[int, List[str]]:
             facs_summary = ", ".join(fac.get("name", "facility") for fac in interactables)
             item_parts.append(f"Facility: {facs_summary}")
         if item_parts:
-            region_block.append(f"    Item : {' | '.join(item_parts)}")
+            region_block.append(f" Item : {' | '.join(item_parts)}")
         region_str = "\n".join(region_block)
         layers[dist].append(region_str)
     return layers

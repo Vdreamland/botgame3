@@ -7,6 +7,7 @@ from helpers.entities import MONSTERS, GUARDIAN_STATS
 from helpers.game_constants import WEATHER_MODIFIERS
 from helpers.items_spec import WEAPONS
 from ai.memory import BotMemory
+from helpers.combat_controller import get_damage_dealt, estimate_turns_to_kill, evaluate_target_score
 
 def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[Dict[str, Any]]:
     self_data = get_self_agent(frame_data)
@@ -41,9 +42,8 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
         our_atk += w_data.get("atk_bonus", 0)
         our_range = w_data.get("range", 0)
     available_actions = get_available_actions(frame_data)
-    attack_ok = available_actions.get("attack", {}).get("ok", False)
     attack_cost = available_actions.get("attack", {}).get("cost", 1)
-    if not attack_ok or our_ep < attack_cost:
+    if our_ep < attack_cost:
         return None
     targets = []
     for agent in get_visible_agents(frame_data):
@@ -104,26 +104,20 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
         t_def = t["def"]
         t_dist = t["dist"]
         t_range = t["range"]
-        our_dmg = max(1, our_atk - t_def + weather_mod)
-        if t_range < t_dist:
-            enemy_dmg = 0
-        else:
-            enemy_dmg = max(1, t_atk - our_def + weather_mod)
-        turns_to_kill_enemy = math.ceil(t_hp / our_dmg)
-        if enemy_dmg == 0:
-            turns_to_kill_us = 999
-        else:
-            turns_to_kill_us = math.ceil(our_hp / enemy_dmg)
-        score = turns_to_kill_us - turns_to_kill_enemy
-        if t["type"] == "monster":
-            score += 0.5
+        is_monster = (t["type"] == "monster")
+        our_dmg = get_damage_dealt(our_atk, t_def, weather_mod)
+        enemy_dmg = get_damage_dealt(t_atk, our_def, weather_mod) if t_range >= t_dist else 0
+        score = evaluate_target_score(our_hp, our_dmg, t_hp, enemy_dmg, False)
+        if is_monster:
+            score -= 3.0
+        score -= t_dist * 2.0
         if score > best_target_score:
             best_target_score = score
             best_target = t
     if best_target:
-        our_dmg = max(1, our_atk - best_target["def"] + weather_mod)
-        turns_to_kill_enemy = math.ceil(best_target["hp"] / our_dmg)
-        if best_target_score >= 0 or best_target["hp"] < 30 or turns_to_kill_enemy <= 2:
+        our_dmg = get_damage_dealt(our_atk, best_target["def"], weather_mod)
+        turns_to_kill_enemy = estimate_turns_to_kill(best_target["hp"], our_dmg)
+        if best_target_score >= -50.0 or best_target["hp"] < 30 or turns_to_kill_enemy <= 2:
             memory.last_target_id = best_target["id"]
             memory.last_action_type = "attack"
             return attack_payload(best_target["id"], best_target["type"], f"Attacking {best_target['name']} at dist {best_target['dist']} (Est. turns: {turns_to_kill_enemy})")

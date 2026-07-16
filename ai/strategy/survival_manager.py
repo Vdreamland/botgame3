@@ -22,16 +22,22 @@ def is_enemy_nearby(frame_data: Dict[str, Any], current_id: str) -> bool:
 
 def get_recovery_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[Dict[str, Any]]:
     from helpers.actions_payload import use_item_payload
-    from helpers.world_parser import get_self_agent, get_current_region
+    from helpers.world_parser import get_self_agent, get_current_region, get_visible_agents
     self_data = get_self_agent(frame_data)
     current_region = get_current_region(frame_data)
     if not self_data or not current_region:
         return None
     current_id = current_region.get("id")
+    hp = self_data.get("hp", 0)
+    has_easy_kill = any(
+        a.get("regionId") == current_id and 0 < a.get("hp", 0) <= 25 and "Guardian" not in a.get("name", "")
+        for a in get_visible_agents(frame_data)
+    )
+    if has_easy_kill and hp > 40:
+        return None
     hp_threshold = 60
     if is_enemy_nearby(frame_data, current_id):
         hp_threshold = 80
-    hp = self_data.get("hp", 0)
     ep = self_data.get("ep", 0)
     inventory = self_data.get("inventory", [])
     if hp < hp_threshold:
@@ -63,20 +69,26 @@ def get_recovery_action(frame_data: Dict[str, Any], memory: BotMemory) -> Option
     ground_type_ids = {item.get("typeId", "").lower() for item in ground_items if item.get("typeId")}
     has_ground_hp_item = any(tid in ["medkit", "emergency_food", "bandage"] for tid in ground_type_ids)
     has_ground_ep_item = any(tid in ["energy_drink", "emergency_food"] for tid in ground_type_ids)
-    if hp < 90 and has_ground_hp_item:
+    if has_ground_hp_item:
         for item in inventory:
             item_id = item.get("id")
             type_id = item.get("typeId", "").lower()
             if item_id and item_id not in memory.use_attempts:
-                if type_id in ["medkit", "emergency_food", "bandage"]:
+                if type_id == "medkit" and hp <= 70:
                     memory.use_attempts.add(item_id)
-                    return use_item_payload(item_id, f"Proactive HP restore: consuming {type_id} since replacements are on the ground")
-    if ep < 10 and has_ground_ep_item:
+                    return use_item_payload(item_id, "Proactive HP restore: consuming medkit since replacements are on the ground")
+                elif type_id == "emergency_food" and hp <= 80:
+                    memory.use_attempts.add(item_id)
+                    return use_item_payload(item_id, "Proactive HP restore: consuming emergency food since replacements are on the ground")
+                elif type_id == "bandage" and hp <= 90:
+                    memory.use_attempts.add(item_id)
+                    return use_item_payload(item_id, "Proactive HP restore: consuming bandage since replacements are on the ground")
+    if has_ground_ep_item:
         for item in inventory:
             item_id = item.get("id")
             type_id = item.get("typeId", "").lower()
             if item_id and item_id not in memory.use_attempts:
-                if type_id in ["energy_drink", "emergency_food"]:
+                if type_id in ["energy_drink", "emergency_food"] and ep <= 5:
                     memory.use_attempts.add(item_id)
                     return use_item_payload(item_id, f"Proactive EP restore: consuming {type_id} since replacements are on the ground")
     return None
@@ -98,6 +110,8 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
         if agent.get("regionId") == current_id and agent.get("hp", 0) > 0:
             name = agent.get("name", "")
             if "Guardian" not in name and not agent.get("isGuardian", False):
+                if agent.get("hp", 0) <= 25:
+                    continue
                 has_threat = True
                 break
     for monster in get_visible_monsters(frame_data):

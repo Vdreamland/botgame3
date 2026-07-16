@@ -27,16 +27,18 @@ def fetch_api_version():
 async def check_bot_alive_loop(bot_name, api_key, version, preference, ws_session):
     while True:
         await asyncio.sleep(10.0)
-        state, data = await asyncio.to_thread(check_agent_state, api_key, version, preference)
-        if state != "IN_GAME":
-            print("")
-            await log_msg(bot_name, "WARN", "Status: ELIMINATED (DEAD)")
-            print("Player has been detected dead in world history")
-            try:
-                await ws_session.close()
-            except Exception:
-                pass
-            break
+        try:
+            state, data = await asyncio.to_thread(check_agent_state, api_key, version, preference)
+            if state != "IN_GAME":
+                print("")
+                await log_msg(bot_name, "ERROR", "GAME OVER -> You have been eliminated!")
+                try:
+                    await ws_session.close()
+                except Exception:
+                    pass
+                break
+        except Exception:
+            pass
 
 async def run_bot_instance(bot_config, version):
     bot_name = bot_config["name"]
