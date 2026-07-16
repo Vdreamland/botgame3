@@ -8,10 +8,10 @@ MELEE_SCORES: Dict[str, int] = {
 }
 
 RANGED_SCORES: Dict[str, int] = {
-    "sniper": 3,
-    "sniper_rifle": 3,
-    "pistol": 2,
-    "bow": 1
+    "sniper": 4,
+    "sniper_rifle": 4,
+    "pistol": 3,
+    "bow": 2
 }
 
 ARMOR_SCORES: Dict[str, int] = {
