@@ -41,6 +41,11 @@ __init__.py https://github.com/Vdreamland/botgame3/blob/master/ai/detector/__ini
 agent_info.py https://github.com/Vdreamland/botgame3/blob/master/ai/detector/agent_info.py
 region_detector.py https://github.com/Vdreamland/botgame3/blob/master/ai/detector/region_detector.py
 
+/botgame3/ai/strategy
+__init__.py
+movement_strategy.py
+loot_strategy.py
+
 /botgame3/
 .env https://github.com/Vdreamland/botgame3/blob/master/.env
 requirements.txt https://github.com/Vdreamland/botgame3/blob/master/requirements.txt
