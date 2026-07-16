@@ -8,6 +8,9 @@ class BotMemory:
         self.last_target_id: Optional[str] = None
         self.last_action_type: Optional[str] = None
         self.action_counter: int = 0
+        self.equipped_attempts: Set[str] = set()
+        self.drop_attempts: Set[str] = set()
+        self.use_attempts: Set[str] = set()
 
     def add_visited_region(self, region_id: str):
         if not self.move_history or self.move_history[-1] != region_id:

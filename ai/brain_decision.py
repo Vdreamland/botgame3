@@ -24,7 +24,7 @@ class BrainDecision:
         current_item_ids = {item.get("id") for item in current_items if item.get("id")}
         current_fac_ids = {fac.get("id") for fac in current_interactables if fac.get("id")}
         self.memory.track_action_failure(current_item_ids, current_fac_ids)
-        recovery_action = get_recovery_action(self_data)
+        recovery_action = get_recovery_action(self_data, self.memory)
         if recovery_action:
             return recovery_action
         inv = self_data.get("inventory", [])
@@ -45,14 +45,21 @@ class BrainDecision:
             best_inv_score = inv_analysis["best_ranged_score"]
             best_inv_weapon = inv_analysis["best_ranged"]
         if best_inv_score > eq_score and best_inv_weapon:
-            return equip_payload(best_inv_weapon.get("id"), "Equipping stronger weapon")
+            item_id = best_inv_weapon.get("id")
+            if item_id and item_id not in self.memory.equipped_attempts:
+                self.memory.equipped_attempts.add(item_id)
+                return equip_payload(item_id, "Equipping stronger weapon")
         eq_armor = self_data.get("equippedArmor")
         eq_armor_type = eq_armor.get("typeId", "").lower() if eq_armor else ""
         eq_armor_score = ARMOR_SCORES.get(eq_armor_type, 0)
         if inv_analysis["best_armor_score"] > eq_armor_score and inv_analysis["best_armor"]:
-            return equip_payload(inv_analysis["best_armor"].get("id"), "Equipping stronger armor")
+            item_id = inv_analysis["best_armor"].get("id")
+            if item_id and item_id not in self.memory.equipped_attempts:
+                self.memory.equipped_attempts.add(item_id)
+                return equip_payload(item_id, "Equipping stronger armor")
         item_to_drop_id = get_item_to_drop(inv_analysis, inv)
-        if item_to_drop_id:
+        if item_to_drop_id and item_to_drop_id not in self.memory.drop_attempts:
+            self.memory.drop_attempts.add(item_to_drop_id)
             return drop_payload(item_to_drop_id, "Dropping weaker redundant item")
         action = find_current_region_targets(frame_data, self.memory)
         if action:

@@ -112,7 +112,7 @@ async def run_bot_instance(bot_config, version):
                         can_act = False
                         action = brain.get_next_action(latest_view)
                         if action:
-                            act_type = action.get("action", "")
+                            act_type = action.get("data", {}).get("type", "")
                             thought = action.get("thought", "")
                             await log_msg(bot_name, "INFO", f"AUTONOMOUS ACTION -> {act_type.upper()} ({thought})")
                             await ws_session.send(json.dumps(action))
