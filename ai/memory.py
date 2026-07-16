@@ -4,6 +4,7 @@ class BotMemory:
     def __init__(self):
         self.failed_items: Set[str] = set()
         self.failed_facilities: Set[str] = set()
+        self.failed_attacks: Set[str] = set()
         self.move_history: List[str] = []
         self.last_target_id: Optional[str] = None
         self.last_action_type: Optional[str] = None
@@ -19,9 +20,9 @@ class BotMemory:
             if len(self.move_history) > 4:
                 self.move_history.pop(0)
 
-    def track_action_failure(self, current_item_ids: Set[str], current_fac_ids: Set[str]):
+    def track_action_failure(self, current_item_ids: Set[str], current_fac_ids: Set[str], current_enemy_ids: Set[str]):
         if self.last_target_id:
-            target_exists = (self.last_target_id in current_item_ids) or (self.last_target_id in current_fac_ids)
+            target_exists = (self.last_target_id in current_item_ids) or (self.last_target_id in current_fac_ids) or (self.last_target_id in current_enemy_ids)
             if target_exists:
                 self.action_counter += 1
                 if self.action_counter > 2:
@@ -29,6 +30,8 @@ class BotMemory:
                         self.failed_items.add(self.last_target_id)
                     elif self.last_action_type == "interact":
                         self.failed_facilities.add(self.last_target_id)
+                    elif self.last_action_type == "attack":
+                        self.failed_attacks.add(self.last_target_id)
                     self.last_target_id = None
                     self.action_counter = 0
             else:

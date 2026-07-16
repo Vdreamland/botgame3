@@ -1,6 +1,6 @@
 import json
 from typing import Dict, Any, Optional
-from helpers.world_parser import get_current_region, get_self_agent, get_visible_regions
+from helpers.world_parser import get_current_region, get_self_agent, get_visible_regions, get_visible_agents, get_visible_monsters
 from helpers.actions_payload import move_payload, explore_payload, rest_payload, equip_payload, drop_payload
 from ai.memory import BotMemory
 from ai.strategy.inventory_manager import analyze_inventory, get_item_to_drop, MELEE_SCORES, RANGED_SCORES, ARMOR_SCORES
@@ -32,7 +32,14 @@ class BrainDecision:
         current_interactables = current_region.get("interactables", [])
         current_item_ids = {item.get("id") for item in current_items if item.get("id")}
         current_fac_ids = {fac.get("id") for fac in current_interactables if fac.get("id")}
-        self.memory.track_action_failure(current_item_ids, current_fac_ids)
+        current_enemy_ids = set()
+        for agent in get_visible_agents(frame_data):
+            if agent.get("regionId") == current_id and agent.get("hp", 0) > 0:
+                current_enemy_ids.add(agent.get("id"))
+        for monster in get_visible_monsters(frame_data):
+            if monster.get("regionId") == current_id and monster.get("hp", 0) > 0:
+                current_enemy_ids.add(monster.get("id"))
+        self.memory.track_action_failure(current_item_ids, current_fac_ids, current_enemy_ids)
         recovery_action = get_recovery_action(frame_data, self.memory)
         if recovery_action:
             return recovery_action

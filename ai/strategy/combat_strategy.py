@@ -26,11 +26,14 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
     targets = []
     for agent in get_visible_agents(frame_data):
         if agent.get("regionId") == current_id and agent.get("hp", 0) > 0:
+            agent_id = agent.get("id")
+            if agent_id in memory.failed_attacks:
+                continue
             name = agent.get("name", "")
             if "Guardian" in name or agent.get("isGuardian", False):
                 continue
             targets.append({
-                "id": agent.get("id"),
+                "id": agent_id,
                 "name": name,
                 "hp": agent.get("hp", 0),
                 "atk": agent.get("atk", 25),
@@ -39,13 +42,16 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
             })
     for monster in get_visible_monsters(frame_data):
         if monster.get("regionId") == current_id and monster.get("hp", 0) > 0:
+            monster_id = monster.get("id")
+            if monster_id in memory.failed_attacks:
+                continue
             name = monster.get("name", "")
             type_id = (monster.get("type") or monster.get("typeId") or monster.get("name") or "").lower()
             if "guardian" in type_id:
                 continue
             static_stats = MONSTERS.get(type_id, {})
             targets.append({
-                "id": monster.get("id"),
+                "id": monster_id,
                 "name": name,
                 "hp": monster.get("hp", 0),
                 "atk": monster.get("atk") or static_stats.get("atk", 0),
@@ -76,5 +82,7 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
         our_dmg = max(1, our_atk - t_def + weather_mod)
         turns_to_kill_enemy = math.ceil(t_hp / our_dmg)
         if best_target_score >= 0 or t_hp < 30 or turns_to_kill_enemy <= 2:
+            memory.last_target_id = best_target["id"]
+            memory.last_action_type = "attack"
             return attack_payload(best_target["id"], best_target["type"], f"Attacking {best_target['name']} (Est. turns: {turns_to_kill_enemy})")
     return None
