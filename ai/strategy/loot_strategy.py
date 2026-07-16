@@ -38,7 +38,8 @@ def find_target_regions(frame_data: Dict[str, Any], memory: BotMemory) -> List[s
     self_data = get_self_agent(frame_data)
     inv = self_data.get("inventory", [])
     inv_analysis = analyze_inventory(inv)
-    target_region_ids = []
+    death_targets = []
+    other_targets = []
     visible_regions = get_visible_regions(frame_data)
     for r in visible_regions:
         r_id = r.get("id")
@@ -61,5 +62,8 @@ def find_target_regions(frame_data: Dict[str, Any], memory: BotMemory) -> List[s
                 has_valid_targets = True
                 break
         if has_valid_targets:
-            target_region_ids.append(r_id)
-    return target_region_ids
+            if r_id in memory.death_regions:
+                death_targets.append(r_id)
+            else:
+                other_targets.append(r_id)
+    return death_targets + other_targets

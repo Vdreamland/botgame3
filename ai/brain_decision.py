@@ -4,7 +4,8 @@ from helpers.world_parser import get_current_region, get_self_agent, get_visible
 from helpers.actions_payload import move_payload, explore_payload, rest_payload, equip_payload, drop_payload
 from ai.memory import BotMemory
 from ai.strategy.inventory_manager import analyze_inventory, get_item_to_drop, MELEE_SCORES, RANGED_SCORES, ARMOR_SCORES
-from ai.strategy.recovery_manager import get_recovery_action, should_rest_for_ep
+from ai.strategy.survival_manager import get_recovery_action, get_flee_action, should_rest_for_ep
+from ai.strategy.combat_strategy import get_combat_action
 from ai.strategy.loot_strategy import find_current_region_targets, find_target_regions
 from ai.strategy.movement_strategy import find_shortest_path
 
@@ -19,6 +20,14 @@ class BrainDecision:
             return None
         current_id = current_region.get("id")
         self.memory.add_visited_region(current_id)
+        if current_id in self.memory.death_regions:
+            self.memory.death_regions.remove(current_id)
+        for entry in frame_data.get("view", {}).get("recentLogs", []):
+            log_obj = entry.get("log", {})
+            if log_obj.get("type") == "death":
+                reg_id = log_obj.get("regionId")
+                if reg_id:
+                    self.memory.death_regions.add(reg_id)
         current_items = current_region.get("items", [])
         current_interactables = current_region.get("interactables", [])
         current_item_ids = {item.get("id") for item in current_items if item.get("id")}
@@ -27,6 +36,9 @@ class BrainDecision:
         recovery_action = get_recovery_action(frame_data, self.memory)
         if recovery_action:
             return recovery_action
+        flee_action = get_flee_action(frame_data, self.memory)
+        if flee_action:
+            return flee_action
         inv = self_data.get("inventory", [])
         inv_analysis = analyze_inventory(inv)
         eq_weapon = self_data.get("equippedWeapon")
@@ -61,6 +73,9 @@ class BrainDecision:
         if item_to_drop_id and item_to_drop_id not in self.memory.drop_attempts:
             self.memory.drop_attempts.add(item_to_drop_id)
             return drop_payload(item_to_drop_id, "Dropping weaker redundant item")
+        combat_action = get_combat_action(frame_data, self.memory)
+        if combat_action:
+            return combat_action
         action = find_current_region_targets(frame_data, self.memory)
         if action:
             return action

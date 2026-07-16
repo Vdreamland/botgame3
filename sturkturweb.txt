@@ -11,8 +11,9 @@
 │       ├── __init__.py  
 │       ├── movement_strategy.py
 │       ├── loot_strategy.py  
-│       ├── inventory_manager.py    <-- [Baru] Mengelola stats senjata, armor, auto-equip, dan drop
-│       └── recovery_manager.py     <-- [Baru] Mengelola taktis pemulihan HP/EP darurat dan rest otomatis
+│       ├── inventory_manager.py
+│       ├── combat_strategy.py
+│       └── survival_manager.py
 ├── helpers/
 │   ├── __init__.py
 │   ├── api_config.py
@@ -58,7 +59,8 @@ __init__.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/__ini
 movement_strategy.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/movement_strategy.py
 loot_strategy.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/loot_strategy.py
 inventory_manager.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/inventory_manager.py
-recovery_manager.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/recovery_manager.py
+survival_manager.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/survival_manager.py
+combat_strategy.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/combat_strategy.py
 
 /botgame3/
 .env https://github.com/Vdreamland/botgame3/blob/master/.env

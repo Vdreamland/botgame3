@@ -58,6 +58,12 @@ async def log_frame_update(bot_name: str, frame_data: Dict[str, Any]):
             print(f"Day: {day} | Turn: {turn} | [{bot_name}] | Status: {GREEN}ALIVE{RESET}")
             my_id = get_agent_id(frame_data)
             combat_events = get_my_combat_events(frame_data, my_id)
+            outbound = combat_events.get("outbound", [])
+            for event in outbound:
+                target = event.get("target_name", "unknown")
+                dmg = event.get("damage", 0)
+                new_hp = event.get("new_hp", 0)
+                print(f"{GREEN}[*] DAMAGE DEALT: {dmg} HP to {target} (HP {new_hp} remaining)!{RESET}")
             inbound = combat_events.get("inbound", [])
             for event in inbound:
                 attacker = event.get("attacker_name", "unknown")

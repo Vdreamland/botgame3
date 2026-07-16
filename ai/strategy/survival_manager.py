@@ -59,6 +59,63 @@ def get_recovery_action(frame_data: Dict[str, Any], memory: BotMemory) -> Option
                     return use_item_payload(item_id, "Eating emergency food under low EP")
     return None
 
+def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[Dict[str, Any]]:
+    from helpers.world_parser import get_self_agent, get_current_region, get_visible_agents, get_visible_monsters
+    from helpers.actions_payload import move_payload
+    self_data = get_self_agent(frame_data)
+    current_region = get_current_region(frame_data)
+    if not self_data or not current_region:
+        return None
+    current_id = current_region.get("id")
+    hp = self_data.get("hp", 0)
+    ep = self_data.get("ep", 0)
+    if ep < 2:
+        return None
+    has_threat = False
+    for agent in get_visible_agents(frame_data):
+        if agent.get("regionId") == current_id and agent.get("hp", 0) > 0:
+            has_threat = True
+            break
+    for monster in get_visible_monsters(frame_data):
+        if monster.get("regionId") == current_id and monster.get("hp", 0) > 0:
+            has_threat = True
+            break
+    if has_threat and hp < 80:
+        visible_regions = frame_data.get("view", {}).get("visibleRegions", [])
+        safe_regions = set()
+        region_threat_counts = {}
+        for r in visible_regions:
+            r_id = r.get("id")
+            if r_id and not r.get("isDeathZone", False):
+                safe_regions.add(r_id)
+                region_threat_counts[r_id] = 0
+        for agent in get_visible_agents(frame_data):
+            reg_id = agent.get("regionId")
+            if reg_id in region_threat_counts and agent.get("hp", 0) > 0:
+                region_threat_counts[reg_id] += 1
+        for monster in get_visible_monsters(frame_data):
+            reg_id = monster.get("regionId")
+            if reg_id in region_threat_counts and monster.get("hp", 0) > 0:
+                region_threat_counts[reg_id] += 1
+        connections = current_region.get("connections", [])
+        safe_connections = [c for c in connections if c in safe_regions]
+        if not safe_connections:
+            return None
+        best_escape_id = None
+        min_threat = 999999
+        unvisited_connections = [c for c in safe_connections if c not in memory.move_history]
+        candidates = unvisited_connections if unvisited_connections else safe_connections
+        for c in candidates:
+            threat = region_threat_counts.get(c, 0)
+            if threat < min_threat:
+                min_threat = threat
+                best_escape_id = c
+        if best_escape_id:
+            memory.last_target_id = None
+            memory.last_action_type = "move"
+            return move_payload(best_escape_id, f"Fleeing threat to safe region (Threat count: {min_threat})")
+    return None
+
 def should_rest_for_ep(self_data: Dict[str, Any], current_region: Dict[str, Any]) -> bool:
     ep = self_data.get("ep", 0)
     is_death_zone = current_region.get("isDeathZone", False)
