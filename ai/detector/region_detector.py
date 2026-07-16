@@ -45,7 +45,7 @@ def get_region_layers(frame_data: Dict[str, Any]) -> Dict[int, List[str]]:
         is_death_zone = details.get("is_death_zone", False)
         info_parts = []
         if is_death_zone:
-            info_parts.append("DEATH ZONE")
+            info_parts.append("\033[91mDEATH ZONE\033[0m")
         if items:
             items_summary = ", ".join(item.get("name", "item") for item in items)
             info_parts.append(f"Loot: {items_summary}")
