@@ -46,7 +46,7 @@ async def run_bot_instance(bot_config, version):
     preference = bot_config["room_preference"]
     await log_msg(bot_name, "INFO", f"Preparing bot to join a {preference.upper()} room...")
     while True:
-        state, data = check_agent_state(api_key, version, preference)
+        state, data = await asyncio.to_thread(check_agent_state, api_key, version, preference)
         if state == "ERROR":
             await log_msg(bot_name, "ERROR", f"Account pre-check failed: {data}")
             await asyncio.sleep(10.0)
@@ -133,7 +133,7 @@ async def run_bot_instance(bot_config, version):
                     await ws_session.close()
                 except Exception:
                     pass
-            st, _ = check_agent_state(api_key, version, preference)
+            st, _ = await asyncio.to_thread(check_agent_state, api_key, version, preference)
             if st != "IN_GAME":
                 game_over_cleanly = True
             if game_over_cleanly:
@@ -141,7 +141,7 @@ async def run_bot_instance(bot_config, version):
                 await log_msg(bot_name, "INFO", "Waiting 10 seconds post-match to check eligibility for a new game...")
                 await asyncio.sleep(10.0)
                 while True:
-                    next_state, next_data = check_agent_state(api_key, version, preference)
+                    next_state, next_data = await asyncio.to_thread(check_agent_state, api_key, version, preference)
                     if next_state == "IN_GAME":
                         print("")
                         await log_msg(bot_name, "INFO", "Previous game slot is still active on server. Waiting for game to end...")
