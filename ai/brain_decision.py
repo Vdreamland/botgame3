@@ -50,12 +50,6 @@ class BrainDecision:
         current_item_ids = {item.get("id") for item in current_items if item.get("id")}
         current_fac_ids = {fac.get("id") for fac in current_interactables if fac.get("id")}
         current_enemy_ids = set()
-        for agent in get_visible_agents(frame_data):
-            if agent.get("hp", 0) > 0:
-                current_enemy_ids.add(agent.get("id"))
-        for monster in get_visible_monsters(frame_data):
-            if monster.get("hp", 0) > 0:
-                current_enemy_ids.add(monster.get("id"))
         self.memory.track_action_failure(current_item_ids, current_fac_ids, current_enemy_ids)
         inv = self_data.get("inventory", [])
         inv_analysis = analyze_inventory(inv)
@@ -120,12 +114,12 @@ class BrainDecision:
                 local_weapon = next((item for item in current_items if item.get("category", "").lower() == "weapon"), None)
                 if local_weapon and local_weapon.get("id") not in self.memory.pickup_attempts:
                     item_name = local_weapon.get("typeId", "weapon")
-                    pickup_action = pickup_payload(local_weapon["id"], f"Picking up local weapon: {item_name}")
-            elif is_loadout_optimal:
-                s_moltz_item = next((item for item in current_items if item.get("typeId", "").lower() == "smoltz"), None)
-                if s_moltz_item and s_moltz_item.get("id") not in self.memory.pickup_attempts:
-                    pickup_action = pickup_payload(s_moltz_item["id"], "Picking up sMoltz")
-            else:
+                    item_id = local_weapon.get("id")
+                    self.memory.pickup_attempts.add(item_id)
+                    self.memory.last_target_id = item_id
+                    self.memory.last_action_type = "pickup"
+                    pickup_action = pickup_payload(item_id, f"Picking up local weapon: {item_name}")
+            if not pickup_action:
                 pickup_action = get_pickup_action(frame_data, self.memory)
         if pickup_action:
             return pickup_action
