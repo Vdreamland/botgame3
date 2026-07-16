@@ -80,11 +80,14 @@ def get_region_adjacency_map(frame_data: Dict[str, Any]) -> Dict[str, Any]:
     id_to_name = {}
     if current_id:
         id_to_name[current_id] = current_reg.get("name", current_id)
-        graph[current_id] = current_reg.get("connections", [])
+        raw_conns = current_reg.get("connections", [])
+        graph[current_id] = [c.get("id") if isinstance(c, dict) else str(c) for c in raw_conns]
     for r in get_visible_regions(frame_data):
         r_id = r.get("id")
-        id_to_name[r_id] = r.get("name", r_id)
-        graph[r_id] = r.get("connections", [])
+        if r_id:
+            id_to_name[r_id] = r.get("name", r_id)
+            raw_conns = r.get("connections", [])
+            graph[r_id] = [c.get("id") if isinstance(c, dict) else str(c) for c in raw_conns]
     return {
         "current_id": current_id,
         "id_to_name": id_to_name,

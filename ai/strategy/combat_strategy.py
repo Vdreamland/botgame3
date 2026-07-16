@@ -111,6 +111,10 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
         if is_monster:
             score -= 3.0
         score -= t_dist * 2.0
+        if our_range > t_range:
+            score += 10.0
+        if our_dmg > enemy_dmg:
+            score += 5.0
         if score > best_target_score:
             best_target_score = score
             best_target = t

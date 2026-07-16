@@ -37,7 +37,7 @@ def analyze_inventory(inventory: List[Dict[str, Any]]) -> Dict[str, Any]:
     hp_count = 0
     ep_count = 0
     for item in inventory:
-        cat = item.get("category", "")
+        cat = item.get("category", "").lower()
         type_id = item.get("typeId", "").lower().replace(" ", "_")
         if type_id in ["bandage", "medkit"]:
             hp_count += 1
@@ -82,7 +82,7 @@ def analyze_inventory(inventory: List[Dict[str, Any]]) -> Dict[str, Any]:
     }
 
 def is_item_needed(item: Dict[str, Any], inv_analysis: Dict[str, Any]) -> bool:
-    cat = item.get("category", "")
+    cat = item.get("category", "").lower()
     type_id = item.get("typeId", "").lower().replace(" ", "_")
     if cat == "weapon":
         if type_id in MELEE_SCORES:
