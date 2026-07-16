@@ -3,8 +3,8 @@ from helpers.world_parser import get_current_region, get_visible_regions
 from ai.memory import BotMemory
 from ai.strategy.inventory_manager import analyze_inventory, is_item_needed
 
-def find_current_region_targets(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[Dict[str, Any]]:
-    from helpers.actions_payload import pickup_payload, interact_payload
+def get_pickup_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[Dict[str, Any]]:
+    from helpers.actions_payload import pickup_payload
     from helpers.world_parser import get_self_agent
     self_data = get_self_agent(frame_data)
     inv = self_data.get("inventory", [])
@@ -12,9 +12,7 @@ def find_current_region_targets(frame_data: Dict[str, Any], memory: BotMemory) -
     current_region = get_current_region(frame_data)
     if not current_region:
         return None
-    is_death_zone = current_region.get("isDeathZone", False)
     items = current_region.get("items", [])
-    interactables = current_region.get("interactables", [])
     for item in items:
         item_id = item.get("id")
         if item_id and item_id not in memory.failed_items and item_id not in memory.pickup_attempts:
@@ -23,15 +21,25 @@ def find_current_region_targets(frame_data: Dict[str, Any], memory: BotMemory) -
                 memory.last_target_id = item_id
                 memory.last_action_type = "pickup"
                 return pickup_payload(item_id, "Picking up ground item")
-    if not is_death_zone:
-        for fac in interactables:
-            fac_id = fac.get("id")
-            fac_name = fac.get("name", "")
-            is_used = fac.get("isUsed", False)
-            if fac_id and fac_name in ["Supply Cache", "Medical Facility"] and not is_used and fac_id not in memory.failed_facilities:
-                memory.last_target_id = fac_id
-                memory.last_action_type = "interact"
-                return interact_payload(fac_id, "Interacting with facility")
+    return None
+
+def get_interact_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[Dict[str, Any]]:
+    from helpers.actions_payload import interact_payload
+    current_region = get_current_region(frame_data)
+    if not current_region:
+        return None
+    is_death_zone = current_region.get("isDeathZone", False)
+    if is_death_zone:
+        return None
+    interactables = current_region.get("interactables", [])
+    for fac in interactables:
+        fac_id = fac.get("id")
+        fac_name = fac.get("name", "")
+        is_used = fac.get("isUsed", False)
+        if fac_id and fac_name in ["Supply Cache", "Medical Facility"] and not is_used and fac_id not in memory.failed_facilities:
+            memory.last_target_id = fac_id
+            memory.last_action_type = "interact"
+            return interact_payload(fac_id, "Interacting with facility")
     return None
 
 def find_target_regions(frame_data: Dict[str, Any], memory: BotMemory) -> List[str]:

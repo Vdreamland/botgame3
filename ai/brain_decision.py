@@ -6,7 +6,7 @@ from ai.memory import BotMemory
 from ai.strategy.inventory_manager import analyze_inventory, get_item_to_drop, MELEE_SCORES, RANGED_SCORES, ARMOR_SCORES
 from ai.strategy.survival_manager import get_recovery_action, get_flee_action, should_rest_for_ep
 from ai.strategy.combat_strategy import get_combat_action
-from ai.strategy.loot_strategy import find_current_region_targets, find_target_regions
+from ai.strategy.loot_strategy import get_pickup_action, get_interact_action, find_target_regions
 from ai.strategy.movement_strategy import find_shortest_path
 
 class BrainDecision:
@@ -40,12 +40,11 @@ class BrainDecision:
             if monster.get("regionId") == current_id and monster.get("hp", 0) > 0:
                 current_enemy_ids.add(monster.get("id"))
         self.memory.track_action_failure(current_item_ids, current_fac_ids, current_enemy_ids)
-        recovery_action = get_recovery_action(frame_data, self.memory)
-        if recovery_action:
-            return recovery_action
-        flee_action = get_flee_action(frame_data, self.memory)
-        if flee_action:
-            return flee_action
+        
+        pickup_action = get_pickup_action(frame_data, self.memory)
+        if pickup_action:
+            return pickup_action
+
         inv = self_data.get("inventory", [])
         inv_analysis = analyze_inventory(inv)
         eq_weapon = self_data.get("equippedWeapon")
@@ -80,12 +79,23 @@ class BrainDecision:
         if item_to_drop_id and item_to_drop_id not in self.memory.drop_attempts:
             self.memory.drop_attempts.add(item_to_drop_id)
             return drop_payload(item_to_drop_id, "Dropping weaker redundant item")
+        
+        flee_action = get_flee_action(frame_data, self.memory)
+        if flee_action:
+            return flee_action
+        
+        recovery_action = get_recovery_action(frame_data, self.memory)
+        if recovery_action:
+            return recovery_action
+
         combat_action = get_combat_action(frame_data, self.memory)
         if combat_action:
             return combat_action
-        action = find_current_region_targets(frame_data, self.memory)
-        if action:
-            return action
+
+        interact_action = get_interact_action(frame_data, self.memory)
+        if interact_action:
+            return interact_action
+
         target_regions = find_target_regions(frame_data, self.memory)
         if target_regions:
             path = find_shortest_path(frame_data, target_regions)

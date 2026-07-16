@@ -9,12 +9,14 @@ def is_enemy_nearby(frame_data: Dict[str, Any], current_id: str) -> bool:
     for agent in get_visible_agents(frame_data):
         reg_id = agent.get("regionId")
         hp = agent.get("hp", 0)
-        if reg_id in nearby_regions and hp > 0:
+        name = agent.get("name", "")
+        if reg_id in nearby_regions and hp > 0 and "Guardian" not in name and not agent.get("isGuardian", False):
             return True
     for monster in get_visible_monsters(frame_data):
         reg_id = monster.get("regionId")
         hp = monster.get("hp", 0)
-        if reg_id in nearby_regions and hp > 0:
+        type_id = (monster.get("type") or monster.get("typeId") or monster.get("name") or "").lower()
+        if reg_id in nearby_regions and hp > 0 and "guardian" not in type_id:
             return True
     return False
 
@@ -94,13 +96,17 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
     has_threat = False
     for agent in get_visible_agents(frame_data):
         if agent.get("regionId") == current_id and agent.get("hp", 0) > 0:
-            has_threat = True
-            break
+            name = agent.get("name", "")
+            if "Guardian" not in name and not agent.get("isGuardian", False):
+                has_threat = True
+                break
     for monster in get_visible_monsters(frame_data):
         if monster.get("regionId") == current_id and monster.get("hp", 0) > 0:
-            has_threat = True
-            break
-    if has_threat and hp < 80:
+            type_id = (monster.get("type") or monster.get("typeId") or monster.get("name") or "").lower()
+            if "guardian" not in type_id:
+                has_threat = True
+                break
+    if has_threat and hp < 60:
         visible_regions = frame_data.get("view", {}).get("visibleRegions", [])
         safe_regions = set()
         region_threat_counts = {}
@@ -111,11 +117,13 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
                 region_threat_counts[r_id] = 0
         for agent in get_visible_agents(frame_data):
             reg_id = agent.get("regionId")
-            if reg_id in region_threat_counts and agent.get("hp", 0) > 0:
+            name = agent.get("name", "")
+            if reg_id in region_threat_counts and agent.get("hp", 0) > 0 and "Guardian" not in name and not agent.get("isGuardian", False):
                 region_threat_counts[reg_id] += 1
         for monster in get_visible_monsters(frame_data):
             reg_id = monster.get("regionId")
-            if reg_id in region_threat_counts and monster.get("hp", 0) > 0:
+            type_id = (monster.get("type") or monster.get("typeId") or monster.get("name") or "").lower()
+            if reg_id in region_threat_counts and monster.get("hp", 0) > 0 and "guardian" not in type_id:
                 region_threat_counts[reg_id] += 1
         connections = current_region.get("connections", [])
         safe_connections = [c for c in connections if c in safe_regions]
