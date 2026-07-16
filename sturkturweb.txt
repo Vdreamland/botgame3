@@ -20,6 +20,12 @@
 │   ├── combat_controller.py
 │   ├── world_parser.py
 │   └── automation_scheduler.py 
+├── strategy/              
+│   │   ├── __init__.py  
+│   │   ├── movement_strategy.py
+│   │   ├── loot_strategy.py   
+
+
 ├── .env
 ├── game_logs.py
 ├── requirements.txt
