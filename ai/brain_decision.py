@@ -6,7 +6,8 @@ from helpers.world_parser import (
     get_visible_agents,
     get_visible_monsters,
     get_recent_logs,
-    get_available_actions
+    get_available_actions,
+    get_region_adjacency_map
 )
 from helpers.actions_payload import (
     move_payload,
