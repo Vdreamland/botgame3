@@ -79,7 +79,7 @@ def get_region_layers(frame_data: Dict[str, Any]) -> Dict[int, List[str]]:
             if reg_id not in monsters_by_region:
                 monsters_by_region[reg_id] = []
             name = monster.get("name") or monster.get("typeId") or "Monster"
-            type_id = (monster.get("typeId") or monster.get("name") or "").lower()
+            type_id = (monster.get("type") or monster.get("typeId") or monster.get("name") or "").lower()
             if "guardian" in type_id:
                 static_stats = GUARDIAN_STATS
             else:

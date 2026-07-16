@@ -1,0 +1,1898 @@
+{
+  "agentId": "a763aa60-4056-471f-913f-ac57f0414994",
+  "gameId": "5ab7ab44-5b8c-4e78-b65b-0ca5142c0960",
+  "status": "running",
+  "time": "2026-07-16T03:41:22.636378532Z",
+  "turn": 9,
+  "type": "agent_view",
+  "view": {
+    "self": {
+      "id": "a763aa60-4056-471f-913f-ac57f0414994",
+      "name": "Raizer_NOX",
+      "profileIndex": 66,
+      "regionId": "fe98b156-a7ed-4dd8-91d5-ef7803a88be2",
+      "hp": 100,
+      "maxHp": 100,
+      "ep": 12,
+      "maxEp": 12,
+      "atk": 54,
+      "def": 6,
+      "vision": 1,
+      "inventory": [
+        {
+          "id": "a763aa60-4056-471f-913f-ac57f0414994:1000",
+          "typeId": "emergency_food",
+          "name": "Emergency Food",
+          "description": "Restores 20 HP, 5 EP",
+          "category": "recovery",
+          "stackable": true,
+          "quantity": 1,
+          "grade": "middle",
+          "hpRestore": 20,
+          "epRestore": 5
+        },
+        {
+          "id": "a763aa60-4056-471f-913f-ac57f0414994:1100",
+          "typeId": "bandage",
+          "name": "Bandage",
+          "description": "Restores 10 HP",
+          "category": "recovery",
+          "stackable": true,
+          "quantity": 1,
+          "grade": "low",
+          "hpRestore": 10
+        },
+        {
+          "id": "a763aa60-4056-471f-913f-ac57f0414994:3000",
+          "typeId": "reward1",
+          "name": "sMoltz",
+          "description": "In-game rewards. Collected on victory to account balance.",
+          "category": "currency",
+          "stackable": true,
+          "quantity": 2,
+          "grade": "low"
+        }
+      ],
+      "equippedWeapon": null,
+      "rewards": 2,
+      "isAlive": true,
+      "isDiscovered": true,
+      "kills": 0,
+      "survivalTime": 8,
+      "joinedAt": "2026-07-16T03:35:37.949164612Z",
+      "lastActionAt": "0001-01-01T00:00:00Z",
+      "alertGauge": 0,
+      "alertActive": false,
+      "packEffects": {
+        "duelist": 2,
+        "pickpocket": 3
+      },
+      "appliedAffixes": [
+        {
+          "affixDefId": 4,
+          "statType": "def",
+          "rolledValue": 1
+        },
+        {
+          "affixDefId": 12,
+          "statType": "max_ep",
+          "rolledValue": 2
+        },
+        {
+          "affixDefId": 2,
+          "statType": "atk",
+          "rolledValue": 10
+        },
+        {
+          "affixDefId": 15,
+          "statType": "hp_regen",
+          "rolledValue": 2
+        },
+        {
+          "affixDefId": 2,
+          "statType": "atk",
+          "rolledValue": 10
+        },
+        {
+          "affixDefId": 13,
+          "statType": "ep_regen",
+          "rolledValue": 1
+        },
+        {
+          "affixDefId": 2,
+          "statType": "atk",
+          "rolledValue": 9
+        }
+      ],
+      "mainPackName": "Duelist T2",
+      "subPackName": "Pickpocket T3",
+      "relicStats": {
+        "atk": 29,
+        "def": 1,
+        "ep_regen": 1,
+        "hp_regen": 2,
+        "max_ep": 2
+      }
+    },
+    "currentRegion": {
+      "id": "fe98b156-a7ed-4dd8-91d5-ef7803a88be2",
+      "name": "S:Pack",
+      "description": "",
+      "terrain": "water",
+      "connections": [
+        "ff40d001-6506-4cbe-be14-66ace17742dc",
+        "bb809055-d8ca-409e-aaa2-ea1f7954d972",
+        "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+        "f905476d-5efd-4fe4-b1fd-16bde20c0c0c",
+        "9c0868b4-ab50-4c6a-bb0b-997c8eb2b656",
+        "b9f673ff-3757-4773-945b-8fdfebfb0cd4"
+      ],
+      "visionModifier": 0,
+      "isDeathZone": false,
+      "weather": "clear",
+      "interactables": [],
+      "position": {
+        "x": 1742.76877568,
+        "y": 840.8
+      },
+      "hexCoords": {
+        "q": 5,
+        "r": -2
+      },
+      "isEmpty": true,
+      "ruinGauge": 3,
+      "ruinClearedBy": "2be933ea-dd42-4297-b890-97d5d955aecc"
+    },
+    "visibleRegions": [
+      {
+        "id": "9c0868b4-ab50-4c6a-bb0b-997c8eb2b656",
+        "name": "Fire Station",
+        "description": "",
+        "terrain": "plains",
+        "connections": [
+          "b9f673ff-3757-4773-945b-8fdfebfb0cd4",
+          "fe98b156-a7ed-4dd8-91d5-ef7803a88be2",
+          "f905476d-5efd-4fe4-b1fd-16bde20c0c0c",
+          "c3fb4b23-ef47-4fb6-887b-19c8da155ee7",
+          "4ccbeac2-bcb0-4836-a77d-7d58a0a6b3f2",
+          "88a8c3e1-e477-4913-84f7-5cda9ded338a"
+        ],
+        "visionModifier": 1,
+        "isDeathZone": false,
+        "weather": "clear",
+        "interactables": [
+          {
+            "id": "9c0868b4-ab50-4c6a-bb0b-997c8eb2b656:facility:0",
+            "type": "broadcast_station",
+            "name": "Broadcast Station",
+            "description": "You can broadcast a message to all agents.",
+            "isUsed": false
+          }
+        ],
+        "position": {
+          "x": 1673.48674336,
+          "y": 940.4
+        },
+        "hexCoords": {
+          "q": 4,
+          "r": -1
+        }
+      },
+      {
+        "id": "b9f673ff-3757-4773-945b-8fdfebfb0cd4",
+        "name": "Farmhouse",
+        "description": "",
+        "terrain": "forest",
+        "connections": [
+          "29c8eebf-6fd7-4622-92e7-d3269fe6cb27",
+          "ff40d001-6506-4cbe-be14-66ace17742dc",
+          "fe98b156-a7ed-4dd8-91d5-ef7803a88be2",
+          "9c0868b4-ab50-4c6a-bb0b-997c8eb2b656",
+          "88a8c3e1-e477-4913-84f7-5cda9ded338a",
+          "758d8a23-31de-41a5-9a0a-767a78ae4f41"
+        ],
+        "visionModifier": 0,
+        "isDeathZone": false,
+        "weather": "clear",
+        "interactables": [
+          {
+            "id": "b9f673ff-3757-4773-945b-8fdfebfb0cd4:facility:0",
+            "type": "broadcast_station",
+            "name": "Broadcast Station",
+            "description": "You can broadcast a message to all agents.",
+            "isUsed": false
+          }
+        ],
+        "position": {
+          "x": 1812.050808,
+          "y": 940.4
+        },
+        "hexCoords": {
+          "q": 5,
+          "r": -1
+        }
+      },
+      {
+        "id": "ff40d001-6506-4cbe-be14-66ace17742dc",
+        "name": "Market",
+        "description": "",
+        "terrain": "forest",
+        "connections": [
+          "a9b31e8d-afa2-4447-8cbf-bbe04485d657",
+          "426c98be-3da5-4d55-bb20-616965848ee4",
+          "bb809055-d8ca-409e-aaa2-ea1f7954d972",
+          "fe98b156-a7ed-4dd8-91d5-ef7803a88be2",
+          "b9f673ff-3757-4773-945b-8fdfebfb0cd4",
+          "29c8eebf-6fd7-4622-92e7-d3269fe6cb27"
+        ],
+        "visionModifier": 0,
+        "isDeathZone": false,
+        "weather": "clear",
+        "interactables": [
+          {
+            "id": "ff40d001-6506-4cbe-be14-66ace17742dc:facility:0",
+            "type": "medical_facility",
+            "name": "Medical Facility",
+            "description": "",
+            "isUsed": false
+          }
+        ],
+        "position": {
+          "x": 1881.3328403199998,
+          "y": 840.8
+        },
+        "hexCoords": {
+          "q": 6,
+          "r": -2
+        }
+      },
+      {
+        "id": "bb809055-d8ca-409e-aaa2-ea1f7954d972",
+        "name": "Silo",
+        "description": "",
+        "terrain": "hills",
+        "connections": [
+          "426c98be-3da5-4d55-bb20-616965848ee4",
+          "ee8d7d70-0ebd-4fa2-9835-2d18b627e301",
+          "61ff92d8-76cd-4785-aa84-8a839686b415",
+          "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+          "fe98b156-a7ed-4dd8-91d5-ef7803a88be2",
+          "ff40d001-6506-4cbe-be14-66ace17742dc"
+        ],
+        "visionModifier": 2,
+        "isDeathZone": false,
+        "weather": "clear",
+        "interactables": [],
+        "position": {
+          "x": 1812.050808,
+          "y": 741.2
+        },
+        "hexCoords": {
+          "q": 6,
+          "r": -3
+        }
+      },
+      {
+        "id": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+        "name": "Docks",
+        "description": "",
+        "terrain": "plains",
+        "connections": [
+          "bb809055-d8ca-409e-aaa2-ea1f7954d972",
+          "61ff92d8-76cd-4785-aa84-8a839686b415",
+          "723f303f-3c07-4194-87d8-bce9df2aa141",
+          "50b54fd7-427e-49aa-8863-ca59af5d1cc8",
+          "f905476d-5efd-4fe4-b1fd-16bde20c0c0c",
+          "fe98b156-a7ed-4dd8-91d5-ef7803a88be2"
+        ],
+        "visionModifier": 1,
+        "isDeathZone": false,
+        "weather": "clear",
+        "interactables": [
+          {
+            "id": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a:facility:0",
+            "type": "broadcast_station",
+            "name": "Broadcast Station",
+            "description": "You can broadcast a message to all agents.",
+            "isUsed": false
+          }
+        ],
+        "position": {
+          "x": 1673.48674336,
+          "y": 741.2
+        },
+        "hexCoords": {
+          "q": 5,
+          "r": -3
+        }
+      },
+      {
+        "id": "f905476d-5efd-4fe4-b1fd-16bde20c0c0c",
+        "name": "Court",
+        "description": "",
+        "terrain": "cave",
+        "connections": [
+          "fe98b156-a7ed-4dd8-91d5-ef7803a88be2",
+          "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+          "50b54fd7-427e-49aa-8863-ca59af5d1cc8",
+          "b7ee6654-3139-4bf7-9fcc-a187c89f3d67",
+          "c3fb4b23-ef47-4fb6-887b-19c8da155ee7",
+          "9c0868b4-ab50-4c6a-bb0b-997c8eb2b656"
+        ],
+        "visionModifier": 0,
+        "isDeathZone": false,
+        "weather": "clear",
+        "interactables": [
+          {
+            "id": "f905476d-5efd-4fe4-b1fd-16bde20c0c0c:facility:0",
+            "type": "watchtower",
+            "name": "Watchtower",
+            "description": "",
+            "isUsed": false
+          }
+        ],
+        "position": {
+          "x": 1604.20471104,
+          "y": 840.8
+        },
+        "hexCoords": {
+          "q": 4,
+          "r": -2
+        }
+      }
+    ],
+    "visibleAgents": [
+      {
+        "id": "2be933ea-dd42-4297-b890-97d5d955aecc",
+        "name": "StormLynx732",
+        "profileIndex": 58,
+        "regionId": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+        "hp": 75,
+        "maxHp": 100,
+        "isAlive": true,
+        "isDiscovered": false,
+        "kills": 1,
+        "placement": 0,
+        "isGuardian": false,
+        "isAI": true,
+        "inCave": false,
+        "killedBy": null,
+        "diedAt": null,
+        "atk": 25,
+        "def": 5,
+        "ep": 10,
+        "maxEp": 10,
+        "inventory": [
+          {
+            "id": "2be933ea-dd42-4297-b890-97d5d955aecc:1001",
+            "typeId": "emergency_food",
+            "name": "Emergency Food",
+            "description": "Restores 20 HP, 5 EP",
+            "category": "recovery",
+            "stackable": true,
+            "quantity": 1,
+            "grade": "middle",
+            "hpRestore": 20,
+            "epRestore": 5
+          },
+          {
+            "id": "b9f673ff-3757-4773-945b-8fdfebfb0cd4:4000",
+            "typeId": "sword",
+            "name": "Sword",
+            "description": "Mid-tier melee weapon",
+            "category": "weapon",
+            "stackable": false,
+            "quantity": 1,
+            "grade": "middle",
+            "atkBonus": 24,
+            "epCost": 2
+          },
+          {
+            "id": "cb41b689-f699-45cd-90e0-7ef27c585ff9:1000",
+            "typeId": "emergency_food",
+            "name": "Emergency Food",
+            "description": "Restores 20 HP, 5 EP",
+            "category": "recovery",
+            "stackable": true,
+            "quantity": 1,
+            "grade": "middle",
+            "hpRestore": 20,
+            "epRestore": 5
+          },
+          {
+            "id": "cb41b689-f699-45cd-90e0-7ef27c585ff9:3000",
+            "typeId": "reward1",
+            "name": "sMoltz",
+            "description": "In-game rewards. Collected on victory to account balance.",
+            "category": "currency",
+            "stackable": true,
+            "quantity": 1,
+            "grade": "low"
+          },
+          {
+            "id": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a:4000",
+            "typeId": "energy_drink",
+            "name": "Energy drink",
+            "description": "Restores 5 EP",
+            "category": "recovery",
+            "stackable": true,
+            "quantity": 1,
+            "grade": "low",
+            "epRestore": 5
+          },
+          {
+            "id": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a:4001",
+            "typeId": "sword",
+            "name": "Sword",
+            "description": "Mid-tier melee weapon",
+            "category": "weapon",
+            "stackable": false,
+            "quantity": 1,
+            "grade": "middle",
+            "atkBonus": 24,
+            "epCost": 2
+          },
+          {
+            "id": "61ff92d8-76cd-4785-aa84-8a839686b415:4000",
+            "typeId": "katana",
+            "name": "Katana",
+            "description": "High-tier melee weapon",
+            "category": "weapon",
+            "stackable": false,
+            "quantity": 1,
+            "grade": "high",
+            "atkBonus": 40,
+            "epCost": 3
+          }
+        ],
+        "equippedWeaponId": "61ff92d8-76cd-4785-aa84-8a839686b415:4000",
+        "equippedWeapon": {
+          "id": "61ff92d8-76cd-4785-aa84-8a839686b415:4000",
+          "typeId": "katana",
+          "name": "Katana",
+          "description": "High-tier melee weapon",
+          "category": "weapon",
+          "stackable": false,
+          "quantity": 1,
+          "grade": "high",
+          "atkBonus": 40,
+          "epCost": 3
+        },
+        "equippedArmorId": null,
+        "equippedArmor": null,
+        "mainPackName": null,
+        "subPackName": null,
+        "relicStats": null
+      },
+      {
+        "id": "90726350-e96e-5743-8a79-f8bc623e18de",
+        "name": "Guardian",
+        "profileIndex": 0,
+        "regionId": "ff40d001-6506-4cbe-be14-66ace17742dc",
+        "hp": 150,
+        "maxHp": 150,
+        "isAlive": true,
+        "isDiscovered": false,
+        "kills": 0,
+        "placement": 0,
+        "isGuardian": true,
+        "isAI": false,
+        "inCave": false,
+        "killedBy": null,
+        "diedAt": null,
+        "atk": 12,
+        "def": 120,
+        "ep": 9,
+        "maxEp": 10,
+        "inventory": [
+          {
+            "id": "90726350-e96e-5743-8a79-f8bc623e18de:1000",
+            "typeId": "emergency_food",
+            "name": "Emergency Food",
+            "description": "Restores 20 HP, 5 EP",
+            "category": "recovery",
+            "stackable": true,
+            "quantity": 1,
+            "grade": "middle",
+            "hpRestore": 20,
+            "epRestore": 5
+          },
+          {
+            "id": "90726350-e96e-5743-8a79-f8bc623e18de:3000",
+            "typeId": "reward1",
+            "name": "sMoltz",
+            "description": "In-game rewards. Collected on victory to account balance.",
+            "category": "currency",
+            "stackable": true,
+            "quantity": 40,
+            "grade": "low"
+          }
+        ],
+        "equippedWeaponId": null,
+        "equippedWeapon": null,
+        "equippedArmorId": null,
+        "equippedArmor": null,
+        "mainPackName": null,
+        "subPackName": null,
+        "relicStats": null
+      },
+      {
+        "id": "40e9ee43-e8c8-443a-a1d8-cfaeb3571d28",
+        "name": "Mystic_King660",
+        "profileIndex": 18,
+        "regionId": "ff40d001-6506-4cbe-be14-66ace17742dc",
+        "hp": 96,
+        "maxHp": 100,
+        "isAlive": true,
+        "isDiscovered": false,
+        "kills": 0,
+        "placement": 0,
+        "isGuardian": false,
+        "isAI": true,
+        "inCave": false,
+        "killedBy": null,
+        "diedAt": null,
+        "atk": 25,
+        "def": 17,
+        "ep": 2,
+        "maxEp": 10,
+        "inventory": [
+          {
+            "id": "40e9ee43-e8c8-443a-a1d8-cfaeb3571d28:1000",
+            "typeId": "emergency_food",
+            "name": "Emergency Food",
+            "description": "Restores 20 HP, 5 EP",
+            "category": "recovery",
+            "stackable": true,
+            "quantity": 1,
+            "grade": "middle",
+            "hpRestore": 20,
+            "epRestore": 5
+          },
+          {
+            "id": "40e9ee43-e8c8-443a-a1d8-cfaeb3571d28:1001",
+            "typeId": "emergency_food",
+            "name": "Emergency Food",
+            "description": "Restores 20 HP, 5 EP",
+            "category": "recovery",
+            "stackable": true,
+            "quantity": 1,
+            "grade": "middle",
+            "hpRestore": 20,
+            "epRestore": 5
+          },
+          {
+            "id": "40e9ee43-e8c8-443a-a1d8-cfaeb3571d28:3000",
+            "typeId": "reward1",
+            "name": "sMoltz",
+            "description": "In-game rewards. Collected on victory to account balance.",
+            "category": "currency",
+            "stackable": true,
+            "quantity": 9,
+            "grade": "low"
+          },
+          {
+            "id": "b7ee6654-3139-4bf7-9fcc-a187c89f3d67:4000",
+            "typeId": "chainmail",
+            "name": "Chainmail",
+            "description": "Mid-tier armor",
+            "category": "armor",
+            "stackable": false,
+            "quantity": 1,
+            "grade": "middle",
+            "defBonus": 12
+          },
+          {
+            "id": "f905476d-5efd-4fe4-b1fd-16bde20c0c0c:4000",
+            "typeId": "bandage",
+            "name": "Bandage",
+            "description": "Restores 10 HP",
+            "category": "recovery",
+            "stackable": true,
+            "quantity": 1,
+            "grade": "low",
+            "hpRestore": 10
+          },
+          {
+            "id": "5ab7ab44-5b8c-4e78-b65b-0ca5142c0960:monster:2:loot:0",
+            "typeId": "bandage",
+            "name": "Bandage",
+            "description": "Restores 10 HP",
+            "category": "recovery",
+            "stackable": true,
+            "quantity": 1,
+            "grade": "low",
+            "hpRestore": 10
+          }
+        ],
+        "equippedWeaponId": null,
+        "equippedWeapon": null,
+        "equippedArmorId": "chainmail",
+        "equippedArmor": {
+          "id": "chainmail",
+          "name": "Chainmail",
+          "grade": "middle",
+          "defBonus": 12
+        },
+        "mainPackName": null,
+        "subPackName": null,
+        "relicStats": null
+      },
+      {
+        "id": "5fe3242c-7d85-4927-ad2f-2664703c1bfb",
+        "name": "Void-Hunter650",
+        "profileIndex": 58,
+        "regionId": "b9f673ff-3757-4773-945b-8fdfebfb0cd4",
+        "hp": 89,
+        "maxHp": 100,
+        "isAlive": true,
+        "isDiscovered": false,
+        "kills": 0,
+        "placement": 0,
+        "isGuardian": false,
+        "isAI": true,
+        "inCave": false,
+        "killedBy": null,
+        "diedAt": null,
+        "atk": 25,
+        "def": 17,
+        "ep": 2,
+        "maxEp": 10,
+        "inventory": [
+          {
+            "id": "5fe3242c-7d85-4927-ad2f-2664703c1bfb:1000",
+            "typeId": "emergency_food",
+            "name": "Emergency Food",
+            "description": "Restores 20 HP, 5 EP",
+            "category": "recovery",
+            "stackable": true,
+            "quantity": 1,
+            "grade": "middle",
+            "hpRestore": 20,
+            "epRestore": 5
+          },
+          {
+            "id": "5fe3242c-7d85-4927-ad2f-2664703c1bfb:1001",
+            "typeId": "emergency_food",
+            "name": "Emergency Food",
+            "description": "Restores 20 HP, 5 EP",
+            "category": "recovery",
+            "stackable": true,
+            "quantity": 1,
+            "grade": "middle",
+            "hpRestore": 20,
+            "epRestore": 5
+          },
+          {
+            "id": "5fe3242c-7d85-4927-ad2f-2664703c1bfb:1100",
+            "typeId": "bandage",
+            "name": "Bandage",
+            "description": "Restores 10 HP",
+            "category": "recovery",
+            "stackable": true,
+            "quantity": 1,
+            "grade": "low",
+            "hpRestore": 10
+          },
+          {
+            "id": "5fe3242c-7d85-4927-ad2f-2664703c1bfb:3000",
+            "typeId": "reward1",
+            "name": "sMoltz",
+            "description": "In-game rewards. Collected on victory to account balance.",
+            "category": "currency",
+            "stackable": true,
+            "quantity": 1,
+            "grade": "low"
+          },
+          {
+            "id": "95745cf9-973b-4c01-a107-f9ca647de021:4000",
+            "typeId": "chainmail",
+            "name": "Chainmail",
+            "description": "Mid-tier armor",
+            "category": "armor",
+            "stackable": false,
+            "quantity": 1,
+            "grade": "middle",
+            "defBonus": 12
+          },
+          {
+            "id": "99f3a762-2b0b-4ba5-9f13-c7111a446fed:4000",
+            "typeId": "katana",
+            "name": "Katana",
+            "description": "High-tier melee weapon",
+            "category": "weapon",
+            "stackable": false,
+            "quantity": 1,
+            "grade": "high",
+            "atkBonus": 40,
+            "epCost": 3
+          },
+          {
+            "id": "99f3a762-2b0b-4ba5-9f13-c7111a446fed:4001",
+            "typeId": "sniper",
+            "name": "Sniper rifle",
+            "description": "High-tier ranged weapon",
+            "category": "weapon",
+            "stackable": false,
+            "quantity": 1,
+            "grade": "high",
+            "atkBonus": 32,
+            "range": 2,
+            "epCost": 3
+          }
+        ],
+        "equippedWeaponId": "99f3a762-2b0b-4ba5-9f13-c7111a446fed:4000",
+        "equippedWeapon": {
+          "id": "99f3a762-2b0b-4ba5-9f13-c7111a446fed:4000",
+          "typeId": "katana",
+          "name": "Katana",
+          "description": "High-tier melee weapon",
+          "category": "weapon",
+          "stackable": false,
+          "quantity": 1,
+          "grade": "high",
+          "atkBonus": 40,
+          "epCost": 3
+        },
+        "equippedArmorId": "chainmail",
+        "equippedArmor": {
+          "id": "chainmail",
+          "name": "Chainmail",
+          "grade": "middle",
+          "defBonus": 12
+        },
+        "mainPackName": null,
+        "subPackName": null,
+        "relicStats": null
+      },
+      {
+        "id": "cb41b689-f699-45cd-90e0-7ef27c585ff9",
+        "name": "IronAce489",
+        "profileIndex": 12,
+        "regionId": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+        "hp": 0,
+        "maxHp": 100,
+        "isAlive": false,
+        "isDiscovered": false,
+        "kills": 0,
+        "placement": 0,
+        "isGuardian": false,
+        "isAI": true,
+        "inCave": false,
+        "killedBy": "2be933ea-dd42-4297-b890-97d5d955aecc",
+        "diedAt": "2026-07-16T03:40:03.1125343Z",
+        "atk": 25,
+        "def": 5,
+        "ep": 3,
+        "maxEp": 10,
+        "inventory": [],
+        "equippedWeaponId": null,
+        "equippedWeapon": null,
+        "equippedArmorId": null,
+        "equippedArmor": null,
+        "mainPackName": null,
+        "subPackName": null,
+        "relicStats": null
+      }
+    ],
+    "visibleMonsters": [
+      {
+        "id": "5ab7ab44-5b8c-4e78-b65b-0ca5142c0960:monster:18",
+        "type": "wolf",
+        "name": "Wolf",
+        "hp": 1,
+        "maxHp": 25,
+        "regionId": "ff40d001-6506-4cbe-be14-66ace17742dc",
+        "isDiscovered": false,
+        "lootTable": ["wolf"]
+      }
+    ],
+    "visibleNPCs": [],
+    "visibleRuins": [
+      {
+        "ruinId": "fe98b156-a7ed-4dd8-91d5-ef7803a88be2",
+        "position": {
+          "x": 1742.76877568,
+          "y": 840.8
+        },
+        "isEmpty": true,
+        "gauge": 3,
+        "maxGauge": 3,
+        "isOccupied": false,
+        "clearedByName": "StormLynx732",
+        "contentType": "pack"
+      }
+    ],
+    "myRelics": [],
+    "myPacks": [],
+    "recentLogs": [
+      {
+        "log": {
+          "agentId": "90726350-e96e-5743-8a79-f8bc623e18de",
+          "details": {
+            "actualHpDrop": 7,
+            "damage": 7,
+            "killed": false,
+            "newHp": 55,
+            "prevHp": 62,
+            "targetId": "2be933ea-dd42-4297-b890-97d5d955aecc",
+            "targetName": "StormLynx732",
+            "targetType": "agent",
+            "verb": "attack"
+          },
+          "id": "1deb52aeade05eab722faec5da26e7467cea5055f42d01a925ed2fdec879a147",
+          "message": "Guardian attacked StormLynx732 for 7 damage.",
+          "regionId": "ff40d001-6506-4cbe-be14-66ace17742dc",
+          "segments": [
+            {
+              "id": "90726350-e96e-5743-8a79-f8bc623e18de",
+              "type": "agent",
+              "value": "Guardian"
+            },
+            {
+              "type": "text",
+              "value": " attacked "
+            },
+            {
+              "id": "2be933ea-dd42-4297-b890-97d5d955aecc",
+              "type": "agent",
+              "value": "StormLynx732"
+            },
+            {
+              "type": "text",
+              "value": " for 7 damage. (HP 62\u219255)"
+            }
+          ],
+          "target": "2be933ea-dd42-4297-b890-97d5d955aecc",
+          "timestamp": "2026-07-16T03:40:03.037936083Z",
+          "turn": 8,
+          "type": "attack"
+        }
+      },
+      {
+        "log": {
+          "details": {
+            "clearedBy": "05e2ebe6-08e4-4078-baed-f1f923da471a",
+            "clearedByName": "Venom_Shark406",
+            "contentType": "relic",
+            "gauge": 2,
+            "isEmpty": false,
+            "maxGauge": 3,
+            "occupiedBy": "544c7eb5-1397-457e-9ec8-a824a590bb6a",
+            "ruinId": "bb6d4155-0704-4b53-a273-e37e353e3f55"
+          },
+          "id": "d549ac359a8f726217ef6b22a791e8dba001ffe2f261152808c2518da98d0c87",
+          "message": "Blaze_Dragon814 is excavating the relic ruin (2/3).",
+          "timestamp": "2026-07-16T03:40:03.111059323Z",
+          "turn": 8,
+          "type": "ruin_state_changed"
+        }
+      },
+      {
+        "log": {
+          "details": {
+            "clearedBy": "cdfc6989-ae41-4d7a-9727-e2d15ae2990d",
+            "clearedByName": "FrostRaven856",
+            "contentType": "relic",
+            "gauge": 3,
+            "isEmpty": true,
+            "maxGauge": 3,
+            "occupiedBy": "",
+            "ruinId": "2f2fd38b-349d-4df4-afa6-5098f33f7b98"
+          },
+          "id": "da6ee040cf5520d6277180febbd37ab3fcc49696133e68e6efbe5a42445fc8f8",
+          "message": "The relic ruin has been fully excavated.",
+          "timestamp": "2026-07-16T03:40:03.111332938Z",
+          "turn": 8,
+          "type": "ruin_state_changed"
+        }
+      },
+      {
+        "log": {
+          "agentId": "40e9ee43-e8c8-443a-a1d8-cfaeb3571d28",
+          "details": {
+            "epCost": 2,
+            "fromRegionId": "bb809055-d8ca-409e-aaa2-ea1f7954d972",
+            "targetId": "ff40d001-6506-4cbe-be14-66ace17742dc",
+            "targetName": "Market",
+            "toRegionId": "ff40d001-6506-4cbe-be14-66ace17742dc",
+            "verb": "move"
+          },
+          "id": "e7ea511951bbb284be8347db145ed6b3094737cce0a62a130897bbb114aece6c",
+          "message": "Mystic_King660 moved to Market.",
+          "regionId": "ff40d001-6506-4cbe-be14-66ace17742dc",
+          "segments": [
+            {
+              "id": "40e9ee43-e8c8-443a-a1d8-cfaeb3571d28",
+              "type": "agent",
+              "value": "Mystic_King660"
+            },
+            {
+              "type": "text",
+              "value": " moved to "
+            },
+            {
+              "id": "ff40d001-6506-4cbe-be14-66ace17742dc",
+              "type": "region",
+              "value": "Market"
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ],
+          "target": "ff40d001-6506-4cbe-be14-66ace17742dc",
+          "timestamp": "2026-07-16T03:40:03.111456741Z",
+          "turn": 8,
+          "type": "move"
+        }
+      },
+      {
+        "log": {
+          "details": {
+            "clearedBy": "0560c15c-ec5c-4756-a03b-25e13897e6d9",
+            "clearedByName": "EmberShark299",
+            "contentType": "relic",
+            "gauge": 3,
+            "isEmpty": true,
+            "maxGauge": 3,
+            "occupiedBy": "",
+            "ruinId": "122aafbc-3c57-48b1-98b0-f9a7207fef97"
+          },
+          "id": "81ebcba7c058cadfc8e1d0c395233fb7abc39818c2726ccb5c34b6006c1d8d55",
+          "message": "The relic ruin has been fully excavated.",
+          "timestamp": "2026-07-16T03:40:03.111997371Z",
+          "turn": 8,
+          "type": "ruin_state_changed"
+        }
+      },
+      {
+        "log": {
+          "details": {
+            "clearedBy": "",
+            "clearedByName": "",
+            "contentType": "pack",
+            "gauge": 2,
+            "isEmpty": false,
+            "maxGauge": 3,
+            "occupiedBy": "747073ed-46c2-40bd-830f-ac8e63f42d57",
+            "ruinId": "b15d5b5c-2448-46e0-86dd-4801f3d5dd2a"
+          },
+          "id": "75907bbade18552d04e491f35a08d898b1bb1bc4fa8f99a573046da7fd8d041d",
+          "message": "BlazeShark972 is excavating the pack ruin (2/3).",
+          "timestamp": "2026-07-16T03:40:03.112310536Z",
+          "turn": 8,
+          "type": "ruin_state_changed"
+        }
+      },
+      {
+        "log": {
+          "agentId": "2be933ea-dd42-4297-b890-97d5d955aecc",
+          "details": {
+            "actualHpDrop": 29,
+            "damage": 44,
+            "killed": true,
+            "newHp": 0,
+            "prevHp": 29,
+            "targetId": "cb41b689-f699-45cd-90e0-7ef27c585ff9",
+            "targetName": "IronAce489",
+            "targetType": "agent",
+            "verb": "attack"
+          },
+          "id": "8fbb390130381719b2d958dcfe84962ac9ca1504f9427e9b628cfdfdaa70ef9e",
+          "message": "StormLynx732 killed IronAce489.",
+          "regionId": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+          "segments": [
+            {
+              "id": "2be933ea-dd42-4297-b890-97d5d955aecc",
+              "type": "agent",
+              "value": "StormLynx732"
+            },
+            {
+              "type": "text",
+              "value": " attacked "
+            },
+            {
+              "id": "cb41b689-f699-45cd-90e0-7ef27c585ff9",
+              "type": "agent",
+              "value": "IronAce489"
+            },
+            {
+              "type": "text",
+              "value": " for 44 damage. (HP 29\u21920)"
+            }
+          ],
+          "target": "cb41b689-f699-45cd-90e0-7ef27c585ff9",
+          "timestamp": "2026-07-16T03:40:03.1125343Z",
+          "turn": 8,
+          "type": "death"
+        }
+      },
+      {
+        "log": {
+          "agentId": "cb41b689-f699-45cd-90e0-7ef27c585ff9",
+          "details": {
+            "killedBy": "2be933ea-dd42-4297-b890-97d5d955aecc",
+            "killerName": "StormLynx732",
+            "killerWeaponName": "Sword",
+            "killerWeaponTypeId": "sword",
+            "reason": "combat"
+          },
+          "id": "5b687662507f435e78989c073ed546be4082ecfa511e16205ccff02e48ef61a5",
+          "message": "IronAce489 was killed by StormLynx732.",
+          "regionId": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+          "segments": [
+            {
+              "id": "cb41b689-f699-45cd-90e0-7ef27c585ff9",
+              "type": "agent",
+              "value": "IronAce489"
+            },
+            {
+              "type": "text",
+              "value": " was killed by "
+            },
+            {
+              "id": "2be933ea-dd42-4297-b890-97d5d955aecc",
+              "type": "agent",
+              "value": "StormLynx732"
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ],
+          "timestamp": "2026-07-16T03:40:03.1125343Z",
+          "turn": 8,
+          "type": "death"
+        }
+      },
+      {
+        "log": {
+          "agentId": "2be933ea-dd42-4297-b890-97d5d955aecc",
+          "details": {
+            "agentId": "2be933ea-dd42-4297-b890-97d5d955aecc",
+            "alertActive": false,
+            "alertGauge": 0
+          },
+          "id": "3b1213776746b2f4cdc878d2c9e44c7ca5013707c3e8c1d98751c72c301b7eb9",
+          "message": "StormLynx732's alert level is now 0.",
+          "regionId": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+          "timestamp": "2026-07-16T03:40:34.843323342Z",
+          "turn": 9,
+          "type": "alert_gauge_changed"
+        }
+      },
+      {
+        "log": {
+          "agentId": "40e9ee43-e8c8-443a-a1d8-cfaeb3571d28",
+          "details": {
+            "attackerId": "5ab7ab44-5b8c-4e78-b65b-0ca5142c0960:monster:18",
+            "damage": 1,
+            "monsterId": "5ab7ab44-5b8c-4e78-b65b-0ca5142c0960:monster:18",
+            "monsterName": "Wolf",
+            "targetHp": 96,
+            "targetId": "40e9ee43-e8c8-443a-a1d8-cfaeb3571d28"
+          },
+          "id": "f0ab5e8d24d037010e57ce5849691947774eb9c6cdc8a53efe3085f18c00d550",
+          "message": "Wolf attacked Mystic_King660 for 1 damage.",
+          "regionId": "ff40d001-6506-4cbe-be14-66ace17742dc",
+          "segments": [
+            {
+              "id": "5ab7ab44-5b8c-4e78-b65b-0ca5142c0960:monster:18",
+              "regionId": "ff40d001-6506-4cbe-be14-66ace17742dc",
+              "type": "monster",
+              "value": "Wolf"
+            },
+            {
+              "type": "text",
+              "value": " attacked "
+            },
+            {
+              "id": "40e9ee43-e8c8-443a-a1d8-cfaeb3571d28",
+              "type": "agent",
+              "value": "Mystic_King660"
+            },
+            {
+              "type": "text",
+              "value": " for 1 damage."
+            }
+          ],
+          "timestamp": "2026-07-16T03:40:34.843323342Z",
+          "turn": 9,
+          "type": "attack"
+        }
+      },
+      {
+        "log": {
+          "agentId": "2be933ea-dd42-4297-b890-97d5d955aecc",
+          "details": {
+            "category": "recovery",
+            "item": {
+              "id": "cb41b689-f699-45cd-90e0-7ef27c585ff9:1000",
+              "typeId": "emergency_food",
+              "name": "Emergency Food",
+              "description": "Restores 20 HP, 5 EP",
+              "category": "recovery",
+              "stackable": true,
+              "quantity": 1,
+              "grade": "middle",
+              "hpRestore": 20,
+              "epRestore": 5
+            },
+            "itemId": "cb41b689-f699-45cd-90e0-7ef27c585ff9:1000",
+            "itemName": "emergency_food",
+            "regionId": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+            "source": "npc_instant",
+            "typeId": "emergency_food",
+            "verb": "pickup"
+          },
+          "id": "a3a48dd150cb8108c1c4cc41cad496f1f26ed74b0a3e1c4ca10ad3658dbc54fe",
+          "message": "StormLynx732 picked up emergency_food.",
+          "regionId": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+          "segments": [
+            {
+              "id": "2be933ea-dd42-4297-b890-97d5d955aecc",
+              "type": "agent",
+              "value": "StormLynx732"
+            },
+            {
+              "type": "text",
+              "value": " picked up "
+            },
+            {
+              "id": "cb41b689-f699-45cd-90e0-7ef27c585ff9:1000",
+              "type": "item",
+              "value": "emergency_food"
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ],
+          "timestamp": "2026-07-16T03:40:34.843585577Z",
+          "turn": 9,
+          "type": "item_pickup"
+        }
+      },
+      {
+        "log": {
+          "agentId": "2be933ea-dd42-4297-b890-97d5d955aecc",
+          "details": {
+            "category": "currency",
+            "item": {
+              "id": "cb41b689-f699-45cd-90e0-7ef27c585ff9:3000",
+              "typeId": "reward1",
+              "name": "sMoltz",
+              "description": "In-game rewards. Collected on victory to account balance.",
+              "category": "currency",
+              "stackable": true,
+              "quantity": 1,
+              "grade": "low"
+            },
+            "itemId": "cb41b689-f699-45cd-90e0-7ef27c585ff9:3000",
+            "itemName": "reward1",
+            "quantity": 1,
+            "regionId": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+            "source": "npc_instant",
+            "typeId": "reward1",
+            "verb": "pickup"
+          },
+          "id": "5b61cfb42c86d523a6d4c5eed63ba42b773184857f6adf8974a9354f7c749aa1",
+          "message": "StormLynx732 picked up reward1.",
+          "regionId": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+          "segments": [
+            {
+              "id": "2be933ea-dd42-4297-b890-97d5d955aecc",
+              "type": "agent",
+              "value": "StormLynx732"
+            },
+            {
+              "type": "text",
+              "value": " picked up "
+            },
+            {
+              "id": "cb41b689-f699-45cd-90e0-7ef27c585ff9:3000",
+              "type": "item",
+              "value": "reward1"
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ],
+          "timestamp": "2026-07-16T03:40:34.843585577Z",
+          "turn": 9,
+          "type": "item_pickup"
+        }
+      },
+      {
+        "log": {
+          "agentId": "2be933ea-dd42-4297-b890-97d5d955aecc",
+          "details": {
+            "category": "recovery",
+            "item": {
+              "id": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a:4000",
+              "typeId": "energy_drink",
+              "name": "Energy drink",
+              "description": "Restores 5 EP",
+              "category": "recovery",
+              "stackable": true,
+              "quantity": 1,
+              "grade": "low",
+              "epRestore": 5
+            },
+            "itemId": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a:4000",
+            "itemName": "energy_drink",
+            "regionId": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+            "source": "npc_instant",
+            "typeId": "energy_drink",
+            "verb": "pickup"
+          },
+          "id": "43e4022bb3bfb9d04bf341a55ae2bfbdb4da76d5faf1b41eafffb1d805b60505",
+          "message": "StormLynx732 picked up energy_drink.",
+          "regionId": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+          "segments": [
+            {
+              "id": "2be933ea-dd42-4297-b890-97d5d955aecc",
+              "type": "agent",
+              "value": "StormLynx732"
+            },
+            {
+              "type": "text",
+              "value": " picked up "
+            },
+            {
+              "id": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a:4000",
+              "type": "item",
+              "value": "energy_drink"
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ],
+          "timestamp": "2026-07-16T03:40:34.843585577Z",
+          "turn": 9,
+          "type": "item_pickup"
+        }
+      },
+      {
+        "log": {
+          "agentId": "2be933ea-dd42-4297-b890-97d5d955aecc",
+          "details": {
+            "category": "weapon",
+            "item": {
+              "id": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a:4001",
+              "typeId": "sword",
+              "name": "Sword",
+              "description": "Mid-tier melee weapon",
+              "category": "weapon",
+              "stackable": false,
+              "quantity": 1,
+              "grade": "middle",
+              "atkBonus": 24,
+              "epCost": 2
+            },
+            "itemId": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a:4001",
+            "itemName": "sword",
+            "regionId": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+            "source": "npc_instant",
+            "typeId": "sword",
+            "verb": "pickup"
+          },
+          "id": "67aa0daf6250169754ea61ed8418f822352a86f0d949cceb567bd05bae844bf6",
+          "message": "StormLynx732 picked up sword.",
+          "regionId": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+          "segments": [
+            {
+              "id": "2be933ea-dd42-4297-b890-97d5d955aecc",
+              "type": "agent",
+              "value": "StormLynx732"
+            },
+            {
+              "type": "text",
+              "value": " picked up "
+            },
+            {
+              "id": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a:4001",
+              "type": "item",
+              "value": "sword"
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ],
+          "timestamp": "2026-07-16T03:40:34.843585577Z",
+          "turn": 9,
+          "type": "item_pickup"
+        }
+      },
+      {
+        "log": {
+          "agentId": "2be933ea-dd42-4297-b890-97d5d955aecc",
+          "details": {
+            "category": "weapon",
+            "item": {
+              "id": "61ff92d8-76cd-4785-aa84-8a839686b415:4000",
+              "typeId": "katana",
+              "name": "Katana",
+              "description": "High-tier melee weapon",
+              "category": "weapon",
+              "stackable": false,
+              "quantity": 1,
+              "grade": "high",
+              "atkBonus": 40,
+              "epCost": 3
+            },
+            "itemId": "61ff92d8-76cd-4785-aa84-8a839686b415:4000",
+            "itemName": "katana",
+            "regionId": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+            "source": "npc_instant",
+            "typeId": "katana",
+            "verb": "pickup"
+          },
+          "id": "5e119fee21d343d613fb5759edcafc8e787b29e5a139e1acb1c98285842bcf48",
+          "message": "StormLynx732 picked up katana.",
+          "regionId": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+          "segments": [
+            {
+              "id": "2be933ea-dd42-4297-b890-97d5d955aecc",
+              "type": "agent",
+              "value": "StormLynx732"
+            },
+            {
+              "type": "text",
+              "value": " picked up "
+            },
+            {
+              "id": "61ff92d8-76cd-4785-aa84-8a839686b415:4000",
+              "type": "item",
+              "value": "katana"
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ],
+          "timestamp": "2026-07-16T03:40:34.843585577Z",
+          "turn": 9,
+          "type": "item_pickup"
+        }
+      },
+      {
+        "log": {
+          "agentId": "2be933ea-dd42-4297-b890-97d5d955aecc",
+          "details": {
+            "category": "weapon",
+            "itemId": "61ff92d8-76cd-4785-aa84-8a839686b415:4000",
+            "itemName": "katana",
+            "name": "Katana",
+            "previous": "b9f673ff-3757-4773-945b-8fdfebfb0cd4:4000",
+            "source": "npc_instant",
+            "typeId": "katana",
+            "verb": "equip"
+          },
+          "id": "99133697bf05bb8bacae7689950e6bbcdb0209d03c83ef44f790c4028c099782",
+          "message": "StormLynx732 equipped a weapon.",
+          "regionId": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+          "segments": [
+            {
+              "id": "2be933ea-dd42-4297-b890-97d5d955aecc",
+              "type": "agent",
+              "value": "StormLynx732"
+            },
+            {
+              "type": "text",
+              "value": " equipped "
+            },
+            {
+              "id": "61ff92d8-76cd-4785-aa84-8a839686b415:4000",
+              "type": "item",
+              "value": "Katana"
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ],
+          "timestamp": "2026-07-16T03:40:34.843585577Z",
+          "turn": 9,
+          "type": "item_use"
+        }
+      },
+      {
+        "log": {
+          "agentId": "90726350-e96e-5743-8a79-f8bc623e18de",
+          "details": {
+            "ep": 9,
+            "maxEp": 10,
+            "recovered": 1,
+            "verb": "rest"
+          },
+          "id": "c43f59022434709d41c8d6eab9b3c8f8a827ec4737be34441b97edfd0b9cfab5",
+          "message": "Guardian rested.",
+          "regionId": "ff40d001-6506-4cbe-be14-66ace17742dc",
+          "segments": [
+            {
+              "id": "90726350-e96e-5743-8a79-f8bc623e18de",
+              "type": "agent",
+              "value": "Guardian"
+            },
+            {
+              "type": "text",
+              "value": " rested (+1 EP)"
+            }
+          ],
+          "timestamp": "2026-07-16T03:40:34.877711133Z",
+          "turn": 9,
+          "type": "rest"
+        }
+      },
+      {
+        "log": {
+          "details": {
+            "clearedBy": "544c7eb5-1397-457e-9ec8-a824a590bb6a",
+            "clearedByName": "Blaze_Dragon814",
+            "contentType": "relic",
+            "gauge": 3,
+            "isEmpty": true,
+            "maxGauge": 3,
+            "occupiedBy": "",
+            "ruinId": "bb6d4155-0704-4b53-a273-e37e353e3f55"
+          },
+          "id": "a57c2e2a4e608564dd46050882b41285d71373b83f46dd4a0c1e991895a277f8",
+          "message": "The relic ruin has been fully excavated.",
+          "timestamp": "2026-07-16T03:40:35.131796113Z",
+          "turn": 9,
+          "type": "ruin_state_changed"
+        }
+      },
+      {
+        "log": {
+          "agentId": "40e9ee43-e8c8-443a-a1d8-cfaeb3571d28",
+          "details": {
+            "actualHpDrop": 24,
+            "damage": 24,
+            "killed": false,
+            "monsterName": "Wolf",
+            "newHp": 1,
+            "prevHp": 25,
+            "targetId": "5ab7ab44-5b8c-4e78-b65b-0ca5142c0960:monster:18",
+            "targetName": "5ab7ab44-5b8c-4e78-b65b-0ca5142c0960:monster:18",
+            "targetType": "monster",
+            "verb": "attack"
+          },
+          "id": "2819431eba6d6e249b3cf5ac68ae36a56bac7fd1f8f03871983dd4e777aea27d",
+          "message": "Mystic_King660 hit Wolf for 24 damage.",
+          "regionId": "ff40d001-6506-4cbe-be14-66ace17742dc",
+          "segments": [
+            {
+              "id": "40e9ee43-e8c8-443a-a1d8-cfaeb3571d28",
+              "type": "agent",
+              "value": "Mystic_King660"
+            },
+            {
+              "type": "text",
+              "value": " attacked "
+            },
+            {
+              "id": "5ab7ab44-5b8c-4e78-b65b-0ca5142c0960:monster:18",
+              "regionId": "ff40d001-6506-4cbe-be14-66ace17742dc",
+              "type": "monster",
+              "value": "Wolf"
+            },
+            {
+              "type": "text",
+              "value": " for 24 damage."
+            }
+          ],
+          "target": "5ab7ab44-5b8c-4e78-b65b-0ca5142c0960:monster:18",
+          "timestamp": "2026-07-16T03:40:35.132490145Z",
+          "turn": 9,
+          "type": "attack"
+        }
+      },
+      {
+        "log": {
+          "agentId": "8950186b-ff23-403a-ab43-ee93e596d58e",
+          "details": {
+            "actualHpDrop": 36,
+            "damage": 48,
+            "killed": true,
+            "newHp": 0,
+            "prevHp": 36,
+            "targetId": "683ed09c-3669-4d07-9daf-71501e79a636",
+            "targetName": "MysticMax373",
+            "targetType": "agent",
+            "verb": "attack"
+          },
+          "id": "148d1124bfe37063fb32622f304596c424939d5c267edc307fa156e2806c3356",
+          "message": "GoldenFox837 killed MysticMax373.",
+          "regionId": "833ec367-e165-4927-9dea-6d98947e705c",
+          "segments": [
+            {
+              "id": "8950186b-ff23-403a-ab43-ee93e596d58e",
+              "type": "agent",
+              "value": "GoldenFox837"
+            },
+            {
+              "type": "text",
+              "value": " attacked "
+            },
+            {
+              "id": "683ed09c-3669-4d07-9daf-71501e79a636",
+              "type": "agent",
+              "value": "MysticMax373"
+            },
+            {
+              "type": "text",
+              "value": " for 48 damage. (HP 36\u21920)"
+            }
+          ],
+          "target": "683ed09c-3669-4d07-9daf-71501e79a636",
+          "timestamp": "2026-07-16T03:40:35.132691939Z",
+          "turn": 9,
+          "type": "death"
+        }
+      },
+      {
+        "log": {
+          "agentId": "683ed09c-3669-4d07-9daf-71501e79a636",
+          "details": {
+            "killedBy": "8950186b-ff23-403a-ab43-ee93e596d58e",
+            "killerName": "GoldenFox837",
+            "killerWeaponName": "Katana",
+            "killerWeaponTypeId": "katana",
+            "reason": "combat"
+          },
+          "id": "4bbaa2b8c8416414ca6a32588d642309a9571adc53d2be0dc6f5c90be65b6b20",
+          "message": "MysticMax373 was killed by GoldenFox837.",
+          "regionId": "833ec367-e165-4927-9dea-6d98947e705c",
+          "segments": [
+            {
+              "id": "683ed09c-3669-4d07-9daf-71501e79a636",
+              "type": "agent",
+              "value": "MysticMax373"
+            },
+            {
+              "type": "text",
+              "value": " was killed by "
+            },
+            {
+              "id": "8950186b-ff23-403a-ab43-ee93e596d58e",
+              "type": "agent",
+              "value": "GoldenFox837"
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ],
+          "timestamp": "2026-07-16T03:40:35.132691939Z",
+          "turn": 9,
+          "type": "death"
+        }
+      },
+      {
+        "log": {
+          "agentId": "5fe3242c-7d85-4927-ad2f-2664703c1bfb",
+          "details": {
+            "epCost": 2,
+            "fromRegionId": "29c8eebf-6fd7-4622-92e7-d3269fe6cb27",
+            "targetId": "b9f673ff-3757-4773-945b-8fdfebfb0cd4",
+            "targetName": "Farmhouse",
+            "toRegionId": "b9f673ff-3757-4773-945b-8fdfebfb0cd4",
+            "verb": "move"
+          },
+          "id": "c0ed2b5df0e3f9088c633e0fa15e91cd17a96f5f019b0d52ca38974a66986f7a",
+          "message": "Void-Hunter650 moved to Farmhouse.",
+          "regionId": "b9f673ff-3757-4773-945b-8fdfebfb0cd4",
+          "segments": [
+            {
+              "id": "5fe3242c-7d85-4927-ad2f-2664703c1bfb",
+              "type": "agent",
+              "value": "Void-Hunter650"
+            },
+            {
+              "type": "text",
+              "value": " moved to "
+            },
+            {
+              "id": "b9f673ff-3757-4773-945b-8fdfebfb0cd4",
+              "type": "region",
+              "value": "Farmhouse"
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ],
+          "target": "b9f673ff-3757-4773-945b-8fdfebfb0cd4",
+          "timestamp": "2026-07-16T03:40:35.133031115Z",
+          "turn": 9,
+          "type": "move"
+        }
+      },
+      {
+        "log": {
+          "agentId": "88633bbb-f829-42e5-a662-545c059b847a",
+          "details": {
+            "actualHpDrop": 8,
+            "damage": 36,
+            "killed": true,
+            "newHp": 0,
+            "prevHp": 8,
+            "targetId": "84b39edc-bb4d-48ad-974a-6ff661b05182",
+            "targetName": "Void_Striker140",
+            "targetType": "agent",
+            "verb": "attack"
+          },
+          "id": "c636be597300e6189a96acef60b5c24cfd840bbef56c95539c6b97f0a40f6a09",
+          "message": "Thunder_Rex142 killed Void_Striker140.",
+          "regionId": "22363080-cf32-49a1-a63d-a4a765e0a016",
+          "segments": [
+            {
+              "id": "88633bbb-f829-42e5-a662-545c059b847a",
+              "type": "agent",
+              "value": "Thunder_Rex142"
+            },
+            {
+              "type": "text",
+              "value": " attacked "
+            },
+            {
+              "id": "84b39edc-bb4d-48ad-974a-6ff661b05182",
+              "type": "agent",
+              "value": "Void_Striker140"
+            },
+            {
+              "type": "text",
+              "value": " for 36 damage. (HP 8\u21920)"
+            }
+          ],
+          "target": "84b39edc-bb4d-48ad-974a-6ff661b05182",
+          "timestamp": "2026-07-16T03:40:35.133514614Z",
+          "turn": 9,
+          "type": "death"
+        }
+      },
+      {
+        "log": {
+          "agentId": "84b39edc-bb4d-48ad-974a-6ff661b05182",
+          "details": {
+            "killedBy": "88633bbb-f829-42e5-a662-545c059b847a",
+            "killerName": "Thunder_Rex142",
+            "killerWeaponName": "Dagger",
+            "killerWeaponTypeId": "knife",
+            "reason": "combat"
+          },
+          "id": "9d2782f423465e60fe5dfb8900093351529a16e0494e94a2e685440fa0e8ae3b",
+          "message": "Void_Striker140 was killed by Thunder_Rex142.",
+          "regionId": "22363080-cf32-49a1-a63d-a4a765e0a016",
+          "segments": [
+            {
+              "id": "84b39edc-bb4d-48ad-974a-6ff661b05182",
+              "type": "agent",
+              "value": "Void_Striker140"
+            },
+            {
+              "type": "text",
+              "value": " was killed by "
+            },
+            {
+              "id": "88633bbb-f829-42e5-a662-545c059b847a",
+              "type": "agent",
+              "value": "Thunder_Rex142"
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ],
+          "timestamp": "2026-07-16T03:40:35.133514614Z",
+          "turn": 9,
+          "type": "death"
+        }
+      },
+      {
+        "log": {
+          "agentId": "bd859f83-f5d6-4341-b625-b8f44ac30ae0",
+          "details": {
+            "actualHpDrop": 36,
+            "damage": 36,
+            "killed": true,
+            "newHp": 0,
+            "prevHp": 36,
+            "targetId": "88633bbb-f829-42e5-a662-545c059b847a",
+            "targetName": "Thunder_Rex142",
+            "targetType": "agent",
+            "verb": "attack"
+          },
+          "id": "d31cd51fcce2808410515ce25ea949b92c3bb1503c76665d4f2686d53f4f214f",
+          "message": "Stone_Ace635 killed Thunder_Rex142.",
+          "regionId": "22363080-cf32-49a1-a63d-a4a765e0a016",
+          "segments": [
+            {
+              "id": "bd859f83-f5d6-4341-b625-b8f44ac30ae0",
+              "type": "agent",
+              "value": "Stone_Ace635"
+            },
+            {
+              "type": "text",
+              "value": " attacked "
+            },
+            {
+              "id": "88633bbb-f829-42e5-a662-545c059b847a",
+              "type": "agent",
+              "value": "Thunder_Rex142"
+            },
+            {
+              "type": "text",
+              "value": " for 36 damage. (HP 36\u21920)"
+            }
+          ],
+          "target": "88633bbb-f829-42e5-a662-545c059b847a",
+          "timestamp": "2026-07-16T03:40:35.134037793Z",
+          "turn": 9,
+          "type": "death"
+        }
+      },
+      {
+        "log": {
+          "agentId": "88633bbb-f829-42e5-a662-545c059b847a",
+          "details": {
+            "killedBy": "bd859f83-f5d6-4341-b625-b8f44ac30ae0",
+            "killerName": "Stone_Ace635",
+            "killerWeaponName": "Dagger",
+            "killerWeaponTypeId": "knife",
+            "reason": "combat"
+          },
+          "id": "9b278e964582e5b3d82a3bce321f7ff53d563aad2065dd38a0c8d7715fb20c7a",
+          "message": "Thunder_Rex142 was killed by Stone_Ace635.",
+          "regionId": "22363080-cf32-49a1-a63d-a4a765e0a016",
+          "segments": [
+            {
+              "id": "88633bbb-f829-42e5-a662-545c059b847a",
+              "type": "agent",
+              "value": "Thunder_Rex142"
+            },
+            {
+              "type": "text",
+              "value": " was killed by "
+            },
+            {
+              "id": "bd859f83-f5d6-4341-b625-b8f44ac30ae0",
+              "type": "agent",
+              "value": "Stone_Ace635"
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ],
+          "timestamp": "2026-07-16T03:40:35.134037793Z",
+          "turn": 9,
+          "type": "death"
+        }
+      },
+      {
+        "log": {
+          "details": {
+            "clearedBy": "747073ed-46c2-40bd-830f-ac8e63f42d57",
+            "clearedByName": "BlazeShark972",
+            "contentType": "pack",
+            "gauge": 3,
+            "isEmpty": true,
+            "maxGauge": 3,
+            "occupiedBy": "",
+            "ruinId": "b15d5b5c-2448-46e0-86dd-4801f3d5dd2a"
+          },
+          "id": "cb99344562c5c5312e0c221ec61a0cfdecb0923567b0c83f9190006fa174514c",
+          "message": "The pack ruin has been fully excavated.",
+          "timestamp": "2026-07-16T03:40:35.134393Z",
+          "turn": 9,
+          "type": "ruin_state_changed"
+        }
+      },
+      {
+        "log": {
+          "agentId": "2be933ea-dd42-4297-b890-97d5d955aecc",
+          "details": {
+            "epCost": 0,
+            "epRestored": 4,
+            "hpRestored": 20,
+            "item": {
+              "id": "2be933ea-dd42-4297-b890-97d5d955aecc:1000",
+              "typeId": "emergency_food",
+              "name": "Emergency Food",
+              "description": "Restores 20 HP, 5 EP",
+              "category": "recovery",
+              "stackable": true,
+              "quantity": 1,
+              "grade": "middle",
+              "hpRestore": 20,
+              "epRestore": 5
+            },
+            "itemId": "2be933ea-dd42-4297-b890-97d5d955aecc:1000",
+            "itemName": "emergency_food",
+            "typeId": "emergency_food",
+            "verb": "use_item"
+          },
+          "id": "7e23d6708781fedc26346c97c492a046784e7c693868664581c6a698f5af1f21",
+          "message": "StormLynx732 used emergency_food.",
+          "regionId": "4e0a0d1d-24f9-45b4-8a0f-e914a3e97e9a",
+          "segments": [
+            {
+              "id": "2be933ea-dd42-4297-b890-97d5d955aecc",
+              "type": "agent",
+              "value": "StormLynx732"
+            },
+            {
+              "type": "text",
+              "value": " used "
+            },
+            {
+              "id": "2be933ea-dd42-4297-b890-97d5d955aecc:1000",
+              "type": "item",
+              "value": "emergency_food"
+            },
+            {
+              "type": "text",
+              "value": "."
+            }
+          ],
+          "timestamp": "2026-07-16T03:40:35.134459431Z",
+          "turn": 9,
+          "type": "item_use"
+        }
+      }
+    ],
+    "recentMessages": [],
+    "aliveCount": 82,
+    "cursedVictimIds": [],
+    "season": 383742,
+    "availableActions": {
+      "attack": {
+        "cost": 1,
+        "ok": true
+      },
+      "equip": {
+        "cost": 0,
+        "ok": true
+      },
+      "explore": {
+        "cost": 1,
+        "ok": true
+      },
+      "interact": {
+        "cost": 0,
+        "ok": true
+      },
+      "move": {
+        "cost": 3,
+        "ok": true
+      },
+      "pickup": {
+        "cost": 0,
+        "ok": true
+      },
+      "rest": {
+        "cost": 0,
+        "ok": true
+      },
+      "talk": {
+        "cost": 0,
+        "ok": true
+      },
+      "use_item": {
+        "cost": 0,
+        "ok": true
+      },
+      "whisper": {
+        "cost": 0,
+        "ok": true
+      }
+    }
+  }
+}

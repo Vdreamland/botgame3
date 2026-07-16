@@ -79,18 +79,27 @@ async def run_bot_instance(bot_config, version):
             )
             brain = BrainDecision()
             game_over_cleanly = False
+            can_act = False
+            latest_view = None
             try:
                 await log_msg(bot_name, "SUCCESS", "Game session active. Holding connection to stay in arena...")
                 while True:
                     message = await asyncio.wait_for(ws_session.recv(), timeout=60.0)
                     frame_data = json.loads(message)
                     msg_type = frame_data.get("type")
-                    if msg_type in ["agent_view", "turn_advanced"]:
+                    if msg_type == "agent_view":
+                        latest_view = frame_data
                         await log_frame_update(bot_name, frame_data)
-                    self_data = get_self_agent(frame_data)
-                    is_alive = self_data.get("isAlive", True)
+                    elif msg_type == "turn_advanced":
+                        await log_frame_update(bot_name, frame_data)
+                    elif msg_type == "can_act_changed":
+                        can_act = frame_data.get("canAct", False)
+                    if "canAct" in frame_data:
+                        can_act = frame_data.get("canAct", False)
+                    self_data = get_self_agent(latest_view) if latest_view else {}
+                    is_alive = self_data.get("isAlive", True) if self_data else True
                     detected_dead_in_logs = is_bot_dead_in_logs(frame_data, bot_name)
-                    if not is_alive or detected_dead_in_logs:
+                    if (latest_view and not is_alive) or detected_dead_in_logs:
                         game_over_cleanly = True
                         await ws_session.close()
                         break
@@ -99,9 +108,9 @@ async def run_bot_instance(bot_config, version):
                         await log_msg(bot_name, "SUCCESS", "Game session has officially ended on the server.")
                         await ws_session.close()
                         break
-                    can_act = self_data.get("canAct", False)
-                    if can_act:
-                        action = brain.get_next_action(frame_data)
+                    if can_act and latest_view:
+                        can_act = False
+                        action = brain.get_next_action(latest_view)
                         if action:
                             act_type = action.get("action", "")
                             thought = action.get("thought", "")
