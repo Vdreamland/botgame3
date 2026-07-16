@@ -17,8 +17,9 @@ def find_current_region_targets(frame_data: Dict[str, Any], memory: BotMemory) -
     interactables = current_region.get("interactables", [])
     for item in items:
         item_id = item.get("id")
-        if item_id and item_id not in memory.failed_items:
+        if item_id and item_id not in memory.failed_items and item_id not in memory.pickup_attempts:
             if is_item_needed(item, inv_analysis):
+                memory.pickup_attempts.add(item_id)
                 memory.last_target_id = item_id
                 memory.last_action_type = "pickup"
                 return pickup_payload(item_id, "Picking up ground item")
@@ -50,7 +51,7 @@ def find_target_regions(frame_data: Dict[str, Any], memory: BotMemory) -> List[s
         has_valid_targets = False
         for item in r.get("items", []):
             item_id = item.get("id")
-            if item_id and item_id not in memory.failed_items:
+            if item_id and item_id not in memory.failed_items and item_id not in memory.pickup_attempts:
                 if is_item_needed(item, inv_analysis):
                     has_valid_targets = True
                     break

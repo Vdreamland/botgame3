@@ -57,6 +57,26 @@ def get_recovery_action(frame_data: Dict[str, Any], memory: BotMemory) -> Option
                 elif type_id == "emergency_food":
                     memory.use_attempts.add(item_id)
                     return use_item_payload(item_id, "Eating emergency food under low EP")
+    ground_items = current_region.get("items", [])
+    ground_type_ids = {item.get("typeId", "").lower() for item in ground_items if item.get("typeId")}
+    has_ground_hp_item = any(tid in ["medkit", "emergency_food", "bandage"] for tid in ground_type_ids)
+    has_ground_ep_item = any(tid in ["energy_drink", "emergency_food"] for tid in ground_type_ids)
+    if hp < 90 and has_ground_hp_item:
+        for item in inventory:
+            item_id = item.get("id")
+            type_id = item.get("typeId", "").lower()
+            if item_id and item_id not in memory.use_attempts:
+                if type_id in ["medkit", "emergency_food", "bandage"]:
+                    memory.use_attempts.add(item_id)
+                    return use_item_payload(item_id, f"Proactive HP restore: consuming {type_id} since replacements are on the ground")
+    if ep < 10 and has_ground_ep_item:
+        for item in inventory:
+            item_id = item.get("id")
+            type_id = item.get("typeId", "").lower()
+            if item_id and item_id not in memory.use_attempts:
+                if type_id in ["energy_drink", "emergency_food"]:
+                    memory.use_attempts.add(item_id)
+                    return use_item_payload(item_id, f"Proactive EP restore: consuming {type_id} since replacements are on the ground")
     return None
 
 def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[Dict[str, Any]]:

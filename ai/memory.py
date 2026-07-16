@@ -12,6 +12,7 @@ class BotMemory:
         self.equipped_attempts: Set[str] = set()
         self.drop_attempts: Set[str] = set()
         self.use_attempts: Set[str] = set()
+        self.pickup_attempts: Set[str] = set()
         self.death_regions: Set[str] = set()
 
     def add_visited_region(self, region_id: str):
