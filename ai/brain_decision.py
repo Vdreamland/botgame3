@@ -96,6 +96,10 @@ class BrainDecision:
         if interact_action:
             return interact_action
 
+        ruin_gauge = current_region.get("ruinGauge", 3)
+        if ruin_gauge < 3 and self_data.get("ep", 0) >= 2:
+            return explore_payload("Exploring ruin")
+
         target_regions = find_target_regions(frame_data, self.memory)
         if target_regions:
             path = find_shortest_path(frame_data, target_regions)
@@ -120,9 +124,7 @@ class BrainDecision:
             next_fallback_id = safe_connections[0]
         elif connections:
             next_fallback_id = connections[0]
-        ruin_gauge = current_region.get("ruinGauge", 3)
-        if ruin_gauge < 3 and self_data.get("ep", 0) >= 2:
-            return explore_payload("Exploring ruin")
+        
         if self_data.get("ep", 0) >= 2 and next_fallback_id:
             self.memory.last_target_id = None
             self.memory.last_action_type = "move"
