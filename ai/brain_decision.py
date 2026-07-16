@@ -24,7 +24,7 @@ class BrainDecision:
         current_item_ids = {item.get("id") for item in current_items if item.get("id")}
         current_fac_ids = {fac.get("id") for fac in current_interactables if fac.get("id")}
         self.memory.track_action_failure(current_item_ids, current_fac_ids)
-        recovery_action = get_recovery_action(self_data, self.memory)
+        recovery_action = get_recovery_action(frame_data, self.memory)
         if recovery_action:
             return recovery_action
         inv = self_data.get("inventory", [])
