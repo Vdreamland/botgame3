@@ -1,5 +1,7 @@
 from typing import Dict, Any, Optional
 from ai.memory import BotMemory
+from helpers.items_spec import WEAPONS
+from helpers.game_constants import WEATHER_MODIFIERS
 
 def is_enemy_nearby(frame_data: Dict[str, Any], current_id: str) -> bool:
     from helpers.world_parser import get_visible_agents, get_visible_monsters, get_current_region
@@ -112,23 +114,52 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
     if not self_data or not current_region:
         return None
     current_id = current_region.get("id")
-    has_easy_kill = any(
-        a.get("regionId") == current_id and 0 < a.get("hp", 0) <= 25 and "Guardian" not in a.get("name", "")
-        for a in get_visible_agents(frame_data)
-    )
-    if has_easy_kill:
-        return None
     hp = self_data.get("hp", 0)
     ep = self_data.get("ep", 0)
     if ep < 2:
         return None
-    has_threat = False
+    inventory = self_data.get("inventory", [])
+    eq_weapon = self_data.get("equippedWeapon")
+    best_w_bonus = 0
+    if eq_weapon:
+        eq_w_type = eq_weapon.get("typeId", "").lower().replace(" ", "_")
+        best_w_bonus = WEAPONS.get(eq_w_type, {}).get("atk_bonus", 0)
+    for item in inventory:
+        if item.get("category", "").lower() == "weapon":
+            w_type = item.get("typeId", "").lower().replace(" ", "_")
+            best_w_bonus = max(best_w_bonus, WEAPONS.get(w_type, {}).get("atk_bonus", 0))
+    our_atk = self_data.get("atk", 25)
+    weather = current_region.get("weather", "clear") if current_region else "clear"
+    weather_mod = WEATHER_MODIFIERS.get(weather.lower(), 0)
+    has_easy_kill = False
     for agent in get_visible_agents(frame_data):
-        if agent.get("regionId") == current_id and agent.get("hp", 0) > 0:
+        if agent.get("regionId") == current_id and agent.get("hp", 0) > 0 and agent.get("id") != self_data.get("id"):
             name = agent.get("name", "")
             if "Guardian" not in name and not agent.get("isGuardian", False):
-                if agent.get("hp", 0) <= 25:
-                    continue
+                t_hp = agent.get("hp", 0)
+                t_def = agent.get("def", 5)
+                est_dmg = max(1, our_atk + best_w_bonus - t_def + weather_mod)
+                if t_hp <= est_dmg or t_hp <= 25:
+                    has_easy_kill = True
+                    break
+    if not has_easy_kill:
+        for monster in get_visible_monsters(frame_data):
+            if monster.get("regionId") == current_id and monster.get("hp", 0) > 0:
+                type_id = (monster.get("type") or monster.get("typeId") or monster.get("name") or "").lower()
+                if "guardian" not in type_id:
+                    t_hp = monster.get("hp", 0)
+                    t_def = monster.get("def", 5)
+                    est_dmg = max(1, our_atk + best_w_bonus - t_def + weather_mod)
+                    if t_hp <= est_dmg:
+                        has_easy_kill = True
+                        break
+    if has_easy_kill:
+        return None
+    has_threat = False
+    for agent in get_visible_agents(frame_data):
+        if agent.get("regionId") == current_id and agent.get("hp", 0) > 0 and agent.get("id") != self_data.get("id"):
+            name = agent.get("name", "")
+            if "Guardian" not in name and not agent.get("isGuardian", False):
                 has_threat = True
                 break
     for monster in get_visible_monsters(frame_data):
