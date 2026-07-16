@@ -11,7 +11,12 @@ def is_enemy_nearby(frame_data: Dict[str, Any], current_id: str) -> bool:
         hp = agent.get("hp", 0)
         name = agent.get("name", "")
         if reg_id in nearby_regions and hp > 0 and "Guardian" not in name and not agent.get("isGuardian", False):
-            return True
+            weapon = agent.get("equippedWeapon")
+            weapon_name = "none"
+            if weapon:
+                weapon_name = weapon.get("typeId", weapon.get("name", "none")) if isinstance(weapon, dict) else str(weapon)
+            if weapon_name.lower() not in ["none", "fist", ""]:
+                return True
     for monster in get_visible_monsters(frame_data):
         reg_id = monster.get("regionId")
         hp = monster.get("hp", 0)
@@ -128,7 +133,7 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
             if "guardian" not in type_id:
                 has_threat = True
                 break
-    if has_threat and hp < 40:
+    if has_threat and hp < 60:
         visible_regions = frame_data.get("view", {}).get("visibleRegions", [])
         safe_regions = set()
         region_threat_counts = {}

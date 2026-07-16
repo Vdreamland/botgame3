@@ -75,23 +75,43 @@ class BrainDecision:
         has_recovery = (inv_analysis.get("hp_count", 0) + inv_analysis.get("ep_count", 0)) >= 2
         is_loadout_optimal = has_good_weapon and has_good_armor and has_recovery
         eq_type = eq_weapon.get("typeId", "").lower() if eq_weapon else ""
+        enemy_at_dist_0 = any(
+            agent.get("regionId") == current_id and agent.get("hp", 0) > 0 and "Guardian" not in agent.get("name", "") and not agent.get("isGuardian", False)
+            for agent in get_visible_agents(frame_data)
+        )
         eq_score = 0.0
         if eq_type in MELEE_SCORES:
             eq_score = float(MELEE_SCORES[eq_type])
+            if enemy_at_dist_0:
+                eq_score += 0.1
         elif eq_type in RANGED_SCORES:
-            eq_score = float(RANGED_SCORES[eq_type]) + 0.1
+            eq_score = float(RANGED_SCORES[eq_type])
+            if not enemy_at_dist_0:
+                eq_score += 0.1
         best_inv_weapon = None
         best_inv_score = 0.0
         melee_score = float(inv_analysis["best_melee_score"])
         ranged_score = float(inv_analysis["best_ranged_score"])
-        if ranged_score > 0.0:
-            ranged_score += 0.1
-        if ranged_score >= melee_score:
-            best_inv_score = ranged_score
-            best_inv_weapon = inv_analysis["best_ranged"]
+        if enemy_at_dist_0:
+            if melee_score > 0.0:
+                melee_score += 0.1
         else:
-            best_inv_score = melee_score
-            best_inv_weapon = inv_analysis["best_melee"]
+            if ranged_score > 0.0:
+                ranged_score += 0.1
+        if enemy_at_dist_0:
+            if melee_score >= ranged_score:
+                best_inv_score = melee_score
+                best_inv_weapon = inv_analysis["best_melee"]
+            else:
+                best_inv_score = ranged_score
+                best_inv_weapon = inv_analysis["best_ranged"]
+        else:
+            if ranged_score >= melee_score:
+                best_inv_score = ranged_score
+                best_inv_weapon = inv_analysis["best_ranged"]
+            else:
+                best_inv_score = melee_score
+                best_inv_weapon = inv_analysis["best_melee"]
         has_weapon = (best_inv_score > 0.0) or (eq_score > 0.0)
         pickup_action = None
         if len(inv) < 10:
@@ -229,10 +249,19 @@ class BrainDecision:
             for neighbor in graph.get(r_id, []):
                 dangerous_adj.add(neighbor)
         ultra_safe_region_ids = safe_region_ids - dangerous_adj
-        safe_connections = [c for c in connections if c in safe_region_ids]
-        ultra_safe_connections = [c for c in connections if c in ultra_safe_region_ids]
-        unvisited_ultra = [c for c in ultra_safe_connections if c not in self.memory.move_history]
-        unvisited_safe = [c for c in safe_connections if c not in self.memory.move_history]
+        fallback_link_counts = {}
+        for c_id in connections:
+            r_obj = next((r for r in visible_regions if r.get("id") == c_id), None)
+            if r_obj:
+                links = len(r_obj.get("connections", []))
+                fallback_link_counts[c_id] = links
+            else:
+                fallback_link_counts[c_id] = 0
+        safe_connections = sorted([c for c in connections if c in safe_region_ids], key=lambda x: fallback_link_counts.get(x, 0), reverse=True)
+        ultra_safe_connections = sorted([c for c in connections if c in ultra_safe_region_ids], key=lambda x: fallback_link_counts.get(x, 0), reverse=True)
+        unvisited_ultra = sorted([c for c in ultra_safe_connections if c not in self.memory.move_history], key=lambda x: fallback_link_counts.get(x, 0), reverse=True)
+        unvisited_safe = sorted([c for c in safe_connections if c not in self.memory.move_history], key=lambda x: fallback_link_counts.get(x, 0), reverse=True)
+        connections = sorted(connections, key=lambda x: fallback_link_counts.get(x, 0), reverse=True)
         next_fallback_id = None
         if unvisited_ultra:
             next_fallback_id = unvisited_ultra[0]
