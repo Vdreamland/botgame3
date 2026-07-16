@@ -141,14 +141,11 @@ def is_bot_dead_in_logs(frame_data: Dict[str, Any], bot_name: str) -> bool:
     if frame_data.get("type") == "log":
         log_obj = frame_data.get("log", {})
         if log_obj.get("type") == "death":
-            msg = log_obj.get("message", "")
-            if bot_name in msg:
+            details = log_obj.get("details", {})
+            if details.get("targetName") == bot_name:
                 return True
-    self_data = frame_data.get("view", {}).get("self", {})
-    actual_name = self_data.get("name", "")
     for log_entry in get_death_logs(frame_data):
-        msg = log_entry.get("message", "")
-        if bot_name in msg or (actual_name and actual_name in msg):
+        if log_entry.get("target_name") == bot_name:
             return True
     return False
 
@@ -159,10 +156,11 @@ def get_bot_death_details(frame_data: Dict[str, Any], bot_name: str) -> Optional
             msg = log_obj.get("message", "")
             if bot_name in msg:
                 details = log_obj.get("details", {})
-                return {
-                    "killer": details.get("killerName") or "unknown",
-                    "damage": "unknown"
-                }
+                if details.get("targetName") == bot_name:
+                    return {
+                        "killer": details.get("killerName") or "unknown",
+                        "damage": "unknown"
+                    }
     self_data = frame_data.get("view", {}).get("self", {})
     actual_name = self_data.get("name", "")
     for log in get_combat_logs(frame_data):
@@ -173,8 +171,7 @@ def get_bot_death_details(frame_data: Dict[str, Any], bot_name: str) -> Optional
                 "damage": log.get("damage", 0)
             }
     for log in get_death_logs(frame_data):
-        msg = log.get("message", "")
-        if bot_name in msg or (actual_name and actual_name in msg):
+        if log.get("target_name") == bot_name:
             return {
                 "killer": log.get("killer_name") or "unknown",
                 "damage": "unknown"
