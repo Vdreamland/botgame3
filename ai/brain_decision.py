@@ -123,7 +123,8 @@ class BrainDecision:
         interact_action = get_interact_action(frame_data, self.memory)
         if interact_action:
             return interact_action
-        connections = current_region.get("connections", [])
+        connections_raw = current_region.get("connections", [])
+        connections = [c.get("id") if isinstance(c, dict) else str(c) for c in connections_raw]
         chase_target_id = None
         for agent in get_visible_agents(frame_data):
             r_id = agent.get("regionId")
