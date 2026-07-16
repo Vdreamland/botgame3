@@ -1,8 +1,10 @@
 import json
 from typing import Dict, Any, Optional
 from helpers.world_parser import get_current_region, get_self_agent
-from helpers.actions_payload import move_payload, explore_payload, rest_payload
+from helpers.actions_payload import move_payload, explore_payload, rest_payload, equip_payload, drop_payload
 from ai.memory import BotMemory
+from ai.strategy.inventory_manager import analyze_inventory, get_item_to_drop, MELEE_SCORES, RANGED_SCORES, ARMOR_SCORES
+from ai.strategy.recovery_manager import get_recovery_action, should_rest_for_ep
 from ai.strategy.loot_strategy import find_current_region_targets, find_target_regions
 from ai.strategy.movement_strategy import find_shortest_path
 
@@ -22,6 +24,36 @@ class BrainDecision:
         current_item_ids = {item.get("id") for item in current_items if item.get("id")}
         current_fac_ids = {fac.get("id") for fac in current_interactables if fac.get("id")}
         self.memory.track_action_failure(current_item_ids, current_fac_ids)
+        recovery_action = get_recovery_action(self_data)
+        if recovery_action:
+            return recovery_action
+        inv = self_data.get("inventory", [])
+        inv_analysis = analyze_inventory(inv)
+        eq_weapon = self_data.get("equippedWeapon")
+        eq_type = eq_weapon.get("typeId", "").lower() if eq_weapon else ""
+        eq_score = 0
+        if eq_type in MELEE_SCORES:
+            eq_score = MELEE_SCORES[eq_type]
+        elif eq_type in RANGED_SCORES:
+            eq_score = RANGED_SCORES[eq_type]
+        best_inv_weapon = None
+        best_inv_score = 0
+        if inv_analysis["best_melee_score"] > best_inv_score:
+            best_inv_score = inv_analysis["best_melee_score"]
+            best_inv_weapon = inv_analysis["best_melee"]
+        if inv_analysis["best_ranged_score"] > best_inv_score:
+            best_inv_score = inv_analysis["best_ranged_score"]
+            best_inv_weapon = inv_analysis["best_ranged"]
+        if best_inv_score > eq_score and best_inv_weapon:
+            return equip_payload(best_inv_weapon.get("id"), "Equipping stronger weapon")
+        eq_armor = self_data.get("equippedArmor")
+        eq_armor_type = eq_armor.get("typeId", "").lower() if eq_armor else ""
+        eq_armor_score = ARMOR_SCORES.get(eq_armor_type, 0)
+        if inv_analysis["best_armor_score"] > eq_armor_score and inv_analysis["best_armor"]:
+            return equip_payload(inv_analysis["best_armor"].get("id"), "Equipping stronger armor")
+        item_to_drop_id = get_item_to_drop(inv_analysis, inv)
+        if item_to_drop_id:
+            return drop_payload(item_to_drop_id, "Dropping weaker redundant item")
         action = find_current_region_targets(frame_data, self.memory)
         if action:
             return action
@@ -33,6 +65,8 @@ class BrainDecision:
                 self.memory.last_target_id = None
                 self.memory.last_action_type = "move"
                 return move_payload(next_region_id, "Moving to target region")
+        if should_rest_for_ep(self_data, current_region):
+            return rest_payload("Resting to recover EP")
         ep = self_data.get("ep", 0)
         connections = current_region.get("connections", [])
         unvisited_connections = [c for c in connections if c not in self.memory.move_history]
