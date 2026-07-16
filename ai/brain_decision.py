@@ -112,15 +112,9 @@ class BrainDecision:
             else:
                 best_inv_score = melee_score
                 best_inv_weapon = inv_analysis["best_melee"]
-        has_weapon = (best_inv_score > 0.0) or (eq_score > 0.0)
         pickup_action = None
         if len(inv) < 10:
-            if not has_weapon:
-                local_weapon = next((item for item in current_items if item.get("category", "").lower() == "weapon"), None)
-                if local_weapon and local_weapon.get("id") not in self.memory.pickup_attempts:
-                    item_name = local_weapon.get("typeId", "weapon")
-                    pickup_action = pickup_payload(local_weapon["id"], f"Picking up local weapon: {item_name}")
-            elif is_loadout_optimal:
+            if is_loadout_optimal:
                 s_moltz_item = next((item for item in current_items if item.get("typeId", "").lower() == "smoltz"), None)
                 if s_moltz_item and s_moltz_item.get("id") not in self.memory.pickup_attempts:
                     pickup_action = pickup_payload(s_moltz_item["id"], "Picking up sMoltz")
@@ -217,7 +211,7 @@ class BrainDecision:
                     self.memory.last_action_type = "move"
                     return move_payload(next_region_id, "Hunting visible player in adjacent region")
         if not is_loadout_optimal:
-            ruin_local = next((fac for fac in full_curr_region.get("interactables", []) if fac.get("typeId", "").lower() == "ruin"), None)
+            ruin_local = next((fac for fac in current_region.get("interactables", []) if fac.get("typeId", "").lower() == "ruin"), None)
             if ruin_local:
                 gauge = ruin_local.get("gauge", ruin_local.get("ruinGauge", 0))
                 occupied_by = ruin_local.get("occupiedBy")
