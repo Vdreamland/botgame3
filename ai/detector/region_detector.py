@@ -35,10 +35,12 @@ def get_region_layers(frame_data: Dict[str, Any]) -> Dict[int, List[str]]:
     agents_by_region = {}
     monsters_by_region = {}
     for agent in get_visible_agents(frame_data):
+        hp = agent.get("hp", 0)
+        if hp <= 0:
+            continue
         reg_id = agent.get("regionId")
         if reg_id:
             name = agent.get("name") or agent.get("username") or "Agent"
-            hp = agent.get("hp", 0)
             ep = agent.get("ep", 0)
             base_atk = agent.get("atk", 25)
             def_val = agent.get("def", 5)
@@ -69,12 +71,14 @@ def get_region_layers(frame_data: Dict[str, Any]) -> Dict[int, List[str]]:
                 effective_atk = base_atk + weapon_bonus
                 agents_by_region[reg_id].append(f"{name} (HP {hp}/EP {ep}/ATK {effective_atk}/DEF {def_val}/KILLS {kills} | Weapon: {weapon_name} | Armour: {armor_name})")
     for monster in get_visible_monsters(frame_data):
+        hp = monster.get("hp", 0)
+        if hp <= 0:
+            continue
         reg_id = monster.get("regionId")
         if reg_id:
             if reg_id not in monsters_by_region:
                 monsters_by_region[reg_id] = []
             name = monster.get("name") or monster.get("typeId") or "Monster"
-            hp = monster.get("hp", 0)
             type_id = (monster.get("typeId") or monster.get("name") or "").lower()
             if "guardian" in type_id:
                 static_stats = GUARDIAN_STATS
