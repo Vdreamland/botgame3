@@ -17,6 +17,18 @@ def get_pickup_action(frame_data: Dict[str, Any], memory: Any) -> Optional[Dict[
     for item in items:
         item_id = item.get("id")
         if item_id and item_id not in memory.failed_items and item_id not in memory.pickup_attempts:
+            type_id = item.get("typeId", "").lower().replace(" ", "_")
+            if type_id in ["smoltz", "moltz"]:
+                memory.pickup_attempts.add(item_id)
+                memory.last_target_id = item_id
+                memory.last_action_type = "pickup"
+                return pickup_payload(item_id, "Picking up sMoltz")
+    for item in items:
+        item_id = item.get("id")
+        if item_id and item_id not in memory.failed_items and item_id not in memory.pickup_attempts:
+            type_id = item.get("typeId", "").lower().replace(" ", "_")
+            if type_id in ["smoltz", "moltz"]:
+                continue
             if is_item_needed(item, inv_analysis):
                 memory.pickup_attempts.add(item_id)
                 memory.last_target_id = item_id
