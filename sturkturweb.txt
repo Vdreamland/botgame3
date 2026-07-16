@@ -38,6 +38,9 @@ Link url github isi kodingan/dokumentasi
 
 /botgame3/ai/
 __init__.py https://github.com/Vdreamland/botgame3/blob/master/ai/__init__.py
+brain_decision.py https://github.com/Vdreamland/botgame3/blob/master/ai/brain_decision.py
+memory.py https://github.com/Vdreamland/botgame3/blob/master/ai/memory.py
+
 
 /botgame3/ai/detector/
 __init__.py https://github.com/Vdreamland/botgame3/blob/master/ai/detector/__init__.py

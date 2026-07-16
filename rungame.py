@@ -9,6 +9,7 @@ from helpers.api_config import get_bots_config, BASE_URL, WS_URL, WS_GAMEPLAY_UR
 from helpers.state_router import check_agent_state
 from helpers.game_connection import connect_and_join_room, connect_and_resume_game
 from helpers.world_parser import get_self_agent, is_bot_dead_in_logs
+from ai.brain_decision import BrainDecision
 
 load_dotenv()
 
@@ -76,6 +77,7 @@ async def run_bot_instance(bot_config, version):
             checker_task = asyncio.create_task(
                 check_bot_alive_loop(bot_name, api_key, version, preference, ws_session)
             )
+            brain = BrainDecision()
             game_over_cleanly = False
             try:
                 await log_msg(bot_name, "SUCCESS", "Game session active. Holding connection to stay in arena...")
@@ -97,6 +99,14 @@ async def run_bot_instance(bot_config, version):
                         await log_msg(bot_name, "SUCCESS", "Game session has officially ended on the server.")
                         await ws_session.close()
                         break
+                    can_act = self_data.get("canAct", False)
+                    if can_act:
+                        action = brain.get_next_action(frame_data)
+                        if action:
+                            act_type = action.get("action", "")
+                            thought = action.get("thought", "")
+                            await log_msg(bot_name, "INFO", f"AUTONOMOUS ACTION -> {act_type.upper()} ({thought})")
+                            await ws_session.send(json.dumps(action))
             except asyncio.TimeoutError:
                 print("")
                 await log_msg(bot_name, "WARN", "Connection timed out. Attempting to reconnect...")
