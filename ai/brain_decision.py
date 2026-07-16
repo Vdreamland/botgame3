@@ -14,7 +14,8 @@ from helpers.actions_payload import (
     explore_payload,
     rest_payload,
     equip_payload,
-    drop_payload
+    drop_payload,
+    pickup_payload
 )
 from ai.memory import BotMemory
 from ai.strategy.inventory_manager import analyze_inventory, get_item_to_drop, MELEE_SCORES, RANGED_SCORES, ARMOR_SCORES
@@ -56,13 +57,33 @@ class BrainDecision:
                 current_enemy_ids.add(monster.get("id"))
         self.memory.track_action_failure(current_item_ids, current_fac_ids, current_enemy_ids)
         inv = self_data.get("inventory", [])
-        pickup_action = None
-        if len(inv) < 10:
-            pickup_action = get_pickup_action(frame_data, self.memory)
-        if pickup_action:
-            return pickup_action
         inv_analysis = analyze_inventory(inv)
         eq_weapon = self_data.get("equippedWeapon")
+        eq_armor = self_data.get("equippedArmor")
+        has_good_weapon = False
+        if eq_weapon:
+            eq_w_type = eq_weapon.get("typeId", "").lower().replace(" ", "_")
+            if eq_w_type in MELEE_SCORES and MELEE_SCORES[eq_w_type] >= 2:
+                has_good_weapon = True
+            elif eq_w_type in RANGED_SCORES and RANGED_SCORES[eq_w_type] >= 2:
+                has_good_weapon = True
+        has_good_armor = False
+        if eq_armor:
+            eq_a_type = eq_armor.get("typeId", "").lower().replace(" ", "_")
+            if eq_a_type in ARMOR_SCORES and ARMOR_SCORES[eq_a_type] >= 2:
+                has_good_armor = True
+        has_recovery = (inv_analysis.get("hp_count", 0) + inv_analysis.get("ep_count", 0)) >= 2
+        is_loadout_optimal = has_good_weapon and has_good_armor and has_recovery
+        pickup_action = None
+        if len(inv) < 10:
+            if is_loadout_optimal:
+                s_moltz_item = next((item for item in current_region.get("items", []) if item.get("typeId", "").lower() == "smoltz"), None)
+                if s_moltz_item and s_moltz_item.get("id") not in self.memory.pickup_attempts:
+                    pickup_action = pickup_payload(s_moltz_item["id"], "Picking up sMoltz")
+            else:
+                pickup_action = get_pickup_action(frame_data, self.memory)
+        if pickup_action:
+            return pickup_action
         eq_type = eq_weapon.get("typeId", "").lower() if eq_weapon else ""
         eq_score = 0.0
         if eq_type in MELEE_SCORES:
@@ -87,7 +108,6 @@ class BrainDecision:
             if item_id and item_id not in self.memory.equipped_attempts:
                 self.memory.equipped_attempts.add(item_id)
                 return equip_payload(item_id, f"Equipping stronger weapon: {item_name}")
-        eq_armor = self_data.get("equippedArmor")
         eq_armor_type = eq_armor.get("typeId", "").lower() if eq_armor else ""
         eq_armor_score = ARMOR_SCORES.get(eq_armor_type, 0)
         if inv_analysis["best_armor_score"] > eq_armor_score and inv_analysis["best_armor"]:
@@ -121,9 +141,10 @@ class BrainDecision:
             recovery_action = get_recovery_action(frame_data, self.memory)
             if recovery_action:
                 return recovery_action
-        interact_action = get_interact_action(frame_data, self.memory)
-        if interact_action:
-            return interact_action
+        if not is_loadout_optimal:
+            interact_action = get_interact_action(frame_data, self.memory)
+            if interact_action:
+                return interact_action
         connections_raw = current_region.get("connections", [])
         connections = [c.get("id") if isinstance(c, dict) else str(c) for c in connections_raw]
         chase_target_id = None
@@ -151,21 +172,39 @@ class BrainDecision:
             self.memory.last_target_id = None
             self.memory.last_action_type = "move"
             return move_payload(chase_target_id, "Chasing low HP target in adjacent region")
-        ruin_local = next((fac for fac in current_region.get("interactables", []) if fac.get("typeId", "").lower() == "ruin"), None)
-        if ruin_local:
-            gauge = ruin_local.get("gauge", ruin_local.get("ruinGauge", 0))
-            occupied_by = ruin_local.get("occupiedBy")
-            our_id = self_data.get("id")
-            if gauge < 3 and (not occupied_by or occupied_by == our_id) and self_data.get("ep", 0) >= 2:
-                return explore_payload("Exploring local ruin")
-        target_regions = find_target_regions(frame_data, self.memory)
-        if target_regions:
-            path = find_shortest_path(frame_data, target_regions)
-            if path and len(path) > 1:
-                next_region_id = path[1]
-                self.memory.last_target_id = None
-                self.memory.last_action_type = "move"
-                return move_payload(next_region_id, "Moving to target region")
+        if is_loadout_optimal and move_ok and self_data.get("ep", 0) >= move_cost:
+            visible_enemies = []
+            for agent in get_visible_agents(frame_data):
+                if agent.get("hp", 0) > 0 and agent.get("id") != self_data.get("id"):
+                    name = agent.get("name", "")
+                    if "Guardian" not in name and not agent.get("isGuardian", False):
+                        r_id = agent.get("regionId")
+                        if r_id:
+                            visible_enemies.append(r_id)
+            if visible_enemies:
+                path = find_shortest_path(frame_data, visible_enemies)
+                if path and len(path) > 1:
+                    next_region_id = path[1]
+                    self.memory.last_target_id = None
+                    self.memory.last_action_type = "move"
+                    return move_payload(next_region_id, "Hunting visible player in adjacent region")
+        if not is_loadout_optimal:
+            ruin_local = next((fac for fac in current_region.get("interactables", []) if fac.get("typeId", "").lower() == "ruin"), None)
+            if ruin_local:
+                gauge = ruin_local.get("gauge", ruin_local.get("ruinGauge", 0))
+                occupied_by = ruin_local.get("occupiedBy")
+                our_id = self_data.get("id")
+                if gauge < 3 and (not occupied_by or occupied_by == our_id) and self_data.get("ep", 0) >= 2:
+                    return explore_payload("Exploring local ruin")
+        if not is_loadout_optimal:
+            target_regions = find_target_regions(frame_data, self.memory)
+            if target_regions:
+                path = find_shortest_path(frame_data, target_regions)
+                if path and len(path) > 1:
+                    next_region_id = path[1]
+                    self.memory.last_target_id = None
+                    self.memory.last_action_type = "move"
+                    return move_payload(next_region_id, "Moving to target region")
         visible_regions = get_visible_regions(frame_data)
         safe_region_ids = set()
         death_zones = set()
