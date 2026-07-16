@@ -1,43 +1,37 @@
 import os
 import sys
 import asyncio
-from datetime import datetime
+from typing import Dict, Any
+from colorama import init, Fore, Style
 
-if sys.platform == "win32":
-    os.system("")
+init(autoreset=True)
 
-RESET = "\033[0m"
-BLUE = "\033[94m"
-GREEN = "\033[92m"
-YELLOW = "\033[93m"
-RED = "\033[91m"
-CYAN = "\033[96m"
+RESET = Style.RESET_ALL
+BLUE = Fore.BLUE
+GREEN = Fore.GREEN
+YELLOW = Fore.YELLOW
+RED = Fore.RED
+CYAN = Fore.CYAN
 
 _print_lock = asyncio.Lock()
+_last_logged_turns = {}
 
-async def log_msg(bot_name, level, message):
-    timestamp = datetime.utcnow().strftime("%H:%M:%S")
-    color = RESET
-    
-    lvl = level.upper()
-    if lvl == "INFO":
-        color = CYAN
-    elif lvl == "SUCCESS":
+async def log_msg(bot_name: str, level: str, message: str):
+    import datetime
+    timestamp = datetime.datetime.now().strftime("%H:%M:%S")
+    color = CYAN
+    if level == "SUCCESS":
         color = GREEN
-    elif lvl == "WARN":
+    elif level == "WARN":
         color = YELLOW
-    elif lvl == "ERROR":
+    elif level == "ERROR":
         color = RED
-    elif lvl == "DEBUG":
+    elif level == "DEBUG":
         color = BLUE
-
     async with _print_lock:
-        for line in message.split("\n"):
-            formatted = f"[{timestamp}] [{color}{lvl}{RESET}] [{bot_name}] -> {line}"
-            print(formatted)
-            sys.stdout.flush()
+        print(f"[{timestamp}] [{color}{level}{RESET}] [{bot_name}] -> {message}")
 
-async def log_frame_update(bot_name, frame_data):
+async def log_frame_update(bot_name: str, frame_data: Dict[str, Any]):
     from ai.detector.agent_info import get_formatted_log
     from ai.detector.region_detector import get_region_layers, format_region_layers
     from helpers.world_parser import (
@@ -48,38 +42,36 @@ async def log_frame_update(bot_name, frame_data):
         get_agent_id,
         get_my_combat_events
     )
-
     turn = get_turn(frame_data)
-    day = (turn - 1) // 4 + 1
-    
     self_data = get_self_agent(frame_data)
     is_alive = self_data.get("isAlive", True)
     detected_dead_in_logs = is_bot_dead_in_logs(frame_data, bot_name)
-
+    current_alive = is_alive and not detected_dead_in_logs
+    state_key = (turn, current_alive)
+    if _last_logged_turns.get(bot_name) == state_key:
+        return
+    _last_logged_turns[bot_name] = state_key
+    day = (turn - 1) // 4 + 1
     print("")
-
     async with _print_lock:
-        if is_alive and not detected_dead_in_logs:
-            print(f"Day: {day} | Turn: {turn} | [{bot_name}] | Status: \033[92mALIVE\033[0m")
-            
+        if current_alive:
+            print(f"Day: {day} | Turn: {turn} | [{bot_name}] | Status: {GREEN}ALIVE{RESET}")
             my_id = get_agent_id(frame_data)
             combat_events = get_my_combat_events(frame_data, my_id)
-            for event in combat_events.get("inbound", []):
-                dmg = event.get("damage", 0)
+            inbound = combat_events.get("inbound", [])
+            for event in inbound:
                 attacker = event.get("attacker_name", "unknown")
-                print(f"\033[91mHit!\033[0m Suffered {dmg} damage from {attacker}")
-            
+                dmg = event.get("damage", 0)
+                print(f"{RED}[*] DAMAGE TAKEN: {dmg} HP from {attacker}!{RESET}")
             print(get_formatted_log(frame_data))
             print("")
-            layers = get_region_layers(frame_data)
-            print(format_region_layers(layers))
+            print(format_region_layers(get_region_layers(frame_data)))
         else:
-            print(f"Day: {day} | Turn: {turn} | [{bot_name}] | Status: \033[91mELIMINATED (DEAD)\033[0m")
+            print(f"Day: {day} | Turn: {turn} | [{bot_name}] | Status: {RED}ELIMINATED (DEAD){RESET}")
             death_details = get_bot_death_details(frame_data, bot_name)
             if death_details:
                 killer = death_details.get("killer", "unknown")
                 dmg = death_details.get("damage", "unknown")
-                print(f"Player has been detected dead in world history: Killed by {killer} ({dmg} damage)")
+                print(f"Eliminated by: {killer} (Damage taken: {dmg})")
             else:
-                print("Player has been detected dead in world history")
-        sys.stdout.flush()
+                print("Player has been eliminated from the game session")
