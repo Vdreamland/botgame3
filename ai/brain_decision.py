@@ -74,16 +74,6 @@ class BrainDecision:
                 has_good_armor = True
         has_recovery = (inv_analysis.get("hp_count", 0) + inv_analysis.get("ep_count", 0)) >= 2
         is_loadout_optimal = has_good_weapon and has_good_armor and has_recovery
-        pickup_action = None
-        if len(inv) < 10:
-            if is_loadout_optimal:
-                s_moltz_item = next((item for item in current_region.get("items", []) if item.get("typeId", "").lower() == "smoltz"), None)
-                if s_moltz_item and s_moltz_item.get("id") not in self.memory.pickup_attempts:
-                    pickup_action = pickup_payload(s_moltz_item["id"], "Picking up sMoltz")
-            else:
-                pickup_action = get_pickup_action(frame_data, self.memory)
-        if pickup_action:
-            return pickup_action
         eq_type = eq_weapon.get("typeId", "").lower() if eq_weapon else ""
         eq_score = 0.0
         if eq_type in MELEE_SCORES:
@@ -102,6 +92,22 @@ class BrainDecision:
         else:
             best_inv_score = melee_score
             best_inv_weapon = inv_analysis["best_melee"]
+        has_weapon = (best_inv_score > 0.0) or (eq_score > 0.0)
+        pickup_action = None
+        if len(inv) < 10:
+            if not has_weapon:
+                local_weapon = next((item for item in current_items if item.get("category", "").lower() == "weapon"), None)
+                if local_weapon and local_weapon.get("id") not in self.memory.pickup_attempts:
+                    item_name = local_weapon.get("typeId", "weapon")
+                    pickup_action = pickup_payload(local_weapon["id"], f"Picking up local weapon: {item_name}")
+            elif is_loadout_optimal:
+                s_moltz_item = next((item for item in current_items if item.get("typeId", "").lower() == "smoltz"), None)
+                if s_moltz_item and s_moltz_item.get("id") not in self.memory.pickup_attempts:
+                    pickup_action = pickup_payload(s_moltz_item["id"], "Picking up sMoltz")
+            else:
+                pickup_action = get_pickup_action(frame_data, self.memory)
+        if pickup_action:
+            return pickup_action
         if best_inv_score > eq_score and best_inv_weapon:
             item_id = best_inv_weapon.get("id")
             item_name = best_inv_weapon.get("typeId", "weapon")
@@ -145,7 +151,9 @@ class BrainDecision:
             interact_action = get_interact_action(frame_data, self.memory)
             if interact_action:
                 return interact_action
-        connections_raw = current_region.get("connections", [])
+        visible_regions = get_visible_regions(frame_data)
+        full_curr_region = next((r for r in visible_regions if r.get("id") == current_id), current_region)
+        connections_raw = full_curr_region.get("connections", [])
         connections = [c.get("id") if isinstance(c, dict) else str(c) for c in connections_raw]
         chase_target_id = None
         for agent in get_visible_agents(frame_data):
@@ -189,7 +197,7 @@ class BrainDecision:
                     self.memory.last_action_type = "move"
                     return move_payload(next_region_id, "Hunting visible player in adjacent region")
         if not is_loadout_optimal:
-            ruin_local = next((fac for fac in current_region.get("interactables", []) if fac.get("typeId", "").lower() == "ruin"), None)
+            ruin_local = next((fac for fac in full_curr_region.get("interactables", []) if fac.get("typeId", "").lower() == "ruin"), None)
             if ruin_local:
                 gauge = ruin_local.get("gauge", ruin_local.get("ruinGauge", 0))
                 occupied_by = ruin_local.get("occupiedBy")
@@ -205,7 +213,6 @@ class BrainDecision:
                     self.memory.last_target_id = None
                     self.memory.last_action_type = "move"
                     return move_payload(next_region_id, "Moving to target region")
-        visible_regions = get_visible_regions(frame_data)
         safe_region_ids = set()
         death_zones = set()
         for r in visible_regions:
