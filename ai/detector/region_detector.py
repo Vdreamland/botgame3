@@ -7,6 +7,7 @@ from helpers.world_parser import (
     get_visible_monsters
 )
 from helpers.entities import MONSTERS, GUARDIAN_STATS
+from helpers.items_spec import WEAPONS
 
 def get_region_layers(frame_data: Dict[str, Any]) -> Dict[int, List[str]]:
     adj_data = get_region_adjacency_map(frame_data)
@@ -32,34 +33,41 @@ def get_region_layers(frame_data: Dict[str, Any]) -> Dict[int, List[str]]:
                 "is_death_zone": r.get("isDeathZone", False)
             }
     agents_by_region = {}
+    monsters_by_region = {}
     for agent in get_visible_agents(frame_data):
         reg_id = agent.get("regionId")
         if reg_id:
-            if reg_id not in agents_by_region:
-                agents_by_region[reg_id] = []
             name = agent.get("name") or agent.get("username") or "Agent"
             hp = agent.get("hp", 0)
             ep = agent.get("ep", 0)
-            atk = agent.get("atk", 25)
+            base_atk = agent.get("atk", 25)
             def_val = agent.get("def", 5)
             if "Guardian" in name:
                 atk = GUARDIAN_STATS.get("atk", 12)
                 def_val = GUARDIAN_STATS.get("def", 120)
-                agents_by_region[reg_id].append(f"{name} (HP {hp}/ATK {atk}/DEF {def_val})")
+                if reg_id not in monsters_by_region:
+                    monsters_by_region[reg_id] = []
+                monsters_by_region[reg_id].append(f"{name} (HP {hp}/ATK {atk}/DEF {def_val})")
             else:
+                if reg_id not in agents_by_region:
+                    agents_by_region[reg_id] = []
                 kills = agent.get("kills", agent.get("killCount", 0))
                 weapon = agent.get("equippedWeapon")
                 weapon_name = "none"
+                weapon_bonus = 0
                 if weapon:
                     weapon_name = weapon.get("name") if isinstance(weapon, dict) else weapon
                     if weapon_name == "Fist":
                         weapon_name = "none"
+                    if weapon_name != "none":
+                        weapon_key = weapon_name.lower().replace(" ", "_")
+                        weapon_bonus = WEAPONS.get(weapon_key, {}).get("atk_bonus", 0)
                 armor = agent.get("equippedArmor")
                 armor_name = "none"
                 if armor:
                     armor_name = armor.get("name") if isinstance(armor, dict) else armor
-                agents_by_region[reg_id].append(f"{name} (HP {hp}/EP {ep}/ATK {atk}/DEF {def_val}/KILLS {kills} | Weapon: {weapon_name} | Armour: {armor_name})")
-    monsters_by_region = {}
+                effective_atk = base_atk + weapon_bonus
+                agents_by_region[reg_id].append(f"{name} (HP {hp}/EP {ep}/ATK {effective_atk}/DEF {def_val}/KILLS {kills} | Weapon: {weapon_name} | Armour: {armor_name})")
     for monster in get_visible_monsters(frame_data):
         reg_id = monster.get("regionId")
         if reg_id:
