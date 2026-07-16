@@ -1,5 +1,11 @@
 from typing import Dict, Any, List
-from helpers.world_parser import get_region_adjacency_map, get_current_region, get_visible_regions
+from helpers.world_parser import (
+    get_region_adjacency_map,
+    get_current_region,
+    get_visible_regions,
+    get_visible_agents,
+    get_visible_monsters
+)
 
 def get_region_layers(frame_data: Dict[str, Any]) -> Dict[int, List[str]]:
     adj_data = get_region_adjacency_map(frame_data)
@@ -24,6 +30,24 @@ def get_region_layers(frame_data: Dict[str, Any]) -> Dict[int, List[str]]:
                 "interactables": r.get("interactables", []),
                 "is_death_zone": r.get("isDeathZone", False)
             }
+    agents_by_region = {}
+    for agent in get_visible_agents(frame_data):
+        reg_id = agent.get("regionId")
+        if reg_id:
+            if reg_id not in agents_by_region:
+                agents_by_region[reg_id] = []
+            name = agent.get("name") or agent.get("username") or "Agent"
+            hp = agent.get("hp", 100)
+            agents_by_region[reg_id].append(f"{name} (HP {hp})")
+    monsters_by_region = {}
+    for monster in get_visible_monsters(frame_data):
+        reg_id = monster.get("regionId")
+        if reg_id:
+            if reg_id not in monsters_by_region:
+                monsters_by_region[reg_id] = []
+            name = monster.get("name") or monster.get("typeId") or "Monster"
+            hp = monster.get("hp", 0)
+            monsters_by_region[reg_id].append(f"{name} (HP {hp})")
     from collections import deque
     queue = deque([(current_id, 0)])
     visited = {current_id: 0}
@@ -43,9 +67,15 @@ def get_region_layers(frame_data: Dict[str, Any]) -> Dict[int, List[str]]:
         items = details.get("items", [])
         interactables = details.get("interactables", [])
         is_death_zone = details.get("is_death_zone", False)
+        agents_in_reg = agents_by_region.get(r_id, [])
+        monsters_in_reg = monsters_by_region.get(r_id, [])
         info_parts = []
         if is_death_zone:
             info_parts.append("\033[91mDEATH ZONE\033[0m")
+        if agents_in_reg:
+            info_parts.append(f"Players: {', '.join(agents_in_reg)}")
+        if monsters_in_reg:
+            info_parts.append(f"Monsters: {', '.join(monsters_in_reg)}")
         if items:
             items_summary = ", ".join(item.get("name", "item") for item in items)
             info_parts.append(f"Loot: {items_summary}")

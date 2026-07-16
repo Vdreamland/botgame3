@@ -25,8 +25,8 @@ MONSTERS: Dict[str, Dict[str, Any]] = {
 # Parameter Guardian (Hostile AI)
 GUARDIAN_STATS: Dict[str, Any] = {
     "hp": 150,
-    "atk": 20,
-    "def": 34,
+    "atk": 12,
+    "def": 150,
     "ep": 10,
     "vision": 1,
     "curse_enabled": False,  # Curse dimatikan sementara di PreSeason 1
