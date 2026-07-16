@@ -248,15 +248,14 @@ class BrainDecision:
             ruin_action = get_ruin_explore_action(frame_data)
             if ruin_action:
                 return ruin_action
-        if not is_loadout_optimal:
-            target_regions = find_target_regions(frame_data, self.memory)
-            if target_regions:
-                path = find_shortest_path(frame_data, target_regions)
-                if path and len(path) > 1:
-                    next_region_id = path[1]
-                    self.memory.last_target_id = None
-                    self.memory.last_action_type = "move"
-                    return move_payload(next_region_id, "Moving to target region")
+        target_regions = find_target_regions(frame_data, self.memory)
+        if target_regions:
+            path = find_shortest_path(frame_data, target_regions)
+            if path and len(path) > 1:
+                next_region_id = path[1]
+                self.memory.last_target_id = None
+                self.memory.last_action_type = "move"
+                return move_payload(next_region_id, "Moving to target region")
         safe_region_ids = set()
         death_zones = set()
         for r in visible_regions:
