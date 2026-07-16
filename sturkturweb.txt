@@ -1,10 +1,18 @@
-/botgame2
+/botgame3
 ├── ai/                        
 │   ├── __init__.py            
+│   ├── brain_decision.py       
+│   ├── memory.py               
 │   ├── detector/              
 │   │   ├── __init__.py        
 │   │   ├── agent_info.py 
-│   │   ├── region_detector.py
+│   │   └── region_detector.py
+│   └── strategy/              
+│       ├── __init__.py  
+│       ├── movement_strategy.py
+│       ├── loot_strategy.py  
+│       ├── inventory_manager.py    <-- [Baru] Mengelola stats senjata, armor, auto-equip, dan drop
+│       └── recovery_manager.py     <-- [Baru] Mengelola taktis pemulihan HP/EP darurat dan rest otomatis
 ├── helpers/
 │   ├── __init__.py
 │   ├── api_config.py
@@ -20,12 +28,10 @@
 │   ├── combat_controller.py
 │   ├── world_parser.py
 │   └── automation_scheduler.py 
-├── strategy/              
-│   │   ├── __init__.py  
-│   │   ├── movement_strategy.py
-│   │   ├── loot_strategy.py  
-│   ├── brain_decision.py            
-│   ├── memory.py            
+├── .env
+├── requirements.txt
+├── game_logs.py
+└── rungame.py       
 
 
 
@@ -51,6 +57,8 @@ region_detector.py https://github.com/Vdreamland/botgame3/blob/master/ai/detecto
 __init__.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/__init__.py
 movement_strategy.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/loot_strategy.py
 loot_strategy.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/movement_strategy.py
+inventory_manager.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/inventory_manager.py
+recovery_manager.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/recovery_manager.py
 
 /botgame3/
 .env https://github.com/Vdreamland/botgame3/blob/master/.env
