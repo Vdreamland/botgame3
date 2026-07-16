@@ -82,6 +82,10 @@ class BrainDecision:
             agent.get("regionId") == current_id and agent.get("hp", 0) > 0 and "Guardian" not in agent.get("name", "") and not agent.get("isGuardian", False)
             for agent in get_visible_agents(frame_data)
         )
+        enemy_at_dist_range = any(
+            agent.get("regionId") != current_id and agent.get("hp", 0) > 0 and "Guardian" not in agent.get("name", "") and not agent.get("isGuardian", False)
+            for agent in get_visible_agents(frame_data)
+        )
         eq_score = 0.0
         if eq_type in MELEE_SCORES:
             eq_score = float(MELEE_SCORES[eq_type])
@@ -89,7 +93,7 @@ class BrainDecision:
                 eq_score += 0.1
         elif eq_type in RANGED_SCORES:
             eq_score = float(RANGED_SCORES[eq_type])
-            if not enemy_at_dist_0:
+            if not enemy_at_dist_0 and enemy_at_dist_range:
                 eq_score += 0.1
         best_inv_weapon = None
         best_inv_score = 0.0
@@ -98,23 +102,28 @@ class BrainDecision:
         if enemy_at_dist_0:
             if melee_score > 0.0:
                 melee_score += 0.1
-        else:
-            if ranged_score > 0.0:
-                ranged_score += 0.1
-        if enemy_at_dist_0:
             if melee_score >= ranged_score:
                 best_inv_score = melee_score
                 best_inv_weapon = inv_analysis["best_melee"]
             else:
                 best_inv_score = ranged_score
                 best_inv_weapon = inv_analysis["best_ranged"]
-        else:
+        elif enemy_at_dist_range:
+            if ranged_score > 0.0:
+                ranged_score += 0.1
             if ranged_score >= melee_score:
                 best_inv_score = ranged_score
                 best_inv_weapon = inv_analysis["best_ranged"]
             else:
                 best_inv_score = melee_score
                 best_inv_weapon = inv_analysis["best_melee"]
+        else:
+            if melee_score >= ranged_score:
+                best_inv_score = melee_score
+                best_inv_weapon = inv_analysis["best_melee"]
+            else:
+                best_inv_score = ranged_score
+                best_inv_weapon = inv_analysis["best_ranged"]
         has_weapon = (best_inv_score > 0.0) or (eq_score > 0.0)
         pickup_action = None
         if len(inv) < 10:
@@ -131,7 +140,24 @@ class BrainDecision:
                 pickup_action = get_pickup_action(frame_data, self.memory)
             if pickup_action:
                 return pickup_action
-        if best_inv_score > eq_score and best_inv_weapon:
+        if not eq_weapon and best_inv_weapon:
+            item_id = best_inv_weapon.get("id")
+            item_name = best_inv_weapon.get("typeId", "weapon")
+            if item_id and item_id not in self.memory.equipped_attempts:
+                self.memory.equipped_attempts.add(item_id)
+                return equip_payload(item_id, f"Equipping stronger weapon: {item_name}")
+        should_swap = False
+        if eq_weapon and best_inv_weapon:
+            best_inv_type = best_inv_weapon.get("typeId", "").lower()
+            if enemy_at_dist_0 and best_inv_type in MELEE_SCORES and eq_type in RANGED_SCORES:
+                should_swap = True
+            elif not enemy_at_dist_0 and enemy_at_dist_range and best_inv_type in RANGED_SCORES and eq_type in MELEE_SCORES:
+                should_swap = True
+            elif best_inv_type in MELEE_SCORES and eq_type in MELEE_SCORES and MELEE_SCORES[best_inv_type] > MELEE_SCORES[eq_type]:
+                should_swap = True
+            elif best_inv_type in RANGED_SCORES and eq_type in RANGED_SCORES and RANGED_SCORES[best_inv_type] > RANGED_SCORES[eq_type]:
+                should_swap = True
+        if should_swap and best_inv_weapon:
             item_id = best_inv_weapon.get("id")
             item_name = best_inv_weapon.get("typeId", "weapon")
             if item_id and item_id not in self.memory.equipped_attempts:
@@ -163,10 +189,6 @@ class BrainDecision:
         combat_action = get_combat_action(frame_data, self.memory)
         if combat_action:
             return combat_action
-        else:
-            combat_action = get_combat_action(frame_data, self.memory)
-            if combat_action:
-                return combat_action
         recovery_action = get_recovery_action(frame_data, self.memory)
         if recovery_action:
             return recovery_action

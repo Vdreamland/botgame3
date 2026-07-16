@@ -35,12 +35,12 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
     our_def = self_data.get("def", 5)
     our_ep = self_data.get("ep", 0)
     our_weapon = self_data.get("equippedWeapon")
-    our_range = 0
+    our_range = 1
     if our_weapon:
         w_type = our_weapon.get("typeId", "").lower().replace(" ", "_")
         w_data = WEAPONS.get(w_type, {})
         our_atk += w_data.get("atk_bonus", 0)
-        our_range = w_data.get("range", 0)
+        our_range = w_data.get("range", 1)
     available_actions = get_available_actions(frame_data)
     attack_cost = available_actions.get("attack", {}).get("cost", 1)
     if our_ep < attack_cost:
@@ -48,7 +48,7 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
     targets = []
     for agent in get_visible_agents(frame_data):
         r_id = agent.get("regionId")
-        if r_id in distances and distances[r_id] <= our_range and agent.get("hp", 0) > 0:
+        if r_id in distances and distances[r_id] <= (our_range - 1) and agent.get("hp", 0) > 0:
             agent_id = agent.get("id")
             if agent_id in memory.failed_attacks:
                 continue
@@ -57,12 +57,12 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
                 continue
             t_atk = agent.get("atk", 25)
             t_wep = agent.get("equippedWeapon")
-            t_range = 0
+            t_range = 1
             if t_wep:
                 t_w_type = t_wep.get("typeId", "").lower().replace(" ", "_")
                 w_data = WEAPONS.get(t_w_type, {})
                 t_atk += w_data.get("atk_bonus", 0)
-                t_range = w_data.get("range", 0)
+                t_range = w_data.get("range", 1)
             targets.append({
                 "id": agent_id,
                 "name": name,
@@ -75,7 +75,7 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
             })
     for monster in get_visible_monsters(frame_data):
         r_id = monster.get("regionId")
-        if r_id in distances and distances[r_id] <= our_range and monster.get("hp", 0) > 0:
+        if r_id in distances and distances[r_id] <= (our_range - 1) and monster.get("hp", 0) > 0:
             monster_id = monster.get("id")
             if monster_id in memory.failed_attacks:
                 continue
@@ -106,7 +106,7 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
         t_range = t["range"]
         is_monster = (t["type"] == "monster")
         our_dmg = get_damage_dealt(our_atk, t_def, weather_mod)
-        enemy_dmg = get_damage_dealt(t_atk, our_def, weather_mod) if t_range >= t_dist else 0
+        enemy_dmg = get_damage_dealt(t_atk, our_def, weather_mod) if (t_range - 1) >= t_dist else 0
         score = evaluate_target_score(our_hp, our_dmg, t_hp, enemy_dmg, False)
         if is_monster:
             score -= 3.0
@@ -115,6 +115,11 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
             score += 10.0
         if our_dmg > enemy_dmg:
             score += 5.0
+        turns_to_kill = estimate_turns_to_kill(t_hp, our_dmg)
+        if turns_to_kill == 1:
+            score += 2000.0
+        elif turns_to_kill == 2:
+            score += 500.0
         if score > best_target_score:
             best_target_score = score
             best_target = t

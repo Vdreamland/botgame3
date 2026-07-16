@@ -76,6 +76,7 @@ def get_recovery_action(frame_data: Dict[str, Any], memory: BotMemory) -> Option
     ground_type_ids = {item.get("typeId", "").lower() for item in ground_items if item.get("typeId")}
     has_ground_hp_item = any(tid in ["medkit", "emergency_food", "bandage"] for tid in ground_type_ids)
     has_ground_ep_item = any(tid in ["energy_drink", "emergency_food"] for tid in ground_type_ids)
+    has_ground_emergency_food = "emergency_food" in ground_type_ids
     if has_ground_hp_item:
         for item in inventory:
             item_id = item.get("id")
@@ -84,7 +85,7 @@ def get_recovery_action(frame_data: Dict[str, Any], memory: BotMemory) -> Option
                 if type_id == "medkit" and hp <= 70:
                     memory.use_attempts.add(item_id)
                     return use_item_payload(item_id, "Proactive HP restore: consuming medkit since replacements are on the ground")
-                elif type_id == "emergency_food" and hp <= 80:
+                elif type_id == "emergency_food" and hp <= 80 and has_ground_emergency_food:
                     memory.use_attempts.add(item_id)
                     return use_item_payload(item_id, "Proactive HP restore: consuming emergency food since replacements are on the ground")
                 elif type_id == "bandage" and hp <= 90:
@@ -95,7 +96,10 @@ def get_recovery_action(frame_data: Dict[str, Any], memory: BotMemory) -> Option
             item_id = item.get("id")
             type_id = item.get("typeId", "").lower()
             if item_id and item_id not in memory.use_attempts:
-                if type_id in ["energy_drink", "emergency_food"] and ep <= 5:
+                if type_id == "energy_drink" and ep <= 5:
+                    memory.use_attempts.add(item_id)
+                    return use_item_payload(item_id, f"Proactive EP restore: consuming {type_id} since replacements are on the ground")
+                elif type_id == "emergency_food" and ep <= 5 and has_ground_emergency_food:
                     memory.use_attempts.add(item_id)
                     return use_item_payload(item_id, f"Proactive EP restore: consuming {type_id} since replacements are on the ground")
     return None
