@@ -129,6 +129,7 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
             w_type = item.get("typeId", "").lower().replace(" ", "_")
             best_w_bonus = max(best_w_bonus, WEAPONS.get(w_type, {}).get("atk_bonus", 0))
     our_atk = self_data.get("atk", 25)
+    our_def = self_data.get("def", 5)
     weather = current_region.get("weather", "clear") if current_region else "clear"
     weather_mod = WEATHER_MODIFIERS.get(weather.lower(), 0)
     has_easy_kill = False
@@ -139,7 +140,14 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
                 t_hp = agent.get("hp", 0)
                 t_def = agent.get("def", 5)
                 est_dmg = max(1, our_atk + best_w_bonus - t_def + weather_mod)
-                if t_hp <= est_dmg or t_hp <= 25:
+                enemy_weapon = agent.get("equippedWeapon")
+                enemy_weapon_type = enemy_weapon.get("typeId", "").lower().replace(" ", "_") if enemy_weapon else "fist"
+                enemy_weapon_stats = WEAPONS.get(enemy_weapon_type, {"atk_bonus": 0, "range": 1})
+                enemy_atk = agent.get("atk", 25) + enemy_weapon_stats.get("atk_bonus", 0)
+                enemy_dmg = max(1, enemy_atk - our_def + weather_mod)
+                turns_to_kill_them = (t_hp + est_dmg - 1) // est_dmg if est_dmg > 0 else 999
+                turns_to_kill_us = (hp + enemy_dmg - 1) // enemy_dmg if enemy_dmg > 0 else 999
+                if t_hp <= est_dmg or t_hp <= 25 or (turns_to_kill_them <= 3 and turns_to_kill_them <= turns_to_kill_us):
                     has_easy_kill = True
                     break
     if not has_easy_kill:
@@ -150,7 +158,11 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
                     t_hp = monster.get("hp", 0)
                     t_def = monster.get("def", 5)
                     est_dmg = max(1, our_atk + best_w_bonus - t_def + weather_mod)
-                    if t_hp <= est_dmg:
+                    m_atk = monster.get("atk", 10)
+                    enemy_dmg = max(1, m_atk - our_def + weather_mod)
+                    turns_to_kill_them = (t_hp + est_dmg - 1) // est_dmg if est_dmg > 0 else 999
+                    turns_to_kill_us = (hp + enemy_dmg - 1) // enemy_dmg if enemy_dmg > 0 else 999
+                    if t_hp <= est_dmg or (turns_to_kill_them <= 3 and turns_to_kill_them <= turns_to_kill_us):
                         has_easy_kill = True
                         break
     if has_easy_kill:
