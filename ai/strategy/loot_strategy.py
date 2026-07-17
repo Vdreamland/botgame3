@@ -69,7 +69,7 @@ def find_target_regions(frame_data: Dict[str, Any], memory: Any) -> List[str]:
     our_id = self_data.get("id")
     active_ruin_ids = set()
     for ruin in visible_ruins:
-        r_id = ruin.get("id")
+        r_id = ruin.get("id") or ruin.get("ruinId")
         if r_id:
             gauge = ruin.get("gauge", ruin.get("ruinGauge", 0))
             occupied_by = ruin.get("occupiedBy")

@@ -12,7 +12,7 @@ def get_ruin_explore_action(frame_data: Dict[str, Any]) -> Optional[Dict[str, An
     if ep < 2:
         return None
     visible_ruins = get_visible_ruins(frame_data)
-    local_ruin = next((r for r in visible_ruins if r.get("id") == current_id), None)
+    local_ruin = next((r for r in visible_ruins if (r.get("id") or r.get("ruinId")) == current_id), None)
     if local_ruin:
         gauge = local_ruin.get("gauge", local_ruin.get("ruinGauge", 0))
         occupied_by = local_ruin.get("occupiedBy")

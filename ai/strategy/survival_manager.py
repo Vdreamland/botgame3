@@ -155,20 +155,28 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
                         break
     if has_easy_kill:
         return None
-    has_threat = False
+    threat_count = 0
     for agent in get_visible_agents(frame_data):
         if agent.get("regionId") == current_id and agent.get("hp", 0) > 0 and agent.get("id") != self_data.get("id"):
             name = agent.get("name", "")
             if "Guardian" not in name and not agent.get("isGuardian", False):
-                has_threat = True
-                break
+                threat_count += 1
     for monster in get_visible_monsters(frame_data):
         if monster.get("regionId") == current_id and monster.get("hp", 0) > 0:
             type_id = (monster.get("type") or monster.get("typeId") or monster.get("name") or "").lower()
             if "guardian" not in type_id:
-                has_threat = True
-                break
-    if has_threat and hp < 60:
+                threat_count += 1
+    should_flee = False
+    is_death_zone = current_region.get("isDeathZone", False)
+    if is_death_zone and ep >= 2:
+        should_flee = True
+    else:
+        flee_threshold = 60
+        if threat_count >= 2:
+            flee_threshold = 90
+        if threat_count > 0 and hp < flee_threshold:
+            should_flee = True
+    if should_flee:
         visible_regions = frame_data.get("view", {}).get("visibleRegions", [])
         safe_regions = set()
         region_threat_counts = {}
