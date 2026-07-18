@@ -110,12 +110,12 @@ def find_target_regions(frame_data: Dict[str, Any], memory: Any) -> List[str]:
             if has_smoltz:
                 target_regions.append(r_id)
                 continue
-            has_needed_item = any(is_item_needed(item, inv_analysis) for item in items)
+            has_needed_item = any(is_item_needed(item, inv_analysis) and item.get("id") not in memory.failed_items for item in items)
             if has_needed_item:
                 target_regions.append(r_id)
                 continue
             interactables = r.get("interactables", [])
-            has_facility = any(f.get("typeId", "") in ["Supply Cache", "Medical Facility"] for f in interactables)
+            has_facility = any(f.get("typeId", "") in ["Supply Cache", "Medical Facility"] and f.get("id") not in memory.failed_facilities for f in interactables)
             if has_facility:
                 target_regions.append(r_id)
                 continue
