@@ -123,7 +123,7 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
     eq_weapon = self_data.get("equippedWeapon")
     best_w_bonus = 0
     if eq_weapon:
-        eq_w_type = eq_weapon.get("typeId", "").lower().replace(" ", "_")
+        eq_w_type = (eq_weapon.get("typeId") or eq_weapon.get("name") or "").lower().replace(" ", "_")
         best_w_bonus = WEAPONS.get(eq_w_type, {}).get("atk_bonus", 0)
     for item in inventory:
         if item.get("category", "").lower() == "weapon":
