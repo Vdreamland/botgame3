@@ -70,7 +70,8 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
                 "def": agent.get("def", 5),
                 "type": "agent",
                 "dist": distances[r_id],
-                "range": t_range
+                "range": t_range,
+                "appliedAffixes": agent.get("appliedAffixes", [])
             })
     for monster in get_visible_monsters(frame_data):
         r_id = monster.get("regionId")
@@ -91,7 +92,8 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
                 "def": monster.get("def") or static_stats.get("def", 0),
                 "type": "monster",
                 "dist": distances[r_id],
-                "range": 0
+                "range": 0,
+                "appliedAffixes": []
             })
     if not targets:
         return None
@@ -109,6 +111,20 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
         enemy_dmg = get_damage_dealt(t_atk, our_def, weather_mod) if (t_range - 1) >= t_dist else 0
         if our_dmg < t_hp and our_hp < 40 and enemy_dmg >= our_hp:
             continue
+        thorns_reflect = 0.0
+        for aff in t.get("appliedAffixes", []):
+            aff_type = aff.get("typeId", "").lower()
+            if "thorns" in aff_type:
+                if "t1" in aff_type:
+                    thorns_reflect = 0.50
+                elif "t2" in aff_type:
+                    thorns_reflect = 0.4275
+                elif "t3" in aff_type:
+                    thorns_reflect = 0.36
+                break
+        rebound_dmg = our_dmg * thorns_reflect
+        if rebound_dmg > 0.0 and our_hp - rebound_dmg <= 10:
+            continue
         score = evaluate_target_score(our_hp, our_dmg, t_hp, enemy_dmg, False)
         if is_monster:
             score -= 3.0
@@ -122,6 +138,8 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
             score += 2000.0
         elif turns_to_kill == 2:
             score += 500.0
+        if rebound_dmg > 0.0:
+            score -= rebound_dmg * 20.0
         if has_layer0_threat and t_dist > 0:
             score -= 5000.0
         if score > best_target_score:
@@ -134,4 +152,4 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
             memory.last_target_id = best_target["id"]
             memory.last_action_type = "attack"
             return attack_payload(best_target["id"], best_target["type"], f"Attacking {best_target['name']} at dist {best_target['dist']} (Est. turns: {turns_to_kill_enemy})")
-    return None
+        return None

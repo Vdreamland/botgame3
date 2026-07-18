@@ -22,6 +22,8 @@ def get_pickup_action(frame_data: Dict[str, Any], memory: Any) -> Optional[Dict[
                 memory.last_target_id = item_id
                 memory.last_action_type = "pickup"
                 return pickup_payload(item_id, "Picking up sMoltz")
+    if len(inventory) >= 10:
+        return None
     best_melee_val = -1.0
     best_ranged_val = -1.0
     best_armor_val = -1.0
@@ -90,6 +92,8 @@ def find_target_regions(frame_data: Dict[str, Any], memory: Any) -> List[str]:
                 continue
             items = r.get("items", [])
             has_smoltz = any(item.get("typeId", "").lower() in ["smoltz", "moltz"] for item in items)
+            if r_id in memory.move_history and not has_smoltz:
+                continue
             if has_smoltz:
                 target_regions.append(r_id)
                 continue
