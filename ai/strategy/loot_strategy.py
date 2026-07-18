@@ -29,7 +29,7 @@ def get_pickup_action(frame_data: Dict[str, Any], memory: Any) -> Optional[Dict[
     best_armor_val = -1.0
     for item in items:
         item_id = item.get("id")
-        if item_id and item_id not in memory.failed_items and item_id not in memory.pickup_attempts:
+        if item_id and item_id not in memory.failed_items:
             t_id = item.get("typeId", "").lower().replace(" ", "_")
             if t_id in MELEE_SCORES:
                 best_melee_val = max(best_melee_val, float(MELEE_SCORES[t_id]))

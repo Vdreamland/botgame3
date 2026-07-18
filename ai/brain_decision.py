@@ -37,7 +37,7 @@ class BrainDecision:
             return None
         current_id = current_region.get("id")
         self.memory.add_visited_region(current_id)
-        turn = frame_data.get("view", {}).get("turn", 0)
+        turn = frame_data.get("turn", 0)
         if turn != self.last_turn:
             self.last_turn = turn
             self.memory.pickup_attempts.clear()
@@ -62,6 +62,13 @@ class BrainDecision:
         current_fac_ids = {fac.get("id") for fac in current_interactables if fac.get("id")}
         current_enemy_ids = {a.get("id") for a in get_visible_agents(frame_data) if a.get("id")} | {m.get("id") for m in get_visible_monsters(frame_data) if m.get("id")}
         self.memory.track_action_failure(current_item_ids, current_fac_ids, current_enemy_ids)
+        if not hasattr(self.memory, "known_death_zones"):
+            self.memory.known_death_zones = set()
+        visible_regions = get_visible_regions(frame_data)
+        for r in visible_regions:
+            r_id = r.get("id")
+            if r_id and r.get("isDeathZone", False):
+                self.memory.known_death_zones.add(r_id)
         inv = self_data.get("inventory", [])
         inv_analysis = analyze_inventory(inv)
         eq_weapon = self_data.get("equippedWeapon")
@@ -203,7 +210,6 @@ class BrainDecision:
             interact_action = get_interact_action(frame_data, self.memory)
             if interact_action:
                 return interact_action
-        visible_regions = get_visible_regions(frame_data)
         full_curr_region = next((r for r in visible_regions if r.get("id") == current_id), current_region)
         connections_raw = full_curr_region.get("connections", [])
         connections = [c.get("id") if isinstance(c, dict) else str(c) for c in connections_raw]
@@ -266,7 +272,7 @@ class BrainDecision:
         for r in visible_regions:
             r_id = r.get("id")
             if r_id:
-                if r.get("isDeathZone", False):
+                if r.get("isDeathZone", False) or r_id in self.memory.known_death_zones:
                     death_zones.add(r_id)
                 else:
                     safe_region_ids.add(r_id)
@@ -289,7 +295,8 @@ class BrainDecision:
         ultra_safe_connections = sorted([c for c in connections if c in ultra_safe_region_ids], key=lambda x: fallback_link_counts.get(x, 0), reverse=True)
         unvisited_ultra = sorted([c for c in ultra_safe_connections if c not in self.memory.move_history], key=lambda x: fallback_link_counts.get(x, 0), reverse=True)
         unvisited_safe = sorted([c for c in safe_connections if c not in self.memory.move_history], key=lambda x: fallback_link_counts.get(x, 0), reverse=True)
-        connections = sorted(connections, key=lambda x: fallback_link_counts.get(x, 0), reverse=True)
+        active_connections = [c for c in connections if c not in death_zones and c not in self.memory.known_death_zones]
+        active_connections = sorted(active_connections, key=lambda x: fallback_link_counts.get(x, 0), reverse=True)
         next_fallback_id = None
         if unvisited_ultra:
             next_fallback_id = unvisited_ultra[0]
@@ -299,8 +306,8 @@ class BrainDecision:
             next_fallback_id = unvisited_safe[0]
         elif safe_connections:
             next_fallback_id = safe_connections[0]
-        elif connections:
-            next_fallback_id = connections[0]
+        elif active_connections:
+            next_fallback_id = active_connections[0]
         if self_data.get("ep", 0) >= 2 and next_fallback_id:
             self.memory.last_target_id = None
             self.memory.last_action_type = "move"
