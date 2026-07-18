@@ -115,12 +115,12 @@ async def run_bot_instance(bot_config, version):
                         await ws_session.close()
                         break
                     if can_act and latest_view and not action_sent_this_turn:
-                        can_act = False
                         action = brain.get_next_action(latest_view)
                         if action:
                             act_type = action.get("data", {}).get("type", "").lower()
                             main_cooldown_actions = {"move", "explore", "attack", "use_item", "interact", "rest"}
                             if act_type in main_cooldown_actions:
+                                can_act = False
                                 action_sent_this_turn = True
                             act_type_upper = action.get("data", {}).get("type", "").upper()
                             thought = action.get("thought", "")
