@@ -1,8 +1,9 @@
 import math
 from typing import Dict, Any, List, Tuple
+from helpers.strategy_brain import calculate_final_damage
 
 def get_damage_dealt(attacker_atk: int, defender_def: int, weather_mod: int) -> int:
-    return max(1, attacker_atk - defender_def + weather_mod)
+    return calculate_final_damage(attacker_atk, 0, defender_def, weather_mod)
 
 def estimate_turns_to_kill(target_hp: int, damage_per_turn: int) -> int:
     if damage_per_turn <= 0:

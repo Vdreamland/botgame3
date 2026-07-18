@@ -83,7 +83,7 @@ state_router.py https://github.com/Vdreamland/botgame3/blob/master/helpers/state
 game_connection.py https://github.com/Vdreamland/botgame3/blob/master/helpers/game_connection.py
 world_parser.py https://github.com/Vdreamland/botgame3/blob/master/helpers/world_parser.py 
 
-combat_controller.py
+combat_controller.py https://github.com/Vdreamland/botgame3/blob/master/helpers/combat_controller.py
 automation_scheduler.py
 
 
