@@ -34,7 +34,7 @@ def is_enemy_nearby(frame_data: Dict[str, Any], current_id: str) -> bool:
 
 def get_recovery_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[Dict[str, Any]]:
     from helpers.actions_payload import use_item_payload
-    from helpers.world_parser import get_self_agent, get_current_region, get_visible_agents
+    from helpers.world_parser import get_self_agent, get_current_region, get_visible_agents, get_available_actions
     self_data = get_self_agent(frame_data)
     current_region = get_current_region(frame_data)
     if not self_data or not current_region:
@@ -69,7 +69,9 @@ def get_recovery_action(frame_data: Dict[str, Any], memory: BotMemory) -> Option
                 elif type_id == "bandage":
                     memory.use_attempts.add(item_id)
                     return use_item_payload(item_id, "Using bandage under low HP")
-    if ep < 2:
+    available_actions = get_available_actions(frame_data)
+    attack_cost = available_actions.get("attack", {}).get("cost", 1)
+    if ep < attack_cost:
         for item in inventory:
             item_id = item.get("id")
             type_id = item.get("typeId", "").lower()
@@ -104,10 +106,10 @@ def get_recovery_action(frame_data: Dict[str, Any], memory: BotMemory) -> Option
             item_id = item.get("id")
             type_id = item.get("typeId", "").lower()
             if item_id and item_id not in memory.use_attempts:
-                if type_id == "energy_drink" and ep <= 5:
+                if type_id == "energy_drink" and ep <= attack_cost + 3:
                     memory.use_attempts.add(item_id)
                     return use_item_payload(item_id, f"Proactive EP restore: consuming {type_id} since replacements are on the ground")
-                elif type_id == "emergency_food" and ep <= 5 and has_ground_emergency_food:
+                elif type_id == "emergency_food" and ep <= attack_cost + 3 and has_ground_emergency_food:
                     memory.use_attempts.add(item_id)
                     return use_item_payload(item_id, f"Proactive EP restore: consuming {type_id} since replacements are on the ground")
     return None
@@ -246,9 +248,16 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
             return move_payload(best_escape_id, f"Fleeing threat to safe region (Threat count: {min_threat})")
     return None
 
-def should_rest_for_ep(self_data: Dict[str, Any], current_region: Dict[str, Any]) -> bool:
+def should_rest_for_ep(frame_data: Dict[str, Any]) -> bool:
+    from helpers.world_parser import get_self_agent, get_current_region, get_available_actions
+    self_data = get_self_agent(frame_data)
+    current_region = get_current_region(frame_data)
+    if not self_data or not current_region:
+        return False
     ep = self_data.get("ep", 0)
     is_death_zone = current_region.get("isDeathZone", False)
-    if ep < 3 and not is_death_zone:
+    available_actions = get_available_actions(frame_data)
+    attack_cost = available_actions.get("attack", {}).get("cost", 1)
+    if ep < attack_cost and not is_death_zone:
         return True
     return False

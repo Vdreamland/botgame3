@@ -128,8 +128,6 @@ class BrainDecision:
                 best_inv_weapon = inv_analysis["best_ranged"]
         elif enemy_at_dist_range:
             if ranged_score > 0.0:
-                ranged_score += 0.1
-            if ranged_score >= melee_score:
                 best_inv_score = ranged_score
                 best_inv_weapon = inv_analysis["best_ranged"]
             else:
@@ -201,29 +199,8 @@ class BrainDecision:
             pickup_action = get_pickup_action(frame_data, self.memory)
         if pickup_action:
             return pickup_action
-        full_curr_region = next((r for r in visible_regions if r.get("id") == current_id), current_region)
-        connections_raw = full_curr_region.get("connections", [])
-        connections = [c.get("id") if isinstance(c, dict) else str(c) for c in connections_raw]
-        available_actions = get_available_actions(frame_data)
-        move_ok = available_actions.get("move", {}).get("ok", False)
-        move_cost = available_actions.get("move", {}).get("cost", 2)
-        bypass_combat_for_loot = False
-        urgent_loot_region_id = None
-        if move_ok and self_data.get("ep", 0) >= move_cost:
-            for r in visible_regions:
-                r_id = r.get("id")
-                if r_id in connections and not r.get("isDeathZone", False):
-                    items = r.get("items", [])
-                    if any(item.get("typeId", "").lower() in ["smoltz", "moltz"] for item in items):
-                        urgent_loot_region_id = r_id
-                        bypass_combat_for_loot = True
-                        break
         combat_action = get_combat_action(frame_data, self.memory)
         if combat_action:
-            if not enemy_at_dist_0 and bypass_combat_for_loot and urgent_loot_region_id:
-                self.memory.last_target_id = None
-                self.memory.last_action_type = "move"
-                return move_payload(urgent_loot_region_id, "Bypassing combat to secure adjacent sMoltz")
             return combat_action
         item_to_drop_id = get_item_to_drop(inv_analysis, sim_inv)
         if item_to_drop_id and item_to_drop_id not in self.memory.drop_attempts:
@@ -242,6 +219,9 @@ class BrainDecision:
         ruin_action = get_ruin_explore_action(frame_data)
         if ruin_action:
             return ruin_action
+        full_curr_region = next((r for r in visible_regions if r.get("id") == current_id), current_region)
+        connections_raw = full_curr_region.get("connections", [])
+        connections = [c.get("id") if isinstance(c, dict) else str(c) for c in connections_raw]
         chase_target_id = None
         for agent in get_visible_agents(frame_data):
             r_id = agent.get("regionId")
@@ -260,6 +240,26 @@ class BrainDecision:
                     if "guardian" not in type_id:
                         chase_target_id = r_id
                         break
+        available_actions = get_available_actions(frame_data)
+        move_ok = available_actions.get("move", {}).get("ok", False)
+        move_cost = available_actions.get("move", {}).get("cost", 2)
+        bypass_combat_for_loot = False
+        urgent_loot_region_id = None
+        if move_ok and self_data.get("ep", 0) >= move_cost:
+            for r in visible_regions:
+                r_id = r.get("id")
+                if r_id in connections and not r.get("isDeathZone", False):
+                    items = r.get("items", [])
+                    if any(item.get("typeId", "").lower() in ["smoltz", "moltz"] for item in items):
+                        urgent_loot_region_id = r_id
+                        bypass_combat_for_loot = True
+                        break
+        if combat_action:
+            if not enemy_at_dist_0 and bypass_combat_for_loot and urgent_loot_region_id:
+                self.memory.last_target_id = None
+                self.memory.last_action_type = "move"
+                return move_payload(urgent_loot_region_id, "Bypassing combat to secure adjacent sMoltz")
+            return combat_action
         if move_ok and self_data.get("ep", 0) >= move_cost and chase_target_id:
             self.memory.last_target_id = None
             self.memory.last_action_type = "move"
@@ -333,12 +333,12 @@ class BrainDecision:
             next_fallback_id = safe_connections[0]
         elif active_connections:
             next_fallback_id = active_connections[0]
-        if self_data.get("ep", 0) >= 2 and next_fallback_id:
+        if self_data.get("ep", 0) >= move_cost and next_fallback_id:
             self.memory.last_target_id = None
             self.memory.last_action_type = "move"
             return move_payload(next_fallback_id, "Moving to unvisited region to search")
-        if should_rest_for_ep(self_data, current_region):
+        if should_rest_for_ep(frame_data):
             return rest_payload("Resting to recover EP")
-        if self_data.get("ep", 0) < 2:
+        if self_data.get("ep", 0) < move_cost:
             return rest_payload("Resting to recover EP")
         return explore_payload("Exploring local region")
