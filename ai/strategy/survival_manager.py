@@ -132,6 +132,17 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
     our_def = self_data.get("def", 5)
     weather = current_region.get("weather", "clear") if current_region else "clear"
     weather_mod = WEATHER_MODIFIERS.get(weather.lower(), 0)
+    threat_count = 0
+    for agent in get_visible_agents(frame_data):
+        if agent.get("regionId") == current_id and agent.get("hp", 0) > 0 and agent.get("id") != self_data.get("id"):
+            name = agent.get("name", "")
+            if "Guardian" not in name and not agent.get("isGuardian", False):
+                threat_count += 1
+    for monster in get_visible_monsters(frame_data):
+        if monster.get("regionId") == current_id and monster.get("hp", 0) > 0:
+            type_id = (monster.get("type") or monster.get("typeId") or monster.get("name") or "").lower()
+            if "guardian" not in type_id:
+                threat_count += 1
     has_easy_kill = False
     for agent in get_visible_agents(frame_data):
         if agent.get("regionId") == current_id and agent.get("hp", 0) > 0 and agent.get("id") != self_data.get("id"):
@@ -147,9 +158,14 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
                 enemy_dmg = max(1, enemy_atk - our_def + weather_mod)
                 turns_to_kill_them = (t_hp + est_dmg - 1) // est_dmg if est_dmg > 0 else 999
                 turns_to_kill_us = (hp + enemy_dmg - 1) // enemy_dmg if enemy_dmg > 0 else 999
-                if t_hp <= est_dmg or t_hp <= 25 or (turns_to_kill_them <= 3 and turns_to_kill_them <= turns_to_kill_us):
-                    has_easy_kill = True
-                    break
+                if threat_count >= 2:
+                    if t_hp <= est_dmg:
+                        has_easy_kill = True
+                        break
+                else:
+                    if t_hp <= est_dmg or t_hp <= 25 or (turns_to_kill_them <= 3 and turns_to_kill_them <= turns_to_kill_us):
+                        has_easy_kill = True
+                        break
     if not has_easy_kill:
         for monster in get_visible_monsters(frame_data):
             if monster.get("regionId") == current_id and monster.get("hp", 0) > 0:
@@ -162,22 +178,16 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
                     enemy_dmg = max(1, m_atk - our_def + weather_mod)
                     turns_to_kill_them = (t_hp + est_dmg - 1) // est_dmg if est_dmg > 0 else 999
                     turns_to_kill_us = (hp + enemy_dmg - 1) // enemy_dmg if enemy_dmg > 0 else 999
-                    if t_hp <= est_dmg or (turns_to_kill_them <= 3 and turns_to_kill_them <= turns_to_kill_us):
-                        has_easy_kill = True
-                        break
+                    if threat_count >= 2:
+                        if t_hp <= est_dmg:
+                            has_easy_kill = True
+                            break
+                    else:
+                        if t_hp <= est_dmg or (turns_to_kill_them <= 3 and turns_to_kill_them <= turns_to_kill_us):
+                            has_easy_kill = True
+                            break
     if has_easy_kill:
         return None
-    threat_count = 0
-    for agent in get_visible_agents(frame_data):
-        if agent.get("regionId") == current_id and agent.get("hp", 0) > 0 and agent.get("id") != self_data.get("id"):
-            name = agent.get("name", "")
-            if "Guardian" not in name and not agent.get("isGuardian", False):
-                threat_count += 1
-    for monster in get_visible_monsters(frame_data):
-        if monster.get("regionId") == current_id and monster.get("hp", 0) > 0:
-            type_id = (monster.get("type") or monster.get("typeId") or monster.get("name") or "").lower()
-            if "guardian" not in type_id:
-                threat_count += 1
     should_flee = False
     is_death_zone = current_region.get("isDeathZone", False)
     if is_death_zone and ep >= 2:

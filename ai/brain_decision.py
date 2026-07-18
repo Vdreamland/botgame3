@@ -160,6 +160,11 @@ class BrainDecision:
                 should_swap = True
             elif best_inv_type in RANGED_SCORES and eq_type in RANGED_SCORES and RANGED_SCORES[best_inv_type] > RANGED_SCORES[eq_type]:
                 should_swap = True
+            elif not enemy_at_dist_0 and not enemy_at_dist_range:
+                best_inv_rating = float(MELEE_SCORES.get(best_inv_type, RANGED_SCORES.get(best_inv_type, 0.0)))
+                eq_rating = float(MELEE_SCORES.get(eq_type, RANGED_SCORES.get(eq_type, 0.0)))
+                if best_inv_rating > eq_rating:
+                    should_swap = True
         if should_swap and best_inv_weapon:
             item_id = best_inv_weapon.get("id")
             item_name = best_inv_weapon.get("typeId", "weapon")

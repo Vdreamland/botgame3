@@ -83,6 +83,7 @@ async def run_bot_instance(bot_config, version):
             game_over_cleanly = False
             can_act = False
             latest_view = None
+            view_is_fresh = False
             try:
                 await log_msg(bot_name, "SUCCESS", "Game session active. Holding connection to stay in arena...")
                 while True:
@@ -91,27 +92,30 @@ async def run_bot_instance(bot_config, version):
                     msg_type = frame_data.get("type")
                     if msg_type == "agent_view":
                         latest_view = frame_data
+                        view_is_fresh = True
                         await log_frame_update(bot_name, frame_data)
                     elif msg_type == "turn_advanced":
+                        view_is_fresh = False
                         await log_frame_update(bot_name, frame_data)
                     elif msg_type == "can_act_changed":
                         can_act = frame_data.get("canAct", False)
-                    if "canAct" in frame_data:
-                        can_act = frame_data.get("canAct", False)
-                    self_data = get_self_agent(latest_view) if latest_view else {}
-                    is_alive = self_data.get("isAlive", True) if self_data else True
-                    detected_dead_in_logs = is_bot_dead_in_logs(frame_data, bot_name)
-                    if (latest_view and not is_alive) or detected_dead_in_logs:
-                        game_over_cleanly = True
-                        await ws_session.close()
-                        break
+                        if "canAct" in frame_data:
+                            can_act = frame_data.get("canAct", False)
+                        self_data = get_self_agent(latest_view) if latest_view else {}
+                        is_alive = self_data.get("isAlive", True) if self_data else True
+                        detected_dead_in_logs = is_bot_dead_in_logs(frame_data, bot_name)
+                        if (latest_view and not is_alive) or detected_dead_in_logs:
+                            game_over_cleanly = True
+                            await ws_session.close()
+                            break
                     elif msg_type == "game_ended":
                         game_over_cleanly = True
                         await log_msg(bot_name, "SUCCESS", "Game session has officially ended on the server.")
                         await ws_session.close()
                         break
-                    if can_act and latest_view:
+                    if can_act and latest_view and view_is_fresh:
                         can_act = False
+                        view_is_fresh = False
                         action = brain.get_next_action(latest_view)
                         if action:
                             act_type = action.get("data", {}).get("type", "")
@@ -133,27 +137,27 @@ async def run_bot_instance(bot_config, version):
                     await ws_session.close()
                 except Exception:
                     pass
-            st, _ = await asyncio.to_thread(check_agent_state, api_key, version, preference)
-            if st != "IN_GAME":
-                game_over_cleanly = True
-            if game_over_cleanly:
-                print("")
-                await log_msg(bot_name, "INFO", "Waiting 10 seconds post-match to check eligibility for a new game...")
-                await asyncio.sleep(10.0)
-                while True:
-                    next_state, next_data = await asyncio.to_thread(check_agent_state, api_key, version, preference)
-                    if next_state == "IN_GAME":
-                        print("")
-                        await log_msg(bot_name, "INFO", "Previous game slot is still active on server. Waiting for game to end...")
-                        await asyncio.sleep(10.0)
-                    else:
-                        print("")
-                        await log_msg(bot_name, "SUCCESS", "Eligible to join a new match! Re-entering queue...")
-                        break
-            else:
-                print("")
-                await log_msg(bot_name, "INFO", "Unexpected disconnection. Reconnecting to active game slot immediately...")
-                await asyncio.sleep(2.0)
+                st, _ = await asyncio.to_thread(check_agent_state, api_key, version, preference)
+                if st != "IN_GAME":
+                    game_over_cleanly = True
+                if game_over_cleanly:
+                    print("")
+                    await log_msg(bot_name, "INFO", "Waiting 10 seconds post-match to check eligibility for a new game...")
+                    await asyncio.sleep(10.0)
+                    while True:
+                        next_state, next_data = await asyncio.to_thread(check_agent_state, api_key, version, preference)
+                        if next_state == "IN_GAME":
+                            print("")
+                            await log_msg(bot_name, "INFO", "Previous game slot is still active on server. Waiting for game to end...")
+                            await asyncio.sleep(10.0)
+                        else:
+                            print("")
+                            await log_msg(bot_name, "SUCCESS", "Eligible to join a new match! Re-entering queue...")
+                            break
+                else:
+                    print("")
+                    await log_msg(bot_name, "INFO", "Unexpected disconnection. Reconnecting to active game slot immediately...")
+                    await asyncio.sleep(2.0)
 
 async def main():
     print("="*60)
@@ -169,7 +173,7 @@ async def main():
     tasks = []
     for bot_config in bots:
         tasks.append(asyncio.create_task(run_bot_instance(bot_config, version)))
-        await asyncio.sleep(2.0)
+    await asyncio.sleep(2.0)
     await asyncio.gather(*tasks)
 
 if __name__ == "__main__":
