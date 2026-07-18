@@ -83,7 +83,7 @@ async def run_bot_instance(bot_config, version):
             game_over_cleanly = False
             can_act = False
             latest_view = None
-            view_is_fresh = False
+            action_sent_this_turn = False
             try:
                 await log_msg(bot_name, "SUCCESS", "Game session active. Holding connection to stay in arena...")
                 while True:
@@ -92,10 +92,11 @@ async def run_bot_instance(bot_config, version):
                     msg_type = frame_data.get("type")
                     if msg_type == "agent_view":
                         latest_view = frame_data
-                        view_is_fresh = True
+                        action_sent_this_turn = False
                         await log_frame_update(bot_name, frame_data)
                     elif msg_type == "turn_advanced":
-                        view_is_fresh = False
+                        latest_view = frame_data
+                        action_sent_this_turn = False
                         await log_frame_update(bot_name, frame_data)
                     elif msg_type == "can_act_changed":
                         can_act = frame_data.get("canAct", False)
@@ -113,14 +114,17 @@ async def run_bot_instance(bot_config, version):
                         await log_msg(bot_name, "SUCCESS", "Game session has officially ended on the server.")
                         await ws_session.close()
                         break
-                    if can_act and latest_view and view_is_fresh:
+                    if can_act and latest_view and not action_sent_this_turn:
                         can_act = False
-                        view_is_fresh = False
                         action = brain.get_next_action(latest_view)
                         if action:
-                            act_type = action.get("data", {}).get("type", "")
+                            act_type = action.get("data", {}).get("type", "").lower()
+                            main_cooldown_actions = {"move", "explore", "attack", "use_item", "interact", "rest"}
+                            if act_type in main_cooldown_actions:
+                                action_sent_this_turn = True
+                            act_type_upper = action.get("data", {}).get("type", "").upper()
                             thought = action.get("thought", "")
-                            await log_msg(bot_name, "INFO", f"AUTONOMOUS ACTION -> {act_type.upper()} ({thought})")
+                            await log_msg(bot_name, "INFO", f"AUTONOMOUS ACTION -> {act_type_upper} ({thought})")
                             await ws_session.send(json.dumps(action))
             except asyncio.TimeoutError:
                 print("")
