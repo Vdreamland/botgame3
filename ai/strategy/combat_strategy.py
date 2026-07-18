@@ -76,6 +76,8 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
     for monster in get_visible_monsters(frame_data):
         r_id = monster.get("regionId")
         if r_id in distances and distances[r_id] <= (our_range - 1) and monster.get("hp", 0) > 0:
+            if distances[r_id] > 0:
+                continue
             monster_id = monster.get("id")
             if monster_id in memory.failed_attacks:
                 continue

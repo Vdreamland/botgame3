@@ -185,9 +185,6 @@ class BrainDecision:
             recovery_action = get_recovery_action(frame_data, self.memory)
             if recovery_action:
                 return recovery_action
-        combat_action = get_combat_action(frame_data, self.memory)
-        if combat_action:
-            return combat_action
         has_weapon = (best_inv_score > 0.0) or (eq_score > 0.0)
         pickup_action = None
         if not has_weapon and len(sim_inv) < 10:
@@ -203,6 +200,9 @@ class BrainDecision:
             pickup_action = get_pickup_action(frame_data, self.memory)
         if pickup_action:
             return pickup_action
+        combat_action = get_combat_action(frame_data, self.memory)
+        if combat_action:
+            return combat_action
         item_to_drop_id = get_item_to_drop(inv_analysis, sim_inv)
         if item_to_drop_id and item_to_drop_id not in self.memory.drop_attempts:
             self.memory.drop_attempts.add(item_to_drop_id)
