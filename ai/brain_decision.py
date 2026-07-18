@@ -166,6 +166,11 @@ class BrainDecision:
             if item_id and item_id not in self.memory.equipped_attempts:
                 self.memory.equipped_attempts.add(item_id)
                 return equip_payload(item_id, f"Equipping stronger armor: {item_name}")
+        hp = self_data.get("hp", 0)
+        if hp < 40:
+            recovery_action = get_recovery_action(frame_data, self.memory)
+            if recovery_action:
+                return recovery_action
         combat_action = get_combat_action(frame_data, self.memory)
         if combat_action:
             return combat_action
@@ -192,11 +197,6 @@ class BrainDecision:
             dropped_item = next((item for item in inv if item.get("id") == item_to_drop_id), None)
             dropped_name = dropped_item.get("typeId") if dropped_item else "item"
             return drop_payload(item_to_drop_id, f"Dropping weaker redundant item: {dropped_name}")
-        hp = self_data.get("hp", 0)
-        if hp < 40:
-            recovery_action = get_recovery_action(frame_data, self.memory)
-            if recovery_action:
-                return recovery_action
         recovery_action = get_recovery_action(frame_data, self.memory)
         if recovery_action:
             return recovery_action

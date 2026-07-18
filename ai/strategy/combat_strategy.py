@@ -95,6 +95,7 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
             })
     if not targets:
         return None
+    has_layer0_threat = any(t["dist"] == 0 and t["type"] == "agent" for t in targets)
     best_target = None
     best_target_score = -999999
     for t in targets:
@@ -121,6 +122,8 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
             score += 2000.0
         elif turns_to_kill == 2:
             score += 500.0
+        if has_layer0_threat and t_dist > 0:
+            score -= 5000.0
         if score > best_target_score:
             best_target_score = score
             best_target = t
