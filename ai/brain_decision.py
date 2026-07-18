@@ -127,22 +127,9 @@ class BrainDecision:
             else:
                 best_inv_score = ranged_score
                 best_inv_weapon = inv_analysis["best_ranged"]
-        has_weapon = (best_inv_score > 0.0) or (eq_score > 0.0)
-        pickup_action = None
-        if len(inv) < 10:
-            if not has_weapon:
-                local_weapon = next((item for item in current_items if item.get("category", "").lower() == "weapon"), None)
-                if local_weapon and local_weapon.get("id") not in self.memory.pickup_attempts and local_weapon.get("id") not in self.memory.failed_items:
-                    item_name = local_weapon.get("typeId", "weapon")
-                    item_id = local_weapon.get("id")
-                    self.memory.pickup_attempts.add(item_id)
-                    self.memory.last_target_id = item_id
-                    self.memory.last_action_type = "pickup"
-                    pickup_action = pickup_payload(item_id, f"Picking up local weapon: {item_name}")
-            if not pickup_action:
-                pickup_action = get_pickup_action(frame_data, self.memory)
-            if pickup_action:
-                return pickup_action
+        flee_action = get_flee_action(frame_data, self.memory)
+        if flee_action:
+            return flee_action
         if not eq_weapon and best_inv_weapon:
             item_id = best_inv_weapon.get("id")
             item_name = best_inv_weapon.get("typeId", "weapon")
@@ -179,6 +166,25 @@ class BrainDecision:
             if item_id and item_id not in self.memory.equipped_attempts:
                 self.memory.equipped_attempts.add(item_id)
                 return equip_payload(item_id, f"Equipping stronger armor: {item_name}")
+        combat_action = get_combat_action(frame_data, self.memory)
+        if combat_action:
+            return combat_action
+        has_weapon = (best_inv_score > 0.0) or (eq_score > 0.0)
+        pickup_action = None
+        if len(inv) < 10:
+            if not has_weapon:
+                local_weapon = next((item for item in current_items if item.get("category", "").lower() == "weapon"), None)
+                if local_weapon and local_weapon.get("id") not in self.memory.pickup_attempts and local_weapon.get("id") not in self.memory.failed_items:
+                    item_name = local_weapon.get("typeId", "weapon")
+                    item_id = local_weapon.get("id")
+                    self.memory.pickup_attempts.add(item_id)
+                    self.memory.last_target_id = item_id
+                    self.memory.last_action_type = "pickup"
+                    pickup_action = pickup_payload(item_id, f"Picking up local weapon: {item_name}")
+            if not pickup_action:
+                pickup_action = get_pickup_action(frame_data, self.memory)
+            if pickup_action:
+                return pickup_action
         item_to_drop_id = get_item_to_drop(inv_analysis, inv)
         if item_to_drop_id and item_to_drop_id not in self.memory.drop_attempts:
             self.memory.drop_attempts.add(item_to_drop_id)
@@ -186,12 +192,6 @@ class BrainDecision:
             dropped_item = next((item for item in inv if item.get("id") == item_to_drop_id), None)
             dropped_name = dropped_item.get("typeId") if dropped_item else "item"
             return drop_payload(item_to_drop_id, f"Dropping weaker redundant item: {dropped_name}")
-        flee_action = get_flee_action(frame_data, self.memory)
-        if flee_action:
-            return flee_action
-        combat_action = get_combat_action(frame_data, self.memory)
-        if combat_action:
-            return combat_action
         hp = self_data.get("hp", 0)
         if hp < 40:
             recovery_action = get_recovery_action(frame_data, self.memory)
