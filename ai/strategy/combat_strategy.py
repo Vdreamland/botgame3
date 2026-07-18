@@ -152,4 +152,4 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
             memory.last_target_id = best_target["id"]
             memory.last_action_type = "attack"
             return attack_payload(best_target["id"], best_target["type"], f"Attacking {best_target['name']} at dist {best_target['dist']} (Est. turns: {turns_to_kill_enemy})")
-        return None
+    return None
