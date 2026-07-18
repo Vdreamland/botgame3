@@ -3,16 +3,20 @@ from ai.memory import BotMemory
 from helpers.items_spec import WEAPONS
 from helpers.game_constants import WEATHER_MODIFIERS
 from helpers.strategy_brain import calculate_final_damage
+from helpers.api_config import get_bots_config
 
 def is_enemy_nearby(frame_data: Dict[str, Any], current_id: str) -> bool:
     from helpers.world_parser import get_visible_agents, get_visible_monsters, get_current_region
     current_reg = get_current_region(frame_data)
     connections = current_reg.get("connections", []) if current_reg else []
     nearby_regions = set(connections) | {current_id}
+    friendly_names = {bot["name"] for bot in get_bots_config()}
     for agent in get_visible_agents(frame_data):
         reg_id = agent.get("regionId")
         hp = agent.get("hp", 0)
         name = agent.get("name", "")
+        if name in friendly_names:
+            continue
         if reg_id in nearby_regions and hp > 0 and "Guardian" not in name and not agent.get("isGuardian", False):
             weapon = agent.get("equippedWeapon")
             weapon_name = "none"
@@ -40,8 +44,9 @@ def get_recovery_action(frame_data: Dict[str, Any], memory: BotMemory) -> Option
     ep = self_data.get("ep", 0)
     if current_region.get("isDeathZone", False) and ep >= 2:
         return None
+    friendly_names = {bot["name"] for bot in get_bots_config()}
     has_easy_kill = any(
-        a.get("regionId") == current_id and 0 < a.get("hp", 0) <= 25 and "Guardian" not in a.get("name", "")
+        a.get("regionId") == current_id and 0 < a.get("hp", 0) <= 25 and "Guardian" not in a.get("name", "") and a.get("name", "") not in friendly_names
         for a in get_visible_agents(frame_data)
     )
     if has_easy_kill and hp > 40:
@@ -133,10 +138,13 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
     our_def = self_data.get("def", 5)
     weather = current_region.get("weather", "clear") if current_region else "clear"
     weather_mod = WEATHER_MODIFIERS.get(weather.lower(), 0)
+    friendly_names = {bot["name"] for bot in get_bots_config()}
     threat_count = 0
     for agent in get_visible_agents(frame_data):
         if agent.get("regionId") == current_id and agent.get("hp", 0) > 0 and agent.get("id") != self_data.get("id"):
             name = agent.get("name", "")
+            if name in friendly_names:
+                continue
             if "Guardian" not in name and not agent.get("isGuardian", False):
                 threat_count += 1
     for monster in get_visible_monsters(frame_data):
@@ -148,6 +156,8 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
     for agent in get_visible_agents(frame_data):
         if agent.get("regionId") == current_id and agent.get("hp", 0) > 0 and agent.get("id") != self_data.get("id"):
             name = agent.get("name", "")
+            if name in friendly_names:
+                continue
             if "Guardian" not in name and not agent.get("isGuardian", False):
                 t_hp = agent.get("hp", 0)
                 t_def = agent.get("def", 5)
@@ -208,6 +218,8 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
         for agent in get_visible_agents(frame_data):
             reg_id = agent.get("regionId")
             name = agent.get("name", "")
+            if name in friendly_names:
+                continue
             if reg_id in region_threat_counts and agent.get("hp", 0) > 0 and "Guardian" not in name and not agent.get("isGuardian", False):
                 region_threat_counts[reg_id] += 1
         for monster in get_visible_monsters(frame_data):

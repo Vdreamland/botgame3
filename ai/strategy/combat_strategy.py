@@ -8,6 +8,7 @@ from helpers.game_constants import WEATHER_MODIFIERS
 from helpers.items_spec import WEAPONS
 from ai.memory import BotMemory
 from helpers.combat_controller import get_damage_dealt, estimate_turns_to_kill, evaluate_target_score
+from helpers.api_config import get_bots_config
 
 def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[Dict[str, Any]]:
     self_data = get_self_agent(frame_data)
@@ -45,6 +46,7 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
     attack_cost = available_actions.get("attack", {}).get("cost", 1)
     if our_ep < attack_cost:
         return None
+    friendly_names = {bot["name"] for bot in get_bots_config()}
     targets = []
     for agent in get_visible_agents(frame_data):
         r_id = agent.get("regionId")
@@ -53,6 +55,8 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
             if agent_id in memory.failed_attacks:
                 continue
             name = agent.get("name", "")
+            if name in friendly_names:
+                continue
             if "Guardian" in name or agent.get("isGuardian", False):
                 continue
             t_atk = agent.get("atk", 25)

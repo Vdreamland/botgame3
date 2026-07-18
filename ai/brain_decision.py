@@ -24,6 +24,7 @@ from ai.strategy.combat_strategy import get_combat_action
 from ai.strategy.loot_strategy import get_pickup_action, get_interact_action, find_target_regions
 from ai.strategy.movement_strategy import find_shortest_path
 from ai.strategy.ruins_explore_strategy import get_ruin_explore_action
+from helpers.api_config import get_bots_config
 
 class BrainDecision:
     def __init__(self):
@@ -265,9 +266,12 @@ class BrainDecision:
             return move_payload(chase_target_id, "Chasing low HP target in adjacent region")
         if is_loadout_optimal and move_ok and self_data.get("ep", 0) >= move_cost:
             visible_enemies = []
+            friendly_names = {bot["name"] for bot in get_bots_config()}
             for agent in get_visible_agents(frame_data):
                 if agent.get("hp", 0) > 0 and agent.get("id") != self_data.get("id"):
                     name = agent.get("name", "")
+                    if name in friendly_names:
+                        continue
                     if "Guardian" not in name and not agent.get("isGuardian", False):
                         r_id = agent.get("regionId")
                         if r_id:
