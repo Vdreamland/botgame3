@@ -208,7 +208,7 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
         for agent in get_visible_agents(frame_data):
             reg_id = agent.get("regionId")
             name = agent.get("name", "")
-            if reg_id in region_threat_counts& and agent.get("hp", 0) > 0 and "Guardian" not in name and not agent.get("isGuardian", False):
+            if reg_id in region_threat_counts and agent.get("hp", 0) > 0 and "Guardian" not in name and not agent.get("isGuardian", False):
                 region_threat_counts[reg_id] += 1
         for monster in get_visible_monsters(frame_data):
             reg_id = monster.get("regionId")
