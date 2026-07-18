@@ -52,7 +52,7 @@ def get_pickup_action(frame_data: Dict[str, Any], memory: Any) -> Optional[Dict[
                 best_armor_val = max(best_armor_val, float(ARMOR_SCORES[t_id]))
     for item in items:
         item_id = item.get("id")
-        if item_id and item_id not in memory.failed_items and item_id not in memory.pickup_attempts:
+        if item_id and item_id not in memory.failed_items and item_id not in memory.pickup_attempts and item_id not in memory.drop_attempts:
             type_id = item.get("typeId", "").lower().replace(" ", "_")
             if type_id in ["smoltz", "moltz"]:
                 continue

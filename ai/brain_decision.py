@@ -94,7 +94,7 @@ class BrainDecision:
                 has_good_armor = True
         has_recovery = (inv_analysis.get("hp_count", 0) + inv_analysis.get("ep_count", 0)) >= 2
         is_loadout_optimal = has_good_weapon and has_good_armor and has_recovery
-        eq_type = eq_weapon.get("typeId", "").lower() if eq_weapon else ""
+        eq_type = eq_weapon.get("typeId", "").lower().replace(" ", "_") if eq_weapon else ""
         enemy_at_dist_0 = any(
             agent.get("regionId") == current_id and agent.get("hp", 0) > 0 and "Guardian" not in agent.get("name", "") and not agent.get("isGuardian", False)
             for agent in get_visible_agents(frame_data)
@@ -172,7 +172,7 @@ class BrainDecision:
             if item_id and item_id not in self.memory.equipped_attempts:
                 self.memory.equipped_attempts.add(item_id)
                 return equip_payload(item_id, f"Equipping stronger weapon: {item_name}")
-        eq_armor_type = eq_armor.get("typeId", "").lower() if eq_armor else ""
+        eq_armor_type = eq_armor.get("typeId", "").lower().replace(" ", "_") if eq_armor else ""
         eq_armor_score = ARMOR_SCORES.get(eq_armor_type, 0)
         if inv_analysis["best_armor_score"] > eq_armor_score and inv_analysis["best_armor"]:
             item_id = inv_analysis["best_armor"].get("id")

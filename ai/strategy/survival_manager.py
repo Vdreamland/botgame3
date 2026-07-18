@@ -152,10 +152,7 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
                 t_hp = agent.get("hp", 0)
                 t_def = agent.get("def", 5)
                 est_dmg = calculate_final_damage(our_atk, best_w_bonus, t_def, weather_mod)
-                enemy_weapon = agent.get("equippedWeapon")
-                enemy_weapon_type = enemy_weapon.get("typeId", "").lower().replace(" ", "_") if enemy_weapon else "fist"
-                enemy_weapon_stats = WEAPONS.get(enemy_weapon_type, {"atk_bonus": 0, "range": 1})
-                enemy_atk = agent.get("atk", 25) + enemy_weapon_stats.get("atk_bonus", 0)
+                enemy_atk = agent.get("atk", 25)
                 enemy_dmg = calculate_final_damage(enemy_atk, 0, our_def, weather_mod)
                 turns_to_kill_them = (t_hp + est_dmg - 1) // est_dmg if est_dmg > 0 else 999
                 turns_to_kill_us = (hp + enemy_dmg - 1) // enemy_dmg if enemy_dmg > 0 else 999
