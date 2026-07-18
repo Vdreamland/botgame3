@@ -124,7 +124,7 @@ async def run_bot_instance(bot_config, version):
                                 action_sent_this_turn = True
                             act_type_upper = action.get("data", {}).get("type", "").upper()
                             thought = action.get("thought", "")
-                            await log_msg(bot_name, "INFO", f"AUTONOMOUS ACTION -> {act_type_upper} ({thought})")
+                            await log_msg(bot_name, "INFO", f"AI DECISION -> {act_type_upper} ({thought})")
                             await ws_session.send(json.dumps(action))
             except asyncio.TimeoutError:
                 print("")
