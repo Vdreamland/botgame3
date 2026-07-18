@@ -39,7 +39,6 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
     if our_weapon:
         w_type = our_weapon.get("typeId", "").lower().replace(" ", "_")
         w_data = WEAPONS.get(w_type, {})
-        our_atk += w_data.get("atk_bonus", 0)
         our_range = w_data.get("range", 1)
     available_actions = get_available_actions(frame_data)
     attack_cost = available_actions.get("attack", {}).get("cost", 1)
@@ -61,7 +60,6 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
             if t_wep:
                 t_w_type = t_wep.get("typeId", "").lower().replace(" ", "_")
                 w_data = WEAPONS.get(t_w_type, {})
-                t_atk += w_data.get("atk_bonus", 0)
                 t_range = w_data.get("range", 1)
             targets.append({
                 "id": agent_id,
