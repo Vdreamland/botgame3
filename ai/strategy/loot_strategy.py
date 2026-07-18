@@ -24,6 +24,19 @@ def get_pickup_action(frame_data: Dict[str, Any], memory: Any) -> Optional[Dict[
                 return pickup_payload(item_id, "Picking up sMoltz")
     if len(inventory) >= 10:
         return None
+    picking_up_melee = False
+    picking_up_ranged = False
+    picking_up_armor = False
+    for item in items:
+        item_id = item.get("id")
+        if item_id in memory.pickup_attempts:
+            t_id = item.get("typeId", "").lower().replace(" ", "_")
+            if t_id in MELEE_SCORES:
+                picking_up_melee = True
+            elif t_id in RANGED_SCORES:
+                picking_up_ranged = True
+            elif t_id in ARMOR_SCORES:
+                picking_up_armor = True
     best_melee_val = -1.0
     best_ranged_val = -1.0
     best_armor_val = -1.0
@@ -43,11 +56,11 @@ def get_pickup_action(frame_data: Dict[str, Any], memory: Any) -> Optional[Dict[
             type_id = item.get("typeId", "").lower().replace(" ", "_")
             if type_id in ["smoltz", "moltz"]:
                 continue
-            if type_id in MELEE_SCORES and float(MELEE_SCORES[type_id]) < best_melee_val:
+            if type_id in MELEE_SCORES and (picking_up_melee or float(MELEE_SCORES[type_id]) < best_melee_val):
                 continue
-            if type_id in RANGED_SCORES and float(RANGED_SCORES[type_id]) < best_ranged_val:
+            if type_id in RANGED_SCORES and (picking_up_ranged or float(RANGED_SCORES[type_id]) < best_ranged_val):
                 continue
-            if type_id in ARMOR_SCORES and float(ARMOR_SCORES[type_id]) < best_armor_val:
+            if type_id in ARMOR_SCORES and (picking_up_armor or float(ARMOR_SCORES[type_id]) < best_armor_val):
                 continue
             if is_item_needed(item, inv_analysis):
                 memory.pickup_attempts.add(item_id)

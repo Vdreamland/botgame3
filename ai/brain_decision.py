@@ -70,7 +70,14 @@ class BrainDecision:
             if r_id and r.get("isDeathZone", False):
                 self.memory.known_death_zones.add(r_id)
         inv = self_data.get("inventory", [])
-        inv_analysis = analyze_inventory(inv)
+        sim_inv = list(inv)
+        for item in current_items:
+            i_id = item.get("id")
+            if i_id and i_id in self.memory.pickup_attempts:
+                if not any(x.get("id") == i_id for x in sim_inv):
+                    sim_inv.append(item)
+        sim_inv = [x for x in sim_inv if x.get("id") not in self.memory.drop_attempts]
+        inv_analysis = analyze_inventory(sim_inv)
         eq_weapon = self_data.get("equippedWeapon")
         eq_armor = self_data.get("equippedArmor")
         has_good_weapon = False
@@ -183,7 +190,7 @@ class BrainDecision:
             return combat_action
         has_weapon = (best_inv_score > 0.0) or (eq_score > 0.0)
         pickup_action = None
-        if not has_weapon and len(inv) < 10:
+        if not has_weapon and len(sim_inv) < 10:
             local_weapon = next((item for item in current_items if item.get("category", "").lower() == "weapon"), None)
             if local_weapon and local_weapon.get("id") not in self.memory.pickup_attempts and local_weapon.get("id") not in self.memory.failed_items:
                 item_name = local_weapon.get("typeId", "weapon")
@@ -196,11 +203,11 @@ class BrainDecision:
             pickup_action = get_pickup_action(frame_data, self.memory)
         if pickup_action:
             return pickup_action
-        item_to_drop_id = get_item_to_drop(inv_analysis, inv)
+        item_to_drop_id = get_item_to_drop(inv_analysis, sim_inv)
         if item_to_drop_id and item_to_drop_id not in self.memory.drop_attempts:
             self.memory.drop_attempts.add(item_to_drop_id)
             self.memory.pickup_attempts.clear()
-            dropped_item = next((item for item in inv if item.get("id") == item_to_drop_id), None)
+            dropped_item = next((item for item in sim_inv if item.get("id") == item_to_drop_id), None)
             dropped_name = dropped_item.get("typeId") if dropped_item else "item"
             return drop_payload(item_to_drop_id, f"Dropping weaker redundant item: {dropped_name}")
         recovery_action = get_recovery_action(frame_data, self.memory)
@@ -247,13 +254,13 @@ class BrainDecision:
                         r_id = agent.get("regionId")
                         if r_id:
                             visible_enemies.append(r_id)
-            if visible_enemies:
-                path = find_shortest_path(frame_data, visible_enemies)
-                if path and len(path) > 1:
-                    next_region_id = path[1]
-                    self.memory.last_target_id = None
-                    self.memory.last_action_type = "move"
-                    return move_payload(next_region_id, "Hunting visible player in adjacent region")
+                if visible_enemies:
+                    path = find_shortest_path(frame_data, visible_enemies)
+                    if path and len(path) > 1:
+                        next_region_id = path[1]
+                        self.memory.last_target_id = None
+                        self.memory.last_action_type = "move"
+                        return move_payload(next_region_id, "Hunting visible player in adjacent region")
         if not is_loadout_optimal:
             ruin_action = get_ruin_explore_action(frame_data)
             if ruin_action:
