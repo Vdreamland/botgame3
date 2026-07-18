@@ -217,6 +217,9 @@ class BrainDecision:
             interact_action = get_interact_action(frame_data, self.memory)
             if interact_action:
                 return interact_action
+        ruin_action = get_ruin_explore_action(frame_data)
+        if ruin_action:
+            return ruin_action
         full_curr_region = next((r for r in visible_regions if r.get("id") == current_id), current_region)
         connections_raw = full_curr_region.get("connections", [])
         connections = [c.get("id") if isinstance(c, dict) else str(c) for c in connections_raw]
@@ -261,10 +264,6 @@ class BrainDecision:
                         self.memory.last_target_id = None
                         self.memory.last_action_type = "move"
                         return move_payload(next_region_id, "Hunting visible player in adjacent region")
-        if not is_loadout_optimal:
-            ruin_action = get_ruin_explore_action(frame_data)
-            if ruin_action:
-                return ruin_action
         if move_ok and self_data.get("ep", 0) >= move_cost:
             target_regions = find_target_regions(frame_data, self.memory)
             if target_regions:
