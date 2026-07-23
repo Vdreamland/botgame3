@@ -19,12 +19,14 @@ from helpers.actions_payload import (
 )
 from ai.memory import BotMemory
 from ai.strategy.inventory_manager import analyze_inventory, get_item_to_drop, MELEE_SCORES, RANGED_SCORES, ARMOR_SCORES, is_sword_master_active
-from ai.strategy.survival_manager import get_recovery_action, get_flee_action, should_rest_for_ep
+from ai.strategy.flee_strategy import get_flee_action
+from ai.strategy.recovery_manager import get_recovery_action, should_rest_for_ep
+from ai.strategy.equipment_manager import get_equipment_action
+from ai.strategy.chase_hunt_strategy import get_chase_action, get_hunt_action
 from ai.strategy.combat_strategy import get_combat_action
 from ai.strategy.loot_strategy import get_pickup_action, get_interact_action, find_target_regions
 from ai.strategy.movement_strategy import find_shortest_path
 from ai.strategy.ruins_explore_strategy import get_ruin_explore_action
-from helpers.api_config import get_bots_config
 
 def get_weapon_attack_cost(weapon_type: str) -> int:
     w_type = weapon_type.lower().replace(" ", "_")
@@ -113,98 +115,12 @@ class BrainDecision:
             agent.get("regionId") != current_id and agent.get("hp", 0) > 0 and "Guardian" not in agent.get("name", "") and not agent.get("isGuardian", False)
             for agent in get_visible_agents(frame_data)
         )
-        eq_score = 0.0
-        if eq_type in MELEE_SCORES:
-            eq_score = float(MELEE_SCORES[eq_type])
-            if is_sm:
-                eq_score += 5.0
-            if enemy_at_dist_0:
-                eq_score += 0.1
-        elif eq_type in RANGED_SCORES:
-            eq_score = float(RANGED_SCORES[eq_type])
-            if not enemy_at_dist_0 and enemy_at_dist_range:
-                eq_score += 0.1
-        best_inv_weapon = None
-        best_inv_score = 0.0
-        melee_score = float(inv_analysis["best_melee_score"])
-        ranged_score = float(inv_analysis["best_ranged_score"])
-        if enemy_at_dist_0:
-            if melee_score > 0.0:
-                melee_score += 0.1
-            if melee_score >= ranged_score:
-                best_inv_score = melee_score
-                best_inv_weapon = inv_analysis["best_melee"]
-            else:
-                best_inv_score = ranged_score
-                best_inv_weapon = inv_analysis["best_ranged"]
-        elif enemy_at_dist_range:
-            if is_sm:
-                if melee_score >= ranged_score:
-                    best_inv_score = melee_score
-                    best_inv_weapon = inv_analysis["best_melee"]
-                else:
-                    best_inv_score = ranged_score
-                    best_inv_weapon = inv_analysis["best_ranged"]
-            else:
-                if ranged_score > 0.0:
-                    best_inv_score = ranged_score
-                    best_inv_weapon = inv_analysis["best_ranged"]
-                else:
-                    best_inv_score = melee_score
-                    best_inv_weapon = inv_analysis["best_melee"]
-        else:
-            if melee_score >= ranged_score:
-                best_inv_score = melee_score
-                best_inv_weapon = inv_analysis["best_melee"]
-            else:
-                best_inv_score = ranged_score
-                best_inv_weapon = inv_analysis["best_ranged"]
         flee_action = get_flee_action(frame_data, self.memory)
         if flee_action:
             return flee_action
-        if not eq_weapon and best_inv_weapon:
-            item_id = best_inv_weapon.get("id")
-            item_name = best_inv_weapon.get("typeId", "weapon")
-            if item_id and item_id not in self.memory.equipped_attempts:
-                self.memory.equipped_attempts.add(item_id)
-                return equip_payload(item_id, f"Equipping stronger weapon: {item_name}")
-        should_swap = False
-        if eq_weapon and best_inv_weapon:
-            best_inv_type = best_inv_weapon.get("typeId", "").lower()
-            if is_sm and eq_type in RANGED_SCORES and best_inv_type in MELEE_SCORES:
-                should_swap = True
-            elif enemy_at_dist_0 and best_inv_type in MELEE_SCORES and eq_type in RANGED_SCORES:
-                should_swap = True
-            elif not enemy_at_dist_0 and enemy_at_dist_range and best_inv_type in RANGED_SCORES and eq_type in MELEE_SCORES and not is_sm:
-                should_swap = True
-            elif best_inv_type in MELEE_SCORES and eq_type in MELEE_SCORES and MELEE_SCORES[best_inv_type] > MELEE_SCORES[eq_type]:
-                should_swap = True
-            elif best_inv_type in RANGED_SCORES and eq_type in RANGED_SCORES and RANGED_SCORES[best_inv_type] > RANGED_SCORES[eq_type]:
-                should_swap = True
-            elif not enemy_at_dist_0 and not enemy_at_dist_range:
-                best_inv_rating = float(MELEE_SCORES.get(best_inv_type, RANGED_SCORES.get(best_inv_type, 0.0)))
-                eq_rating = float(MELEE_SCORES.get(eq_type, RANGED_SCORES.get(eq_type, 0.0)))
-                if is_sm:
-                    if best_inv_type in MELEE_SCORES:
-                        best_inv_rating += 5.0
-                    if eq_type in MELEE_SCORES:
-                        eq_rating += 5.0
-                if best_inv_rating > eq_rating:
-                    should_swap = True
-        if should_swap and best_inv_weapon:
-            item_id = best_inv_weapon.get("id")
-            item_name = best_inv_weapon.get("typeId", "weapon")
-            if item_id and item_id not in self.memory.equipped_attempts:
-                self.memory.equipped_attempts.add(item_id)
-                return equip_payload(item_id, f"Equipping stronger weapon: {item_name}")
-        eq_armor_type = (eq_armor.get("typeId") or eq_armor.get("name") or "").lower().replace(" ", "_") if eq_armor else ""
-        eq_armor_score = ARMOR_SCORES.get(eq_armor_type, 0)
-        if inv_analysis["best_armor_score"] > eq_armor_score and inv_analysis["best_armor"]:
-            item_id = inv_analysis["best_armor"].get("id")
-            item_name = inv_analysis["best_armor"].get("typeId", "armor")
-            if item_id and item_id not in self.memory.equipped_attempts:
-                self.memory.equipped_attempts.add(item_id)
-                return equip_payload(item_id, f"Equipping stronger armor: {item_name}")
+        equipment_action = get_equipment_action(self_data, inv_analysis, is_sm, enemy_at_dist_0, enemy_at_dist_range, self.memory)
+        if equipment_action:
+            return equipment_action
         hp = self_data.get("hp", 0)
         emergency_threshold = 40
         if enemy_at_dist_0:
@@ -213,7 +129,7 @@ class BrainDecision:
             recovery_action = get_recovery_action(frame_data, self.memory)
             if recovery_action:
                 return recovery_action
-        has_weapon = (best_inv_score > 0.0) or (eq_score > 0.0)
+        has_weapon = (eq_weapon is not None) or (inv_analysis["best_melee_score"] > 0) or (inv_analysis["best_ranged_score"] > 0)
         pickup_action = None
         if not has_weapon and len(sim_inv) < 10:
             local_weapon = next((item for item in current_items if item.get("category", "").lower() == "weapon"), None)
@@ -286,24 +202,9 @@ class BrainDecision:
         full_curr_region = next((r for r in visible_regions if r.get("id") == current_id), current_region)
         connections_raw = full_curr_region.get("connections", [])
         connections = [c.get("id") if isinstance(c, dict) else str(c) for c in connections_raw]
-        chase_target_id = None
-        for agent in get_visible_agents(frame_data):
-            r_id = agent.get("regionId")
-            t_hp = agent.get("hp", 0)
-            if r_id in connections and 0 < t_hp <= 30:
-                name = agent.get("name", "")
-                if "Guardian" not in name and not agent.get("isGuardian", False):
-                    chase_target_id = r_id
-                    break
-        if not chase_target_id:
-            for monster in get_visible_monsters(frame_data):
-                r_id = monster.get("regionId")
-                t_hp = monster.get("hp", 0)
-                if r_id in connections and 0 < t_hp <= 15:
-                    type_id = (monster.get("type") or monster.get("typeId") or "").lower()
-                    if "guardian" not in type_id:
-                        chase_target_id = r_id
-                        break
+        chase_action = get_chase_action(frame_data, self_data, connections, self.memory)
+        if chase_action:
+            return chase_action
         available_actions = get_available_actions(frame_data)
         move_ok = available_actions.get("move", {}).get("ok", False)
         move_cost = available_actions.get("move", {}).get("cost", 2)
@@ -325,29 +226,12 @@ class BrainDecision:
                 self.memory.last_action_type = "move"
                 return move_payload(urgent_loot_region_id, "Bypassing combat to secure adjacent sMoltz")
             return combat_action
-        if move_ok and self_data.get("ep", 0) >= required_move_ep and chase_target_id:
-            self.memory.last_target_id = None
-            self.memory.last_action_type = "move"
-            return move_payload(chase_target_id, "Chasing low HP target in adjacent region")
-        if is_loadout_optimal and move_ok and self_data.get("ep", 0) >= required_move_ep:
-            visible_enemies = []
-            friendly_names = {bot["name"] for bot in get_bots_config()}
-            for agent in get_visible_agents(frame_data):
-                if agent.get("hp", 0) > 0 and agent.get("id") != self_data.get("id"):
-                    name = agent.get("name", "")
-                    if name in friendly_names:
-                        continue
-                    if "Guardian" not in name and not agent.get("isGuardian", False):
-                        r_id = agent.get("regionId")
-                        if r_id:
-                            visible_enemies.append(r_id)
-            if visible_enemies:
-                path = find_shortest_path(frame_data, visible_enemies)
-                if path and len(path) > 1:
-                    next_region_id = path[1]
-                    self.memory.last_target_id = None
-                    self.memory.last_action_type = "move"
-                    return move_payload(next_region_id, "Hunting visible player in adjacent region")
+        if move_ok and self_data.get("ep", 0) >= required_move_ep:
+            hunt_action = get_hunt_action(frame_data, self_data, is_loadout_optimal)
+            if hunt_action:
+                self.memory.last_target_id = None
+                self.memory.last_action_type = "move"
+                return hunt_action
         if move_ok and self_data.get("ep", 0) >= required_move_ep:
             target_regions = find_target_regions(frame_data, self.memory)
             if target_regions:

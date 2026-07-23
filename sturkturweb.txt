@@ -13,6 +13,11 @@
 │       ├── loot_strategy.py  
 │       ├── inventory_manager.py
 │       ├── combat_strategy.py
+│       ├── threat_detector.py
+│       ├── flee_strategy.py
+│       ├── recovery_manager.py
+│       ├── equipment_manager.py
+│       ├── chase_hunt_strategy.py
 │       └── survival_manager.py
 ├── helpers/
 │   ├── __init__.py
@@ -62,6 +67,15 @@ inventory_manager.py https://github.com/Vdreamland/botgame3/blob/master/ai/strat
 survival_manager.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/survival_manager.py
 combat_strategy.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/combat_strategy.py
 ruins_explore_strategy.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/ruins_explore_strategy.py
+threat_detector.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/threat_detector.py
+flee_strategy.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/flee_strategy.py
+recovery_manager.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/recovery_manager.py
+equipment_manager.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/equipment_manager.py
+chase_hunt_strategy.py https://github.com/Vdreamland/botgame3/blob/master/ai/strategy/chase_hunt_strategy.py
+
+
+
+
 
 /botgame3/
 .env https://github.com/Vdreamland/botgame3/blob/master/.env
