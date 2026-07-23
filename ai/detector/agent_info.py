@@ -35,4 +35,5 @@ def get_formatted_log(frame_data: Dict[str, Any]) -> str:
     armor_name = "none"
     if armor:
         armor_name = armor.get("name") if isinstance(armor, dict) else armor
-    return f"Agent Info :\nHP {stats['hp']} / EP {stats['ep']} / ATK {stats['atk']} / DEF {stats['def']} / KILLS {stats['kills']}\nWeapon : {weapon_name} | Armour : {armor_name}\nLocation Now : {details['name']} | Weather : {str(details['weather']).capitalize()} | Link : {details['links']}"
+    loc_clean = details['name'].split(" (")[0]
+    return f"Agent Info :\nHP {stats['hp']} / EP {stats['ep']} / ATK {stats['atk']} / DEF {stats['def']} / KILLS {stats['kills']}\nWeapon : {weapon_name} | Armour : {armor_name}\nLocation Now : {loc_clean} | Weather : {str(details['weather']).capitalize()} | Link : {details['links']}"
