@@ -17,6 +17,13 @@ def get_pickup_action(frame_data: Dict[str, Any], memory: Any) -> Optional[Dict[
             melee_scores[k] += 5
     inventory = self_data.get("inventory", [])
     inv_analysis = analyze_inventory(inventory, is_sm)
+    eq_weapon = self_data.get("equippedWeapon") or {}
+    eq_armor = self_data.get("equippedArmor") or {}
+    eq_w_type = eq_weapon.get("typeId", "").lower().replace(" ", "_") if isinstance(eq_weapon, dict) else ""
+    eq_a_type = eq_armor.get("typeId", "").lower().replace(" ", "_") if isinstance(eq_armor, dict) else ""
+    is_maxed_weapon = eq_w_type in ["sniper_rifle", "sniper", "katana"]
+    is_maxed_armor = eq_a_type in ["plate", "plate_armor"]
+    is_maxed_out = is_maxed_weapon and is_maxed_armor
     items = current_region.get("items", [])
     for item in items:
         item_id = item.get("id")
@@ -67,7 +74,7 @@ def get_pickup_action(frame_data: Dict[str, Any], memory: Any) -> Optional[Dict[
                 continue
             if type_id in ARMOR_SCORES and (picking_up_armor or float(ARMOR_SCORES[type_id]) < best_armor_val):
                 continue
-            if is_item_needed(item, inv_analysis, is_sm):
+            if is_item_needed(item, inv_analysis, is_sm, is_maxed_out):
                 memory.pickup_attempts.add(item_id)
                 memory.last_target_id = item_id
                 memory.last_action_type = "pickup"
@@ -83,15 +90,24 @@ def get_interact_action(frame_data: Dict[str, Any], memory: Any) -> Optional[Dic
     current_region = get_current_region(frame_data)
     if not current_region:
         return None
+    eq_weapon = self_data.get("equippedWeapon") or {}
+    eq_armor = self_data.get("equippedArmor") or {}
+    eq_w_type = eq_weapon.get("typeId", "").lower().replace(" ", "_") if isinstance(eq_weapon, dict) else ""
+    eq_a_type = eq_armor.get("typeId", "").lower().replace(" ", "_") if isinstance(eq_armor, dict) else ""
+    is_maxed_weapon = eq_w_type in ["sniper_rifle", "sniper", "katana"]
+    is_maxed_armor = eq_a_type in ["plate", "plate_armor"]
+    is_maxed_out = is_maxed_weapon and is_maxed_armor
     interactables = current_region.get("interactables", [])
     for fac in interactables:
         fac_id = fac.get("id")
         if fac_id and fac_id not in memory.failed_facilities:
             type_id = fac.get("typeId", "")
-            if type_id == "Supply Cache":
+            if type_id == "Supply Cache" and not is_maxed_out:
                 return interact_payload(fac_id, "Interacting with supply cache")
             elif type_id == "Medical Facility":
-                return interact_payload(fac_id, "Interacting with medical facility")
+                hp = self_data.get("hp", 0)
+                if hp < 100:
+                    return interact_payload(fac_id, "Interacting with medical facility")
     return None
 
 def find_target_regions(frame_data: Dict[str, Any], memory: Any) -> List[str]:
@@ -103,6 +119,13 @@ def find_target_regions(frame_data: Dict[str, Any], memory: Any) -> List[str]:
     is_sm = is_sword_master_active(self_data)
     inventory = self_data.get("inventory", [])
     inv_analysis = analyze_inventory(inventory, is_sm)
+    eq_weapon = self_data.get("equippedWeapon") or {}
+    eq_armor = self_data.get("equippedArmor") or {}
+    eq_w_type = eq_weapon.get("typeId", "").lower().replace(" ", "_") if isinstance(eq_weapon, dict) else ""
+    eq_a_type = eq_armor.get("typeId", "").lower().replace(" ", "_") if isinstance(eq_armor, dict) else ""
+    is_maxed_weapon = eq_w_type in ["sniper_rifle", "sniper", "katana"]
+    is_maxed_armor = eq_a_type in ["plate", "plate_armor"]
+    is_maxed_out = is_maxed_weapon and is_maxed_armor
     target_regions = []
     for r in get_visible_regions(frame_data):
         r_id = r.get("id")
@@ -116,7 +139,7 @@ def find_target_regions(frame_data: Dict[str, Any], memory: Any) -> List[str]:
             if has_smoltz:
                 target_regions.append(r_id)
                 continue
-            has_needed_item = any(is_item_needed(item, inv_analysis, is_sm) and item.get("id") not in memory.failed_items for item in items)
+            has_needed_item = any(is_item_needed(item, inv_analysis, is_sm, is_maxed_out) and item.get("id") not in memory.failed_items for item in items)
             if has_needed_item:
                 target_regions.append(r_id)
                 continue

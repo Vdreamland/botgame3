@@ -179,7 +179,7 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
                         has_easy_kill = True
                         break
                 else:
-                    if t_hp <= est_dmg or t_hp <= 25 or (turns_to_kill_them <= 3 and turns_to_kill_them <= turns_to_kill_us):
+                    if est_dmg > 0 and (t_hp <= est_dmg or turns_to_kill_them <= turns_to_kill_us):
                         has_easy_kill = True
                         break
     if not has_easy_kill:
@@ -199,7 +199,7 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
                             has_easy_kill = True
                             break
                     else:
-                        if t_hp <= est_dmg or (turns_to_kill_them <= 3 and turns_to_kill_them <= turns_to_kill_us):
+                        if est_dmg > 0 and (t_hp <= est_dmg or turns_to_kill_them <= turns_to_kill_us):
                             has_easy_kill = True
                             break
     if has_easy_kill:

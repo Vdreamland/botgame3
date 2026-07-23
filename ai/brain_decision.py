@@ -26,6 +26,14 @@ from ai.strategy.movement_strategy import find_shortest_path
 from ai.strategy.ruins_explore_strategy import get_ruin_explore_action
 from helpers.api_config import get_bots_config
 
+def get_weapon_attack_cost(weapon_type: str) -> int:
+    w_type = weapon_type.lower().replace(" ", "_")
+    if w_type in ["sniper_rifle", "sniper", "katana"]:
+        return 3
+    elif w_type in ["pistol", "sword"]:
+        return 2
+    return 1
+
 class BrainDecision:
     def __init__(self):
         self.memory = BotMemory()
@@ -222,6 +230,41 @@ class BrainDecision:
             return pickup_action
         combat_action = get_combat_action(frame_data, self.memory)
         if combat_action:
+            is_barehanded = (not eq_weapon) or eq_type in ["none", "fist", ""]
+            can_one_hit_kill = False
+            target_id = combat_action.get("data", {}).get("targetId")
+            our_atk_raw = self_data.get("atk", 25)
+            if target_id and is_barehanded:
+                target_agent = next((a for a in get_visible_agents(frame_data) if a.get("id") == target_id), None)
+                target_monster = next((m for m in get_visible_monsters(frame_data) if m.get("id") == target_id), None)
+                t_hp = 999
+                t_def = 0
+                if target_agent:
+                    t_hp = target_agent.get("hp", 0)
+                    t_def = target_agent.get("def", 5)
+                elif target_monster:
+                    t_hp = target_monster.get("hp", 0)
+                    t_def = target_monster.get("def", 0)
+                our_dmg = max(1, our_atk_raw - t_def)
+                if t_hp <= our_dmg:
+                    can_one_hit_kill = True
+            if is_barehanded and not can_one_hit_kill:
+                has_adjacent_upgrade = False
+                full_curr_region = next((r for r in visible_regions if r.get("id") == current_id), current_region)
+                connections_raw = full_curr_region.get("connections", [])
+                connections = [c.get("id") if isinstance(c, dict) else str(c) for c in connections_raw]
+                for r in visible_regions:
+                    r_id = r.get("id")
+                    if r_id in connections and not r.get("isDeathZone", False):
+                        items = r.get("items", [])
+                        for item in items:
+                            cat = item.get("category", "").lower()
+                            if cat in ["weapon", "armor"]:
+                                has_adjacent_upgrade = True
+                                break
+                if has_adjacent_upgrade:
+                    combat_action = None
+        if combat_action:
             return combat_action
         item_to_drop_id = get_item_to_drop(inv_analysis, sim_inv)
         if item_to_drop_id and item_to_drop_id not in self.memory.drop_attempts:
@@ -264,9 +307,10 @@ class BrainDecision:
         available_actions = get_available_actions(frame_data)
         move_ok = available_actions.get("move", {}).get("ok", False)
         move_cost = available_actions.get("move", {}).get("cost", 2)
+        required_move_ep = move_cost + get_weapon_attack_cost(eq_type)
         bypass_combat_for_loot = False
         urgent_loot_region_id = None
-        if move_ok and self_data.get("ep", 0) >= move_cost:
+        if move_ok and self_data.get("ep", 0) >= required_move_ep:
             for r in visible_regions:
                 r_id = r.get("id")
                 if r_id in connections and not r.get("isDeathZone", False):
@@ -281,11 +325,11 @@ class BrainDecision:
                 self.memory.last_action_type = "move"
                 return move_payload(urgent_loot_region_id, "Bypassing combat to secure adjacent sMoltz")
             return combat_action
-        if move_ok and self_data.get("ep", 0) >= move_cost and chase_target_id:
+        if move_ok and self_data.get("ep", 0) >= required_move_ep and chase_target_id:
             self.memory.last_target_id = None
             self.memory.last_action_type = "move"
             return move_payload(chase_target_id, "Chasing low HP target in adjacent region")
-        if is_loadout_optimal and move_ok and self_data.get("ep", 0) >= move_cost:
+        if is_loadout_optimal and move_ok and self_data.get("ep", 0) >= required_move_ep:
             visible_enemies = []
             friendly_names = {bot["name"] for bot in get_bots_config()}
             for agent in get_visible_agents(frame_data):
@@ -304,7 +348,7 @@ class BrainDecision:
                     self.memory.last_target_id = None
                     self.memory.last_action_type = "move"
                     return move_payload(next_region_id, "Hunting visible player in adjacent region")
-        if move_ok and self_data.get("ep", 0) >= move_cost:
+        if move_ok and self_data.get("ep", 0) >= required_move_ep:
             target_regions = find_target_regions(frame_data, self.memory)
             if target_regions:
                 path = find_shortest_path(frame_data, target_regions)
@@ -354,12 +398,12 @@ class BrainDecision:
             next_fallback_id = safe_connections[0]
         elif active_connections:
             next_fallback_id = active_connections[0]
-        if self_data.get("ep", 0) >= move_cost and next_fallback_id:
+        if self_data.get("ep", 0) >= required_move_ep and next_fallback_id:
             self.memory.last_target_id = None
             self.memory.last_action_type = "move"
             return move_payload(next_fallback_id, "Moving to unvisited region to search")
         if should_rest_for_ep(frame_data):
             return rest_payload("Resting to recover EP")
-        if self_data.get("ep", 0) < move_cost:
+        if self_data.get("ep", 0) < required_move_ep:
             return rest_payload("Resting to recover EP")
         return explore_payload("Exploring local region")
