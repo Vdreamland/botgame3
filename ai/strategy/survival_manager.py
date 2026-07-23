@@ -28,8 +28,12 @@ def is_enemy_nearby(frame_data: Dict[str, Any], current_id: str) -> bool:
         reg_id = monster.get("regionId")
         hp = monster.get("hp", 0)
         type_id = (monster.get("type") or monster.get("typeId") or "").lower()
-        if reg_id in nearby_regions and hp > 0 and "guardian" not in type_id:
-            return True
+        if reg_id in nearby_regions and hp > 0:
+            if "guardian" in type_id:
+                if reg_id == current_id:
+                    return True
+            else:
+                return True
     return False
 
 def get_recovery_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[Dict[str, Any]]:
@@ -151,7 +155,7 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
                 threat_count += 1
     for monster in get_visible_monsters(frame_data):
         if monster.get("regionId") == current_id and monster.get("hp", 0) > 0:
-            type_id = (monster.get("type") or monster.get("typeId") or monster.get("name") or "").lower()
+            type_id = (monster.get("type") or monster.get("typeId") or "").lower()
             if "guardian" not in type_id:
                 if hp < 40:
                     threat_count += 1
@@ -201,8 +205,14 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
     if has_easy_kill:
         return None
     should_flee = False
-    is_death_zone = current_region.get("isDeathZone", False)
-    if is_death_zone and ep >= 2:
+    has_guardian_on_tile = any(
+        (monster.get("regionId") == current_id and monster.get("hp", 0) > 0 and "guardian" in (monster.get("type") or monster.get("typeId") or "").lower())
+        for monster in get_visible_monsters(frame_data)
+    )
+    alert_active = self_data.get("alertActive") or self_data.get("alert_active") or False
+    if has_guardian_on_tile and (alert_active or hp < 70):
+        should_flee = True
+    elif is_death_zone and ep >= 2:
         should_flee = True
     else:
         flee_threshold = 60
