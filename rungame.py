@@ -93,11 +93,17 @@ async def run_bot_instance(bot_config, version):
                     if msg_type == "agent_view":
                         latest_view = frame_data
                         can_act = True
-                        await log_frame_update(bot_name, frame_data)
+                        try:
+                            await log_frame_update(bot_name, frame_data)
+                        except Exception as log_err:
+                            await log_msg(bot_name, "WARN", f"Display Log Warning (Non-fatal): {str(log_err)}")
                     elif msg_type == "turn_advanced":
                         latest_view = frame_data
                         can_act = True
-                        await log_frame_update(bot_name, frame_data)
+                        try:
+                            await log_frame_update(bot_name, frame_data)
+                        except Exception as log_err:
+                            await log_msg(bot_name, "WARN", f"Display Log Warning (Non-fatal): {str(log_err)}")
                     elif msg_type == "can_act_changed":
                         can_act = frame_data.get("canAct", False)
                         if "canAct" in frame_data:
