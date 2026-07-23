@@ -9,6 +9,7 @@ from helpers.items_spec import WEAPONS
 from ai.memory import BotMemory
 from helpers.combat_controller import get_damage_dealt, estimate_turns_to_kill, evaluate_target_score
 from helpers.api_config import get_bots_config
+from helpers.strategy_brain import get_loadout_damage_multiplier
 
 def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[Dict[str, Any]]:
     self_data = get_self_agent(frame_data)
@@ -106,6 +107,7 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
     has_layer0_threat = any(t["dist"] == 0 and t["type"] == "agent" for t in targets)
     best_target = None
     best_target_score = -999999
+    dmg_mult = get_loadout_damage_multiplier(self_data)
     for t in targets:
         t_hp = t["hp"]
         t_atk = t["atk"]
@@ -113,7 +115,7 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
         t_dist = t["dist"]
         t_range = t["range"]
         is_monster = (t["type"] == "monster")
-        our_dmg = get_damage_dealt(our_atk, t_def, weather_mod)
+        our_dmg = get_damage_dealt(our_atk, t_def, weather_mod, dmg_mult)
         enemy_dmg = get_damage_dealt(t_atk, our_def, weather_mod) if (t_range - 1) >= t_dist else 0
         if our_dmg < t_hp and our_hp < 40 and enemy_dmg >= our_hp:
             continue
@@ -134,7 +136,7 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
         score = evaluate_target_score(our_hp, our_dmg, t_hp, enemy_dmg, False)
         if is_monster:
             score -= 3.0
-        score -= t_dist * 2.0
+            score -= t_dist * 2.0
         if our_range > t_range:
             score += 10.0
         if our_dmg > enemy_dmg:
@@ -152,7 +154,7 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
             best_target_score = score
             best_target = t
     if best_target:
-        our_dmg = get_damage_dealt(our_atk, best_target["def"], weather_mod)
+        our_dmg = get_damage_dealt(our_atk, best_target["def"], weather_mod, dmg_mult)
         turns_to_kill_enemy = estimate_turns_to_kill(best_target["hp"], our_dmg)
         if best_target_score >= -50.0 or best_target["hp"] < 30 or turns_to_kill_enemy <= 2:
             memory.last_target_id = best_target["id"]

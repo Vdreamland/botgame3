@@ -2,7 +2,7 @@ from typing import Dict, Any, Optional
 from ai.memory import BotMemory
 from helpers.items_spec import WEAPONS
 from helpers.game_constants import WEATHER_MODIFIERS
-from helpers.strategy_brain import calculate_final_damage
+from helpers.strategy_brain import calculate_final_damage, get_loadout_damage_multiplier
 from helpers.api_config import get_bots_config
 
 def is_enemy_nearby(frame_data: Dict[str, Any], current_id: str) -> bool:
@@ -155,6 +155,7 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
             if "guardian" not in type_id:
                 threat_count += 1
     has_easy_kill = False
+    dmg_mult = get_loadout_damage_multiplier(self_data)
     for agent in get_visible_agents(frame_data):
         if agent.get("regionId") == current_id and agent.get("hp", 0) > 0 and agent.get("id") != self_data.get("id"):
             name = agent.get("name", "")
@@ -163,7 +164,7 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
             if "Guardian" not in name and not agent.get("isGuardian", False):
                 t_hp = agent.get("hp", 0)
                 t_def = agent.get("def", 5)
-                est_dmg = calculate_final_damage(our_atk, best_w_bonus, t_def, weather_mod)
+                est_dmg = calculate_final_damage(our_atk, best_w_bonus, t_def, weather_mod, dmg_mult)
                 enemy_atk = agent.get("atk", 25)
                 enemy_dmg = calculate_final_damage(enemy_atk, 0, our_def, weather_mod)
                 turns_to_kill_them = (t_hp + est_dmg - 1) // est_dmg if est_dmg > 0 else 999
@@ -183,7 +184,7 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
                 if "guardian" not in type_id:
                     t_hp = monster.get("hp", 0)
                     t_def = monster.get("def", 5)
-                    est_dmg = calculate_final_damage(our_atk, best_w_bonus, t_def, weather_mod)
+                    est_dmg = calculate_final_damage(our_atk, best_w_bonus, t_def, weather_mod, dmg_mult)
                     m_atk = monster.get("atk", 10)
                     enemy_dmg = calculate_final_damage(m_atk, 0, our_def, weather_mod)
                     turns_to_kill_them = (t_hp + est_dmg - 1) // est_dmg if est_dmg > 0 else 999
