@@ -62,7 +62,7 @@ class BrainDecision:
         current_item_ids = {item.get("id") for item in current_items if item.get("id")}
         current_fac_ids = {fac.get("id") for fac in current_interactables if fac.get("id")}
         current_enemy_ids = {a.get("id") for a in get_visible_agents(frame_data) if a.get("id")} | {m.get("id") for m in get_visible_monsters(frame_data) if m.get("id")}
-        self.memory.track_action_failure(current_item_ids, current_fac_ids, current_enemy_ids)
+        self.memory.track_action_failure(current_item_ids, current_fac_ids, current_enemy_ids, turn)
         if not hasattr(self.memory, "known_death_zones"):
             self.memory.known_death_zones = set()
         visible_regions = get_visible_regions(frame_data)
