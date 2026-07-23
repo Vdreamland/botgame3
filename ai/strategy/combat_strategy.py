@@ -80,7 +80,7 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
     for monster in get_visible_monsters(frame_data):
         r_id = monster.get("regionId")
         if r_id in distances and distances[r_id] <= (our_range - 1) and monster.get("hp", 0) > 0:
-            if distances[r_id] > 0:
+            if distances[r_id] > 1:
                 continue
             monster_id = monster.get("id")
             if monster_id in memory.failed_attacks:
@@ -104,6 +104,7 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
     if not targets:
         return None
     has_layer0_threat = any(t["dist"] == 0 and t["type"] == "agent" for t in targets)
+    has_player_targets = any(t["type"] == "agent" for t in targets)
     best_target = None
     best_target_score = -999999
     dmg_mult = get_loadout_damage_multiplier(self_data)
@@ -136,6 +137,8 @@ def get_combat_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional
         if is_monster:
             score -= 3.0
             score -= t_dist * 2.0
+            if has_player_targets:
+                score -= 10000.0
         if our_range > t_range:
             score += 10.0
         if our_dmg > enemy_dmg:

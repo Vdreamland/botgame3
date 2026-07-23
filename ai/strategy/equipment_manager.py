@@ -58,10 +58,16 @@ def get_equipment_action(
     should_swap = False
     if eq_weapon and best_inv_weapon:
         best_inv_type = best_inv_weapon.get("typeId", "").lower()
-        if is_sm and eq_type in RANGED_SCORES and best_inv_type in MELEE_SCORES:
+        if enemy_at_dist_0 and best_inv_type in MELEE_SCORES and eq_type in RANGED_SCORES:
+            from helpers.items_spec import WEAPONS
+            inv_atk = WEAPONS.get(best_inv_type, {}).get("atk_bonus", 0)
+            eq_atk = WEAPONS.get(eq_type, {}).get("atk_bonus", 0)
+            if inv_atk > eq_atk:
+                should_swap = True
+        elif is_sm and eq_type in RANGED_SCORES and best_inv_type in MELEE_SCORES:
             should_swap = True
-        elif enemy_at_dist_0 and best_inv_type in MELEE_SCORES and eq_type in RANGED_SCORES:
-            should_swap = True
+        elif enemy_at_dist_0 and best_inv_type in MELEE_SCORES and eq_type in RANGED_SCORES and not should_swap:
+            pass
         elif not enemy_at_dist_0 and enemy_at_dist_range and best_inv_type in RANGED_SCORES and eq_type in MELEE_SCORES and not is_sm:
             should_swap = True
         elif best_inv_type in MELEE_SCORES and eq_type in MELEE_SCORES and MELEE_SCORES[best_inv_type] > MELEE_SCORES[eq_type]:
