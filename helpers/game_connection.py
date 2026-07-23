@@ -25,8 +25,7 @@ async def connect_and_join_room(
         websocket = await websockets.connect(
             ws_url,
             additional_headers=headers,
-            ping_interval=15,
-            ping_timeout=30
+            ping_interval=None
         )
         
         welcome_msg = await websocket.recv()
@@ -106,8 +105,7 @@ async def connect_and_resume_game(
         websocket = await websockets.connect(
             ws_url,
             additional_headers=headers,
-            ping_interval=15,
-            ping_timeout=30
+            ping_interval=None
         )
         await log_callback("SUCCESS", "Successfully reconnected to active arena! Listening to game updates...")
         return websocket
