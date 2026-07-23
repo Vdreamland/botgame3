@@ -29,7 +29,7 @@ def get_pickup_action(frame_data: Dict[str, Any], memory: Any) -> Optional[Dict[
         item_id = item.get("id")
         if item_id and item_id not in memory.failed_items and item_id not in memory.pickup_attempts:
             type_id = item.get("typeId", "").lower().replace(" ", "_")
-            if type_id in ["smoltz", "moltz"]:
+            if type_id in ["smoltz", "moltz", "reward1", "reward2", "reward3", "reward_1", "reward_2", "reward_3"]:
                 memory.pickup_attempts.add(item_id)
                 memory.last_target_id = item_id
                 memory.last_action_type = "pickup"
@@ -66,7 +66,7 @@ def get_pickup_action(frame_data: Dict[str, Any], memory: Any) -> Optional[Dict[
         item_id = item.get("id")
         if item_id and item_id not in memory.failed_items and item_id not in memory.pickup_attempts and item_id not in memory.drop_attempts:
             type_id = item.get("typeId", "").lower().replace(" ", "_")
-            if type_id in ["smoltz", "moltz"]:
+            if type_id in ["smoltz", "moltz", "reward1", "reward2", "reward3", "reward_1", "reward_2", "reward_3"]:
                 continue
             if type_id in melee_scores and (picking_up_melee or float(melee_scores[type_id]) < best_melee_val):
                 continue
@@ -133,7 +133,7 @@ def find_target_regions(frame_data: Dict[str, Any], memory: Any) -> List[str]:
             if r.get("isDeathZone", False):
                 continue
             items = r.get("items", [])
-            has_smoltz = any(item.get("typeId", "").lower() in ["smoltz", "moltz"] for item in items)
+            has_smoltz = any(item.get("typeId", "").lower() in ["smoltz", "moltz", "reward1", "reward2", "reward3"] for item in items)
             if r_id in memory.move_history and not has_smoltz:
                 continue
             if has_smoltz:
