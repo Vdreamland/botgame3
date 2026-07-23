@@ -87,6 +87,25 @@ combat_controller.py https://github.com/Vdreamland/botgame3/blob/master/helpers/
 automation_scheduler.py
 
 
+doccs :
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /botgame3/
 game_logs.py
