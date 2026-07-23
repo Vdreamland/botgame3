@@ -18,7 +18,7 @@ from helpers.actions_payload import (
     pickup_payload
 )
 from ai.memory import BotMemory
-from ai.strategy.inventory_manager import analyze_inventory, get_item_to_drop, MELEE_SCORES, RANGED_SCORES, ARMOR_SCORES
+from ai.strategy.inventory_manager import analyze_inventory, get_item_to_drop, MELEE_SCORES, RANGED_SCORES, ARMOR_SCORES, is_sword_master_active
 from ai.strategy.survival_manager import get_recovery_action, get_flee_action, should_rest_for_ep
 from ai.strategy.combat_strategy import get_combat_action
 from ai.strategy.loot_strategy import get_pickup_action, get_interact_action, find_target_regions
@@ -78,7 +78,8 @@ class BrainDecision:
                 if not any(x.get("id") == i_id for x in sim_inv):
                     sim_inv.append(item)
         sim_inv = [x for x in sim_inv if x.get("id") not in self.memory.drop_attempts]
-        inv_analysis = analyze_inventory(sim_inv)
+        is_sm = is_sword_master_active(self_data)
+        inv_analysis = analyze_inventory(sim_inv, is_sm)
         eq_weapon = self_data.get("equippedWeapon")
         eq_armor = self_data.get("equippedArmor")
         has_good_weapon = False
@@ -107,6 +108,8 @@ class BrainDecision:
         eq_score = 0.0
         if eq_type in MELEE_SCORES:
             eq_score = float(MELEE_SCORES[eq_type])
+            if is_sm:
+                eq_score += 5.0
             if enemy_at_dist_0:
                 eq_score += 0.1
         elif eq_type in RANGED_SCORES:
@@ -127,12 +130,20 @@ class BrainDecision:
                 best_inv_score = ranged_score
                 best_inv_weapon = inv_analysis["best_ranged"]
         elif enemy_at_dist_range:
-            if ranged_score > 0.0:
-                best_inv_score = ranged_score
-                best_inv_weapon = inv_analysis["best_ranged"]
+            if is_sm:
+                if melee_score >= ranged_score:
+                    best_inv_score = melee_score
+                    best_inv_weapon = inv_analysis["best_melee"]
+                else:
+                    best_inv_score = ranged_score
+                    best_inv_weapon = inv_analysis["best_ranged"]
             else:
-                best_inv_score = melee_score
-                best_inv_weapon = inv_analysis["best_melee"]
+                if ranged_score > 0.0:
+                    best_inv_score = ranged_score
+                    best_inv_weapon = inv_analysis["best_ranged"]
+                else:
+                    best_inv_score = melee_score
+                    best_inv_weapon = inv_analysis["best_melee"]
         else:
             if melee_score >= ranged_score:
                 best_inv_score = melee_score
@@ -152,9 +163,11 @@ class BrainDecision:
         should_swap = False
         if eq_weapon and best_inv_weapon:
             best_inv_type = best_inv_weapon.get("typeId", "").lower()
-            if enemy_at_dist_0 and best_inv_type in MELEE_SCORES and eq_type in RANGED_SCORES:
+            if is_sm and eq_type in RANGED_SCORES and best_inv_type in MELEE_SCORES:
                 should_swap = True
-            elif not enemy_at_dist_0 and enemy_at_dist_range and best_inv_type in RANGED_SCORES and eq_type in MELEE_SCORES:
+            elif enemy_at_dist_0 and best_inv_type in MELEE_SCORES and eq_type in RANGED_SCORES:
+                should_swap = True
+            elif not enemy_at_dist_0 and enemy_at_dist_range and best_inv_type in RANGED_SCORES and eq_type in MELEE_SCORES and not is_sm:
                 should_swap = True
             elif best_inv_type in MELEE_SCORES and eq_type in MELEE_SCORES and MELEE_SCORES[best_inv_type] > MELEE_SCORES[eq_type]:
                 should_swap = True
@@ -163,6 +176,11 @@ class BrainDecision:
             elif not enemy_at_dist_0 and not enemy_at_dist_range:
                 best_inv_rating = float(MELEE_SCORES.get(best_inv_type, RANGED_SCORES.get(best_inv_type, 0.0)))
                 eq_rating = float(MELEE_SCORES.get(eq_type, RANGED_SCORES.get(eq_type, 0.0)))
+                if is_sm:
+                    if best_inv_type in MELEE_SCORES:
+                        best_inv_rating += 5.0
+                    if eq_type in MELEE_SCORES:
+                        eq_rating += 5.0
                 if best_inv_rating > eq_rating:
                     should_swap = True
         if should_swap and best_inv_weapon:
@@ -276,13 +294,13 @@ class BrainDecision:
                         r_id = agent.get("regionId")
                         if r_id:
                             visible_enemies.append(r_id)
-                if visible_enemies:
-                    path = find_shortest_path(frame_data, visible_enemies)
-                    if path and len(path) > 1:
-                        next_region_id = path[1]
-                        self.memory.last_target_id = None
-                        self.memory.last_action_type = "move"
-                        return move_payload(next_region_id, "Hunting visible player in adjacent region")
+            if visible_enemies:
+                path = find_shortest_path(frame_data, visible_enemies)
+                if path and len(path) > 1:
+                    next_region_id = path[1]
+                    self.memory.last_target_id = None
+                    self.memory.last_action_type = "move"
+                    return move_payload(next_region_id, "Hunting visible player in adjacent region")
         if move_ok and self_data.get("ep", 0) >= move_cost:
             target_regions = find_target_regions(frame_data, self.memory)
             if target_regions:

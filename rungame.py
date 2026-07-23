@@ -134,7 +134,19 @@ async def run_bot_instance(bot_config, version):
                 except Exception:
                     pass
             except Exception as e:
-                await log_msg(bot_name, "WARN", f"Session disconnected: {str(e)}")
+                close_code = getattr(e, "code", None)
+                if close_code is not None:
+                    from helpers.errors_handler import get_reconnection_strategy
+                    should_retry, backoff = get_reconnection_strategy(close_code)
+                    if close_code == 4030:
+                        await log_msg(bot_name, "WARN", f"WEB SESSION ACTIVE: Owner has taken control. Bot is backing off for {backoff} seconds...")
+                        await asyncio.sleep(backoff)
+                    else:
+                        await log_msg(bot_name, "WARN", f"Session disconnected with code {close_code}: {str(e)}")
+                        if backoff > 0:
+                            await asyncio.sleep(backoff)
+                else:
+                    await log_msg(bot_name, "WARN", f"Session disconnected: {str(e)}")
             finally:
                 checker_task.cancel()
                 try:
@@ -159,9 +171,14 @@ async def run_bot_instance(bot_config, version):
                             await log_msg(bot_name, "SUCCESS", "Eligible to join a new match! Re-entering queue...")
                             break
                 else:
-                    print("")
-                    await log_msg(bot_name, "INFO", "Unexpected disconnection. Reconnecting to active game slot immediately...")
-                    await asyncio.sleep(2.0)
+                    close_code = getattr(e if 'e' in locals() else None, "code", None)
+                    if close_code != 4030:
+                        print("")
+                        await log_msg(bot_name, "INFO", "Unexpected disconnection. Reconnecting to active game slot immediately...")
+                        await asyncio.sleep(2.0)
+        else:
+            await log_msg(bot_name, "WARN", "Failed to establish WebSocket session. Backing off for 10 seconds...")
+            await asyncio.sleep(10.0)
 
 async def main():
     print("="*60)
@@ -177,7 +194,7 @@ async def main():
     tasks = []
     for bot_config in bots:
         tasks.append(asyncio.create_task(run_bot_instance(bot_config, version)))
-    await asyncio.sleep(2.0)
+        await asyncio.sleep(2.0)
     await asyncio.gather(*tasks)
 
 if __name__ == "__main__":

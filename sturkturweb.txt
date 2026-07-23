@@ -87,7 +87,40 @@ combat_controller.py https://github.com/Vdreamland/botgame3/blob/master/helpers/
 automation_scheduler.py
 
 
-doccs :
+docs :
+strategy.md https://github.com/Vdreamland/botgame3/blob/master/docs/game-knowledge/strategy.md
+game-guide.md https://github.com/Vdreamland/botgame3/blob/master/docs/game-guide.md
+heartbeat.md https://github.com/Vdreamland/botgame3/blob/master/docs/heartbeat.md
+agent-memory.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/agent-memory.md
+actions.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/actions.md
+agent-token.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/agent-token.md
+api-summary.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/api-summary.md
+changelog.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/changelog.md
+combat-items.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/combat-items.md
+contracts.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/contracts.md
+economy.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/economy.md
+errors.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/errors.md
+free-games.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/free-games.md
+game-loop.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/game-loop.md
+game-systems.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/game-systems.md
+gotchas.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/gotchas.md
+identity.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/identity.md
+limits.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/limits.md
+marketplace.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/marketplace.md
+owner-guidance.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/owner-guidance.md
+paid-games.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/paid-games.md
+preseason1-quests.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/preseason1-quests.md
+reforge.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/reforge.md
+runtime-modes.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/runtime-modes.md
+sc-wallet-policy.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/sc-wallet-policy.md
+setup.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/setup.md
+shop.md https://github.com/Vdreamland/botgame3/blob/master/docs/references/shop.md
+cross-forge-trade.md https://github.com/Vdreamland/botgame3/blob/master/docs/cross-forge-trade.md
+forge-token-deployer.md https://github.com/Vdreamland/botgame3/blob/master/docs/forge-token-deployer.md
+
+skill.md https://github.com/Vdreamland/botgame3/blob/master/docs/skill.md
+x402-quickstart.md https://github.com/Vdreamland/botgame3/blob/master/docs/x402-quickstart.md
+x402-skill.md https://github.com/Vdreamland/botgame3/blob/master/docs/x402-skill.md
 
 
 
