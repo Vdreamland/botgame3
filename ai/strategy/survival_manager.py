@@ -204,6 +204,7 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
                             break
     if has_easy_kill:
         return None
+    is_death_zone = current_region.get("isDeathZone", False) or current_region.get("is_death_zone", False)
     should_flee = False
     has_guardian_on_tile = any(
         (monster.get("regionId") == current_id and monster.get("hp", 0) > 0 and "guardian" in (monster.get("type") or monster.get("typeId") or "").lower())
@@ -267,7 +268,7 @@ def should_rest_for_ep(frame_data: Dict[str, Any]) -> bool:
     if not self_data or not current_region:
         return False
     ep = self_data.get("ep", 0)
-    is_death_zone = current_region.get("isDeathZone", False)
+    is_death_zone = current_region.get("isDeathZone", False) or current_region.get("is_death_zone", False)
     available_actions = get_available_actions(frame_data)
     attack_cost = available_actions.get("attack", {}).get("cost", 1)
     if ep < attack_cost and not is_death_zone:
