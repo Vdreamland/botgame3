@@ -30,7 +30,7 @@ def get_loadout_damage_multiplier(self_data: Dict[str, Any]) -> float:
             if isinstance(pack, dict):
                 rolled_params = pack.get("rolledParams") or pack.get("rolled_params") or {}
                 if isinstance(rolled_params, dict):
-                    dmg_mult = rolled_params.get("dmg_mult") or rolled_params.get("dmgMult")
+                    dmg_mult = rolled_params.get("dmgMultiplier") or rolled_params.get("dmg_multiplier")
                     if dmg_mult is not None:
                         try:
                             mult *= float(dmg_mult)

@@ -20,13 +20,11 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
     inventory = self_data.get("inventory", [])
     eq_weapon = self_data.get("equippedWeapon")
     best_w_bonus = 0
-    if eq_weapon:
-        eq_w_type = (eq_weapon.get("typeId") or eq_weapon.get("name") or "").lower().replace(" ", "_")
-        best_w_bonus = WEAPONS.get(eq_w_type, {}).get("atk_bonus", 0)
-    for item in inventory:
-        if item.get("category", "").lower() == "weapon":
-            w_type = item.get("typeId", "").lower().replace(" ", "_")
-            best_w_bonus = max(best_w_bonus, WEAPONS.get(w_type, {}).get("atk_bonus", 0))
+    if not eq_weapon:
+        for item in inventory:
+            if item.get("category", "").lower() == "weapon":
+                w_type = item.get("typeId", "").lower().replace(" ", "_")
+                best_w_bonus = max(best_w_bonus, WEAPONS.get(w_type, {}).get("atk_bonus", 0))
     our_atk = self_data.get("atk", 25)
     our_def = self_data.get("def", 5)
     weather = current_region.get("weather", "clear") if current_region else "clear"
@@ -83,7 +81,6 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
                     turns_to_kill_us = (hp + enemy_dmg - 1) // enemy_dmg if enemy_dmg > 0 else 999
                     if threat_count >= 2:
                         if t_hp <= est_dmg:
-                            has_easy_kill = True
                             break
                     else:
                         if est_dmg > 0 and (t_hp <= est_dmg or turns_to_kill_them <= turns_to_kill_us):
