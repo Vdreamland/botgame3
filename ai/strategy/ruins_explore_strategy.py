@@ -13,10 +13,11 @@ def get_ruin_explore_action(frame_data: Dict[str, Any]) -> Optional[Dict[str, An
     current_region = get_current_region(frame_data)
     if not current_region:
         return None
-    terrain = current_region.get("terrain", "").lower()
-    if terrain != "ruins":
+    gauge = current_region.get("ruinGauge")
+    if gauge is None:
+        gauge = current_region.get("ruin_gauge")
+    if gauge is None:
         return None
-    gauge = current_region.get("ruinGauge") or current_region.get("ruin_gauge") or 0
     occupied = current_region.get("ruinOccupant") or current_region.get("ruin_occupant")
     if gauge >= 3:
         return None
