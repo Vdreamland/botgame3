@@ -27,7 +27,7 @@ def is_enemy_nearby(frame_data: Dict[str, Any], current_id: str) -> bool:
     for monster in get_visible_monsters(frame_data):
         reg_id = monster.get("regionId")
         hp = monster.get("hp", 0)
-        type_id = (monster.get("type") or monster.get("typeId") or monster.get("name") or "").lower()
+        type_id = (monster.get("type") or monster.get("typeId") or "").lower()
         if reg_id in nearby_regions and hp > 0 and "guardian" not in type_id:
             return True
     return False
@@ -153,7 +153,8 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
         if monster.get("regionId") == current_id and monster.get("hp", 0) > 0:
             type_id = (monster.get("type") or monster.get("typeId") or monster.get("name") or "").lower()
             if "guardian" not in type_id:
-                threat_count += 1
+                if hp < 40:
+                    threat_count += 1
     has_easy_kill = False
     dmg_mult = get_loadout_damage_multiplier(self_data)
     for agent in get_visible_agents(frame_data):
@@ -180,7 +181,7 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
     if not has_easy_kill:
         for monster in get_visible_monsters(frame_data):
             if monster.get("regionId") == current_id and monster.get("hp", 0) > 0:
-                type_id = (monster.get("type") or monster.get("typeId") or monster.get("name") or "").lower()
+                type_id = (monster.get("type") or monster.get("typeId") or "").lower()
                 if "guardian" not in type_id:
                     t_hp = monster.get("hp", 0)
                     t_def = monster.get("def", 5)
@@ -227,7 +228,7 @@ def get_flee_action(frame_data: Dict[str, Any], memory: BotMemory) -> Optional[D
                 region_threat_counts[reg_id] += 1
         for monster in get_visible_monsters(frame_data):
             reg_id = monster.get("regionId")
-            type_id = (monster.get("type") or monster.get("typeId") or monster.get("name") or "").lower()
+            type_id = (monster.get("type") or monster.get("typeId") or "").lower()
             if reg_id in region_threat_counts and monster.get("hp", 0) > 0 and "guardian" not in type_id:
                 region_threat_counts[reg_id] += 1
         connections = current_region.get("connections", [])

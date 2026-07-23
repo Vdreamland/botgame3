@@ -198,7 +198,10 @@ class BrainDecision:
                 self.memory.equipped_attempts.add(item_id)
                 return equip_payload(item_id, f"Equipping stronger armor: {item_name}")
         hp = self_data.get("hp", 0)
-        if hp < 40:
+        emergency_threshold = 40
+        if enemy_at_dist_0:
+            emergency_threshold = 70
+        if hp < emergency_threshold:
             recovery_action = get_recovery_action(frame_data, self.memory)
             if recovery_action:
                 return recovery_action
