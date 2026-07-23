@@ -103,9 +103,11 @@ def analyze_inventory(inventory: List[Dict[str, Any]], is_sword_master: bool = F
         "armor_items": armor_items
     }
 
-def is_item_needed(item: Dict[str, Any], inv_analysis: Dict[str, Any], is_sword_master: bool = False) -> bool:
+def is_item_needed(item: Dict[str, Any], inv_analysis: Dict[str, Any], is_sword_master: bool = False, is_maxed_out: bool = False) -> bool:
     cat = item.get("category", "").lower()
     type_id = item.get("typeId", "").lower().replace(" ", "_")
+    if is_maxed_out and cat in ["weapon", "armor"]:
+        return False
     melee_scores = dict(MELEE_SCORES)
     if is_sword_master:
         for k in melee_scores:
